@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proofreading Tool with After the Deadline</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+        }
+        #controls {
+            width: 200px;
+            padding: 20px;
+            background-color: #e9ecef;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+        #controls button {
+            width: 100%;
+            font-size: 18px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+        }
+        #controls button:hover {
+            background-color: #0056b3;
+        }
+        #timer {
+            font-size: 24px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        #text-display {
+            font-size: 32px;
+            line-height: 1.8;
+            color: #333;
+            padding: 20px;
+            margin-left: 220px;
+            background-color: white;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            position: relative;
+        }
+        .current-word {
+            color: green;
+            background-color: #d3d3d3;
+        }
+        .reviewed-word {
+            color: blue;
+        }
+        .spelling-error {
+            background-color: yellow;
+            cursor: pointer;
+        }
+        .grammar-error {
+            background-color: orange;
+            cursor: pointer;
+        }
+        .page-break {
+            border-bottom: 2px dotted gray;
+            margin: 20px 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="controls">
+    <div id="timer">Time Spent: 00:00</div>
+    <button id="start-button" onclick="startReview()">Start Review</button>
+    <button id="resume-button" onclick="resumeReview()" style="display: none;">Resume</button>
+    <button onclick="saveState()">Save State</button>
+    <button onclick="loadState()">Load State</button>
+</div>
+
+<div id="text-display" contenteditable="true">
+    Paste your text here...
+
+    <!-- Example of MS Word page indicators (adjust these as needed for your text length) -->
+    <div class="page-break"></div>
+    Continue your text here...
+    <div class="page-break"></div>
+    Continue your text here...
+</div>
+
+<script src="path-to-afterthedeadline.js"></script>
+<script>
+    let words = [];
+    let currentIndex = 0;
+    let timerInterval;
+    let seconds = 0;
+
+    function startReview() {
+        const textDisplay = document.getElementById('text-display');
+        words = textDisplay.innerText.split(' ');
+        textDisplay.innerHTML = '';
+
+        words.forEach((word, index) => {
+            const span = document.createElement('span');
+            span.textContent = word + ' ';
+            span.id = `word-${index}`;
+            textDisplay.appendChild(span);
+        });
+
+        currentIndex = 0;
+        highlightCurrentWord();
+        startTimer();
+        document.addEventListener('keydown', handleKeyNavigation);
+        document.getElementById('start-button').style.display = 'none';
+        document.getElementById('resume-button').style.display = 'none';
+
+        // Run After the Deadline spell checker
+        runSpellCheck();
+    }
+
+    function handleKeyNavigation(event) {
+        if (event.key === 'ArrowRight') {
+            moveToNextWord();
+        } else if (event.key === 'ArrowLeft') {
+            moveToPreviousWord();
+        }
+    }
+
+    function moveToNextWord() {
+        if (currentIndex < words.length - 1) {
+            markAsReviewed();
+            currentIndex++;
+            highlightCurrentWord();
+        }
+    }
+
+    function moveToPreviousWord() {
+        if (currentIndex > 0) {
+            resetWordColor();
+            currentIndex--;
+            highlightCurrentWord();
+        }
+    }
+
+    function highlightCurrentWord() {
+        const currentWordElement = document.getElementById(`word-${currentIndex}`);
+        currentWordElement.classList.add('current-word');
+        currentWordElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function markAsReviewed() {
+        const previousWordElement = document.getElementById(`word-${currentIndex}`);
+        previousWordElement.classList.remove('current-word');
+        previousWordElement.classList.add('reviewed-word');
+    }
+
+    function resetWordColor() {
+        const currentWordElement = document.getElementById(`word-${currentIndex}`);
+        currentWordElement.classList.remove('current-word', 'reviewed-word');
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            seconds++;
+            const minutes = Math.floor(seconds / 60);
+            const displaySeconds = seconds % 60;
+            document.getElementById('timer').textContent = `Time Spent: ${String(minutes).padStart(2, '0')}:${String(displaySeconds).padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    function saveState() {
+        const state = {
+            words: words,
+            currentIndex: currentIndex,
+            timer: seconds,
+        };
+        const stateString = JSON.stringify(state);
+        const blob = new Blob([stateString], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "review-state.json";
+        link.click();
+    }
+
+    function loadState() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = e => { 
+            const file = e.target.files[0]; 
+            const reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = readerEvent => {
+                const content = readerEvent.target.result; 
+                const state = JSON.parse(content);
+                loadReviewState(state);
+            }
+        }
+        input.click();
+    }
+
+    function loadReviewState(state) {
+        words = state.words;
+        currentIndex = state.currentIndex;
+        seconds = state.timer;
+        
+        document.getElementById('text-display').innerHTML = '';
+        words.forEach((word, index) => {
+            const span = document.createElement('span');
+            span.textContent = word + ' ';
+            span.id = `word-${index}`;
+            if (index < currentIndex) {
+                span.classList.add('reviewed-word');
+            }
+            document.getElementById('text-display').appendChild(span);
+        });
+
+        highlightCurrentWord();
+        clearInterval(timerInterval);
+        startTimer();
+        document.getElementById('resume-button').style.display = 'none';
+        document.getElementById('start-button').style.display = 'none';
+    }
+
+    function resumeReview() {
+        document.addEventListener('keydown', handleKeyNavigation);
+        highlightCurrentWord();
+        document.getElementById('resume-button').style.display = 'none';
+    }
+
+    document.getElementById('text-display').addEventListener('input', () => {
+        document.removeEventListener('keydown', handleKeyNavigation);
+        document.getElementById('resume-button').style.display = 'block';
+    });
+
+    function runSpellCheck() {
+        let text = document.getElementById('text-display').innerText;
+        let atd = new AtD(); 
+
+        atd.check(text, function(result) {
+            if (result.suggestions.length > 0) {
+                result.suggestions.forEach(function(suggestion) {
+                    let wordElement = document.getElementById(`word-${suggestion.word_index}`);
+                    if (suggestion.type === 'spelling') {
+                        wordElement.classList.add('spelling-error');
+                    } else if (suggestion.type === 'grammar') {
+                        wordElement.classList.add('grammar-error');
+                    }
+
+                    wordElement.onclick = function() {
+                        alert('Suggestions: ' + suggestion.suggestions.join(', '));
+                    };
+                });
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

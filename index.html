@@ -27,6 +27,7 @@
 
       --gold:#FFE066;
       --red:#FF5A5A;
+      --orange:#FFB35A;
 
       --line: rgba(255,255,255,.10);
       --line2: rgba(255,255,255,.18);
@@ -955,7 +956,7 @@
       color: rgba(234,240,255,.70);
       margin: 0 0 6px 0;
     }
-    input[type="text"], select, textarea{
+    input[type="text"], input[type="datetime-local"], select, textarea{
       width:100%;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.14);
@@ -969,7 +970,7 @@
       position:relative;
       z-index:2;
     }
-    input[type="text"]:focus, select:focus, textarea:focus{
+    input[type="text"]:focus, input[type="datetime-local"]:focus, select:focus, textarea:focus{
       border-color: rgba(123,231,255,.30);
       box-shadow: 0 0 0 4px rgba(45,125,255,.18);
     }
@@ -980,13 +981,51 @@
       display:flex;
       gap:8px;
       align-items:center;
+      flex-wrap:wrap;
     }
-    .checkTop input{ flex:1; }
+    .checkTop input{ flex:1; min-width: 180px; }
+    .checkTop .btn{ flex: 0 0 auto; }
+    .checkMetaRow{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top: 2px;
+    }
+    .checkMetaRow .pillMini{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(234,240,255,.74);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      border-radius: 999px;
+      padding: 7px 10px;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .checkMetaRow .pillMini b{ color: rgba(234,240,255,.92); }
+    .checkMetaRow .miniInput{
+      flex: 1 1 auto;
+      min-width: 190px;
+      padding: 9px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+    .checkMetaRow select{
+      width:auto;
+      min-width: 160px;
+      border-radius: 999px;
+      padding: 9px 10px;
+      font-size: 12px;
+    }
+
     .checkList{
       display:grid;
       gap: 8px;
       margin-top: 2px;
     }
+
     .checkItem{
       display:flex;
       gap:10px;
@@ -998,18 +1037,154 @@
       font-family: var(--mono);
       font-size: 12px;
       color: rgba(234,240,255,.86);
+      position:relative;
+      overflow:hidden;
     }
+    .checkItem::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background:
+        radial-gradient(220px 70px at 25% 15%, rgba(45,125,255,.08), transparent 70%),
+        radial-gradient(240px 90px at 75% 85%, rgba(75,255,211,.05), transparent 70%);
+      opacity:.65;
+      pointer-events:none;
+    }
+    .checkItem > *{ position:relative; z-index:2; }
+
     .checkItem input[type="checkbox"]{
       width: 18px; height: 18px;
       margin-top: 2px;
       accent-color: var(--cyan);
       flex: 0 0 auto;
     }
+
+    .dragHandle{
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      flex: 0 0 auto;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor: grab;
+      opacity:.9;
+      user-select:none;
+    }
+    .dragHandle:active{ cursor: grabbing; }
+    .dots{
+      width: 10px; height: 12px;
+      background:
+        radial-gradient(circle at 2px 2px, rgba(234,240,255,.72) 1px, transparent 2px),
+        radial-gradient(circle at 8px 2px, rgba(234,240,255,.72) 1px, transparent 2px),
+        radial-gradient(circle at 2px 6px, rgba(234,240,255,.72) 1px, transparent 2px),
+        radial-gradient(circle at 8px 6px, rgba(234,240,255,.72) 1px, transparent 2px),
+        radial-gradient(circle at 2px 10px, rgba(234,240,255,.72) 1px, transparent 2px),
+        radial-gradient(circle at 8px 10px, rgba(234,240,255,.72) 1px, transparent 2px);
+      opacity:.75;
+    }
+
+    .checkMain{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    .checkLine{
+      display:flex;
+      gap: 8px;
+      align-items:flex-start;
+      min-width:0;
+    }
     .checkItem .txt{
       flex:1;
       line-height:1.25;
       word-break: break-word;
+      min-width:0;
     }
+
+    .badgeRow{
+      display:flex;
+      gap: 6px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .badge{
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(234,240,255,.80);
+      white-space:nowrap;
+    }
+    .badge.pri{
+      border-color: rgba(255,90,90,.26);
+      color: rgba(255,140,140,.95);
+      background: rgba(255,90,90,.08);
+    }
+    .badge.due{
+      border-color: rgba(215,181,109,.22);
+      color: rgba(215,181,109,.95);
+      background: rgba(215,181,109,.08);
+    }
+    .badge.overdue{
+      border-color: rgba(255,179,90,.32);
+      color: rgba(255,195,140,.98);
+      background: rgba(255,179,90,.10);
+    }
+    .badge.note{
+      border-color: rgba(123,231,255,.22);
+      color: rgba(123,231,255,.95);
+      background: rgba(45,125,255,.10);
+    }
+
+    .checkActions{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      margin-top: 2px;
+    }
+    .iconBtn{
+      border:none;
+      cursor:pointer;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 900;
+      padding: 7px 8px;
+      border-radius: 12px;
+      color: rgba(234,240,255,.86);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.14) inset;
+      transition: transform .08s ease, filter .18s ease, background .18s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .iconBtn:active{ transform: translateY(1px); }
+    .iconBtn:hover{ filter: brightness(1.05); }
+    .iconBtn.red{
+      color: rgba(255,120,120,.98);
+      border-color: rgba(255,90,90,.22);
+      background: rgba(255,90,90,.07);
+    }
+    .iconBtn.gold{
+      color: rgba(215,181,109,.98);
+      border-color: rgba(215,181,109,.22);
+      background: rgba(215,181,109,.07);
+    }
+    .iconBtn.blue{
+      color: rgba(123,231,255,.98);
+      border-color: rgba(123,231,255,.22);
+      background: rgba(45,125,255,.08);
+    }
+
     .checkItem.done{
       opacity:.68;
       border-color: rgba(255,255,255,.10);
@@ -1017,6 +1192,80 @@
     .checkItem.done .txt{
       text-decoration: line-through;
       color: rgba(183,194,230,.76);
+    }
+
+    /* Priority glow (faint red) */
+    .checkItem.priority:not(.done){
+      border-color: rgba(255,90,90,.22);
+      box-shadow:
+        0 0 0 1px rgba(255,90,90,.10) inset,
+        0 0 18px rgba(255,90,90,.10);
+      background:
+        radial-gradient(220px 70px at 18% 20%, rgba(255,90,90,.08), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+    }
+
+    /* Overdue glow (faint orange) */
+    .checkItem.overdue:not(.done){
+      border-color: rgba(255,179,90,.26);
+      box-shadow:
+        0 0 0 1px rgba(255,179,90,.12) inset,
+        0 0 22px rgba(255,179,90,.10);
+      background:
+        radial-gradient(240px 80px at 22% 18%, rgba(255,179,90,.08), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+    }
+    /* Due soon (subtle brass hint) */
+    .checkItem.duesoon:not(.done):not(.overdue){
+      border-color: rgba(215,181,109,.20);
+      box-shadow:
+        0 0 0 1px rgba(215,181,109,.10) inset,
+        0 0 16px rgba(215,181,109,.08);
+    }
+
+    .checkItem.dragging{
+      opacity:.85;
+      outline: 2px solid rgba(123,231,255,.28);
+      box-shadow: 0 0 0 6px rgba(45,125,255,.16);
+    }
+    .dropHint{
+      outline: 2px dashed rgba(123,231,255,.38);
+      outline-offset: 2px;
+    }
+
+    .inlineEditRow{
+      display:none;
+      gap:8px;
+      align-items:center;
+      margin-top: 6px;
+    }
+    .inlineEditRow.on{ display:flex; }
+    .inlineEditRow input[type="text"]{
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    .inlineEditRow textarea{
+      flex: 1;
+      min-height: 72px;
+      font-size: 12px;
+    }
+
+    .deadlineRow{
+      display:none;
+      gap:8px;
+      align-items:center;
+      margin-top: 6px;
+      flex-wrap:wrap;
+    }
+    .deadlineRow.on{ display:flex; }
+    .deadlineRow input[type="datetime-local"]{
+      flex: 1 1 220px;
+      min-width: 220px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      font-size: 12px;
     }
 
     .tinyHint{
@@ -1066,6 +1315,40 @@
       padding: 14px;
       display:grid;
       gap: 10px;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 60;
+      min-width: 280px;
+      max-width: 420px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(12,22,56,.92), rgba(10,18,48,.88));
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      padding: 12px 12px;
+      display:none;
+      gap: 10px;
+      align-items:flex-start;
+      backdrop-filter: blur(10px);
+    }
+    .toast.on{ display:flex; }
+    .toast .t{
+      flex: 1;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(234,240,255,.80);
+      line-height:1.3;
+    }
+    .toast .t b{ color: rgba(234,240,255,.95); }
+    .toast .actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex: 0 0 auto;
     }
 
     .footer{
@@ -1193,17 +1476,46 @@
           <div class="moduleHd">
             <b>Checklist</b>
             <div class="mini">
-              <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear</button>
+              <button class="btn btnGhost" id="undoBtn" type="button" title="Undo last delete/clear (Ctrl/Cmd+Z)">Undo</button>
+              <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear Done</button>
               <button class="btn btnGhost" id="exportChecklistBtn" type="button">Export</button>
             </div>
           </div>
           <div class="moduleBd">
             <div class="checkTop">
-              <input id="newItemText" type="text" placeholder="Add an agenda item…" />
+              <input id="newItemText" type="text" placeholder="Add an agenda item… (Tip: Ctrl/Cmd+P toggles priority on selected item)" />
               <button class="btn btnPrimary" id="addItemBtn" type="button">Add Item</button>
             </div>
+
+            <div class="checkMetaRow">
+              <input id="checkSearch" class="miniInput" type="text" placeholder="Search checklist…" />
+              <select id="checkFilter">
+                <option value="all">Filter: All</option>
+                <option value="open">Filter: Open</option>
+                <option value="priority">Filter: Priority</option>
+                <option value="overdue">Filter: Overdue</option>
+                <option value="dueSoon">Filter: Due soon (24h)</option>
+                <option value="done">Filter: Done</option>
+              </select>
+              <select id="checkSort">
+                <option value="manual">Sort: Manual</option>
+                <option value="priorityThenDue">Sort: Priority → Due</option>
+                <option value="dueAsc">Sort: Due (earliest)</option>
+                <option value="createdDesc">Sort: Newest</option>
+                <option value="createdAsc">Sort: Oldest</option>
+              </select>
+              <button class="btn btnGhost" id="toggleHideDoneBtn" type="button">Hide Done</button>
+              <span class="pillMini" title="Open / Priority / Overdue">
+                <b id="checkStats">0 / 0 / 0</b>
+              </span>
+            </div>
+
             <div class="checkList" id="checkList"></div>
-            <div class="tinyHint">Tip: press Enter in the field to add. Items save locally and can be exported/imported.</div>
+
+            <div class="tinyHint" id="checkHint">
+              Drag the grip to reorder (manual sort only). Priority items glow faint red. Overdue items glow faint orange.
+              Keyboard: Enter adds • Ctrl/Cmd+F focuses search • Ctrl/Cmd+Z undo • ESC exits edit.
+            </div>
           </div>
         </div>
 
@@ -1309,6 +1621,15 @@
     </div>
   </div>
 
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="t" id="toastText">—</div>
+    <div class="actions" id="toastActions">
+      <button class="iconBtn blue" id="toastUndo" type="button">UNDO</button>
+      <button class="iconBtn" id="toastClose" type="button">OK</button>
+    </div>
+  </div>
+
   <div class="footer">
     Wheel rotates the ring • Schedule + checklist saved in your browser (localStorage) • Export JSON for portability
   </div>
@@ -1331,6 +1652,15 @@
     const ring = document.getElementById("ring");
     let rotation = 0; // radians
     let targetRotation = 0;
+
+    function escapeHtml(s){
+      return String(s||"")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
 
     function buildNodes(){
       ring.querySelectorAll(".node").forEach(n => n.remove());
@@ -1533,19 +1863,11 @@
       if (parts.length !== 2) return null;
       return { start: parseTimeToMinutes(parts[0].trim()), end: parseTimeToMinutes(parts[1].trim()) };
     }
-    function escapeHtml(s){
-      return String(s||"")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
 
     /************************************************************
      * LOCAL STORAGE STATE (schedule + checklist + per-block links)
      ************************************************************/
-    const LS_KEY = "geffen_cockpit_v4";
+    const LS_KEY = "geffen_cockpit_v5";
 
     const defaultState = {
       blueAnchor: "",
@@ -1553,25 +1875,71 @@
       blocks: { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
       links:  { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
       viewDate: "",
-      checklist: [] // {id, text, done}
+      checklistPrefs: {
+        filter: "all",
+        sort: "manual",
+        hideDone: false,
+        search: ""
+      },
+      checklist: []
+      // items: { id, text, done, priority, deadline, notes, createdAt, updatedAt }
     };
 
-    function loadState(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        if (!raw) return structuredClone(defaultState);
-        const obj = JSON.parse(raw);
-        return {
-          ...structuredClone(defaultState),
-          ...obj,
-          blocks: { ...structuredClone(defaultState.blocks), ...(obj.blocks||{}) },
-          links:  { ...structuredClone(defaultState.links),  ...(obj.links||{}) },
-          checklist: Array.isArray(obj.checklist) ? obj.checklist : []
-        };
-      }catch(e){
-        return structuredClone(defaultState);
+    function structured(obj){ return (typeof structuredClone === "function") ? structuredClone(obj) : JSON.parse(JSON.stringify(obj)); }
+
+    function loadAnyState(){
+      // Try v5, then v4 (your prior key), then fallback.
+      const tryKeys = [LS_KEY, "geffen_cockpit_v4"];
+      for (const k of tryKeys){
+        try{
+          const raw = localStorage.getItem(k);
+          if (!raw) continue;
+          const obj = JSON.parse(raw);
+          return { key:k, obj };
+        }catch(e){}
       }
+      return { key:null, obj:null };
     }
+
+    function migrateChecklistItems(list){
+      const now = Date.now();
+      if (!Array.isArray(list)) return [];
+      return list.map(it => {
+        // v4: {id,text,done}
+        return {
+          id: String(it.id || uid()),
+          text: String(it.text || "").trim(),
+          done: !!it.done,
+          priority: !!it.priority,
+          deadline: it.deadline ? String(it.deadline) : "",
+          notes: it.notes ? String(it.notes) : "",
+          createdAt: Number(it.createdAt || now),
+          updatedAt: Number(it.updatedAt || now)
+        };
+      }).filter(it => it.text.length > 0);
+    }
+
+    function loadState(){
+      const found = loadAnyState();
+      if (!found.obj) return structured(defaultState);
+
+      const obj = found.obj;
+      const merged = {
+        ...structured(defaultState),
+        ...obj,
+        blocks: { ...structured(defaultState.blocks), ...(obj.blocks||{}) },
+        links:  { ...structured(defaultState.links),  ...(obj.links||{}) },
+        checklistPrefs: { ...structured(defaultState.checklistPrefs), ...(obj.checklistPrefs||{}) },
+        checklist: migrateChecklistItems(obj.checklist)
+      };
+
+      // If we loaded v4, persist into v5 so future loads are clean.
+      try{
+        localStorage.setItem(LS_KEY, JSON.stringify(merged));
+      }catch(e){}
+      return merged;
+    }
+
     function saveState(){
       localStorage.setItem(LS_KEY, JSON.stringify(state));
     }
@@ -1601,6 +1969,13 @@
     const clearCheckedBtn = document.getElementById("clearCheckedBtn");
     const exportChecklistBtn = document.getElementById("exportChecklistBtn");
     const checkListEl = document.getElementById("checkList");
+    const checkSearchEl = document.getElementById("checkSearch");
+    const checkFilterEl = document.getElementById("checkFilter");
+    const checkSortEl = document.getElementById("checkSort");
+    const toggleHideDoneBtn = document.getElementById("toggleHideDoneBtn");
+    const checkStatsEl = document.getElementById("checkStats");
+    const checkHintEl = document.getElementById("checkHint");
+    const undoBtn = document.getElementById("undoBtn");
 
     // schedule setup
     const blueAnchorEl = document.getElementById("blueAnchor");
@@ -1627,6 +2002,12 @@
     const applyJsonBtn = document.getElementById("applyJsonBtn");
     const exportBtn = document.getElementById("exportBtn");
     const importBtn = document.getElementById("importBtn");
+
+    // toast
+    const toast = document.getElementById("toast");
+    const toastText = document.getElementById("toastText");
+    const toastUndo = document.getElementById("toastUndo");
+    const toastClose = document.getElementById("toastClose");
 
     function isValidISODate(s){
       return /^\d{4}-\d{2}-\d{2}$/.test(s);
@@ -1685,46 +2066,190 @@
     }
 
     /************************************************************
-     * Checklist logic (LOCAL)
+     * Checklist upgrades
+     * - reorder (drag + up/down)
+     * - priority flag (faint red glow)
+     * - deadlines (date+time) + overdue glow (faint orange)
+     *
+     * Plus additional upgrades implemented:
+     * - inline edit text
+     * - notes
+     * - delete w/ undo + clear done w/ undo
+     * - filter + search + sort modes
+     * - hide done toggle
+     * - stats pill
      ************************************************************/
     function uid(){
       return Math.random().toString(16).slice(2) + Date.now().toString(16);
     }
 
-    function renderChecklist(){
-      checkListEl.innerHTML = "";
-      if (!state.checklist.length){
-        const empty = document.createElement("div");
-        empty.className = "tinyHint";
-        empty.textContent = "No items yet. Add one above.";
-        checkListEl.appendChild(empty);
-        return;
+    function toLocalInputValueFromISO(iso){
+      // ISO could be "2026-02-23T15:30" or full Date string; normalize.
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const yyyy = d.getFullYear();
+      const mm = pad2(d.getMonth()+1);
+      const dd = pad2(d.getDate());
+      const hh = pad2(d.getHours());
+      const mi = pad2(d.getMinutes());
+      return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    }
+    function toISOFromLocalInputValue(v){
+      // v is like "2026-02-23T15:30"
+      if (!v) return "";
+      const d = new Date(v);
+      if (isNaN(d.getTime())) return "";
+      return d.toISOString();
+    }
+    function formatDueShort(iso){
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const now = new Date();
+      const sameYear = d.getFullYear() === now.getFullYear();
+      const md = `${pad2(d.getMonth()+1)}/${pad2(d.getDate())}${sameYear ? "" : ("/"+String(d.getFullYear()).slice(2))}`;
+      let h = d.getHours();
+      const am = h < 12;
+      h = h % 12; if (h === 0) h = 12;
+      const t = `${h}:${pad2(d.getMinutes())}${am ? "a" : "p"}`;
+      return `${md} ${t}`;
+    }
+    function isOverdue(item){
+      if (!item.deadline) return false;
+      if (item.done) return false;
+      const d = new Date(item.deadline);
+      if (isNaN(d.getTime())) return false;
+      return Date.now() > d.getTime();
+    }
+    function isDueSoon(item, withinHours=24){
+      if (!item.deadline) return false;
+      if (item.done) return false;
+      const d = new Date(item.deadline);
+      if (isNaN(d.getTime())) return false;
+      const dt = d.getTime() - Date.now();
+      return dt > 0 && dt <= withinHours*60*60*1000;
+    }
+
+    let lastUndo = null; // { type:"deleteOne"|"clearDone", payload, when }
+    function setUndo(obj){
+      lastUndo = obj;
+      undoBtn.disabled = !lastUndo;
+      if (undoBtn.disabled) undoBtn.style.opacity = .55;
+      else undoBtn.style.opacity = 1;
+    }
+    setUndo(null);
+
+    let toastTimer = null;
+    function showToast(message, allowUndo=true){
+      toastText.innerHTML = message;
+      toast.classList.add("on");
+      toastUndo.style.display = allowUndo ? "" : "none";
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("on");
+      }, 4200);
+    }
+    function hideToast(){
+      toast.classList.remove("on");
+      clearTimeout(toastTimer);
+    }
+    toastClose.addEventListener("click", hideToast);
+
+    function applyUndo(){
+      if (!lastUndo) return;
+      if (lastUndo.type === "deleteOne"){
+        // reinsert at original index (best effort)
+        const { item, index } = lastUndo.payload;
+        const idx = Math.max(0, Math.min(state.checklist.length, index));
+        state.checklist.splice(idx, 0, item);
+      } else if (lastUndo.type === "clearDone"){
+        // merge back: put cleared items back at their original indices in reverse order
+        const { removed } = lastUndo.payload; // array of {item,index}
+        removed
+          .slice()
+          .sort((a,b)=>a.index-b.index)
+          .forEach(({item,index})=>{
+            const idx = Math.max(0, Math.min(state.checklist.length, index));
+            state.checklist.splice(idx, 0, item);
+          });
       }
+      saveState();
+      setUndo(null);
+      renderChecklist();
+      showToast(`<b>Undo</b> restored.`, false);
+    }
 
-      state.checklist.forEach((item, idx) => {
-        const row = document.createElement("div");
-        row.className = "checkItem" + (item.done ? " done" : "");
-        row.innerHTML = `
-          <input type="checkbox" ${item.done ? "checked" : ""} aria-label="Toggle item">
-          <div class="txt"></div>
-        `;
-        row.querySelector(".txt").textContent = item.text;
+    toastUndo.addEventListener("click", () => { applyUndo(); hideToast(); });
+    undoBtn.addEventListener("click", () => applyUndo());
 
-        const cb = row.querySelector("input");
-        cb.addEventListener("change", () => {
-          state.checklist[idx].done = cb.checked;
-          saveState();
-          renderChecklist();
-        });
+    // preferences hydrate
+    function hydrateChecklistPrefsUI(){
+      checkSearchEl.value = state.checklistPrefs.search || "";
+      checkFilterEl.value = state.checklistPrefs.filter || "all";
+      checkSortEl.value = state.checklistPrefs.sort || "manual";
+      toggleHideDoneBtn.textContent = (state.checklistPrefs.hideDone ? "Show Done" : "Hide Done");
+    }
+    hydrateChecklistPrefsUI();
 
-        checkListEl.appendChild(row);
-      });
+    checkSearchEl.addEventListener("input", () => {
+      state.checklistPrefs.search = checkSearchEl.value || "";
+      saveState();
+      renderChecklist();
+    });
+    checkFilterEl.addEventListener("change", () => {
+      state.checklistPrefs.filter = checkFilterEl.value;
+      saveState();
+      renderChecklist();
+    });
+    checkSortEl.addEventListener("change", () => {
+      state.checklistPrefs.sort = checkSortEl.value;
+      saveState();
+      renderChecklist();
+    });
+    toggleHideDoneBtn.addEventListener("click", () => {
+      state.checklistPrefs.hideDone = !state.checklistPrefs.hideDone;
+      toggleHideDoneBtn.textContent = (state.checklistPrefs.hideDone ? "Show Done" : "Hide Done");
+      saveState();
+      renderChecklist();
+    });
+
+    function computeStats(){
+      const open = state.checklist.filter(it => !it.done).length;
+      const pri = state.checklist.filter(it => !it.done && it.priority).length;
+      const over = state.checklist.filter(it => isOverdue(it)).length;
+      checkStatsEl.textContent = `${open} / ${pri} / ${over}`;
+    }
+
+    function normalizeChecklistItem(it){
+      const now = Date.now();
+      return {
+        id: String(it.id || uid()),
+        text: String(it.text || "").trim(),
+        done: !!it.done,
+        priority: !!it.priority,
+        deadline: it.deadline ? String(it.deadline) : "",
+        notes: it.notes ? String(it.notes) : "",
+        createdAt: Number(it.createdAt || now),
+        updatedAt: Number(it.updatedAt || now)
+      };
     }
 
     function addChecklistItem(text){
       const t = (text || "").trim();
       if (!t) return;
-      state.checklist.unshift({ id: uid(), text: t, done: false });
+      const now = Date.now();
+      state.checklist.unshift({
+        id: uid(),
+        text: t,
+        done: false,
+        priority: false,
+        deadline: "",
+        notes: "",
+        createdAt: now,
+        updatedAt: now
+      });
       saveState();
       newItemText.value = "";
       renderChecklist();
@@ -1739,9 +2264,21 @@
     });
 
     clearCheckedBtn.addEventListener("click", ()=>{
-      state.checklist = state.checklist.filter(it => !it.done);
+      const removed = [];
+      const kept = [];
+      state.checklist.forEach((it, idx)=>{
+        if (it.done) removed.push({ item: it, index: idx });
+        else kept.push(it);
+      });
+      state.checklist = kept;
       saveState();
+      setUndo(removed.length ? { type:"clearDone", payload:{ removed }, when: Date.now() } : null);
       renderChecklist();
+      if (removed.length){
+        showToast(`<b>Cleared</b> ${removed.length} done item${removed.length===1?"":"s"}.`);
+      } else {
+        showToast(`Nothing to clear.`, false);
+      }
     });
 
     exportChecklistBtn.addEventListener("click", () => {
@@ -1749,7 +2286,388 @@
       openModal("exportChecklist");
     });
 
+    // Drag & drop reorder (manual sort only)
+    let dragId = null;
+    function canManualReorder(){
+      return (state.checklistPrefs.sort || "manual") === "manual"
+        && (state.checklistPrefs.filter || "all") === "all"
+        && !(state.checklistPrefs.search || "").trim()
+        && !state.checklistPrefs.hideDone;
+    }
+
+    function moveItemById(id, toIndex){
+      const fromIndex = state.checklist.findIndex(it => it.id === id);
+      if (fromIndex < 0) return;
+      const item = state.checklist.splice(fromIndex, 1)[0];
+      const idx = Math.max(0, Math.min(state.checklist.length, toIndex));
+      state.checklist.splice(idx, 0, item);
+      saveState();
+    }
+
+    function compareByDue(a,b){
+      const ad = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+      const bd = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+      if (ad !== bd) return ad - bd;
+      return (b.createdAt||0) - (a.createdAt||0);
+    }
+
+    function filteredSortedList(){
+      const prefs = state.checklistPrefs || {};
+      const q = (prefs.search || "").trim().toLowerCase();
+      const filter = prefs.filter || "all";
+      const sort = prefs.sort || "manual";
+      const hideDone = !!prefs.hideDone;
+
+      let list = state.checklist.slice().map(normalizeChecklistItem);
+
+      if (hideDone) list = list.filter(it => !it.done);
+
+      if (q){
+        list = list.filter(it => {
+          const hay = `${it.text} ${it.notes||""}`.toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      if (filter === "open") list = list.filter(it => !it.done);
+      else if (filter === "done") list = list.filter(it => it.done);
+      else if (filter === "priority") list = list.filter(it => !it.done && it.priority);
+      else if (filter === "overdue") list = list.filter(it => isOverdue(it));
+      else if (filter === "dueSoon") list = list.filter(it => isDueSoon(it, 24));
+
+      if (sort === "dueAsc"){
+        list.sort((a,b)=> compareByDue(a,b));
+      } else if (sort === "priorityThenDue"){
+        list.sort((a,b)=>{
+          const ap = (!a.done && a.priority) ? 1 : 0;
+          const bp = (!b.done && b.priority) ? 1 : 0;
+          if (ap !== bp) return bp - ap;
+          return compareByDue(a,b);
+        });
+      } else if (sort === "createdDesc"){
+        list.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+      } else if (sort === "createdAsc"){
+        list.sort((a,b)=> (a.createdAt||0) - (b.createdAt||0));
+      } // manual: keep as-is
+
+      return list;
+    }
+
+    function updateChecklistHint(){
+      const ok = canManualReorder();
+      checkHintEl.innerHTML = ok
+        ? `Drag the grip to reorder. Priority items glow faint red. Overdue items glow faint orange.`
+          + ` Keyboard: Enter adds • Ctrl/Cmd+F focuses search • Ctrl/Cmd+Z undo • ESC exits edit.`
+        : `Reorder is available only when <b>Sort: Manual</b>, <b>Filter: All</b>, Search is empty, and Done is visible.`
+          + ` (This prevents accidental reordering in a filtered view.)`;
+    }
+
+    function renderChecklist(){
+      computeStats();
+      updateChecklistHint();
+
+      checkListEl.innerHTML = "";
+      const view = filteredSortedList();
+      if (!view.length){
+        const empty = document.createElement("div");
+        empty.className = "tinyHint";
+        empty.textContent = state.checklist.length ? "No matches (adjust filter/search)." : "No items yet. Add one above.";
+        checkListEl.appendChild(empty);
+        return;
+      }
+
+      const manualOk = canManualReorder();
+
+      // Map from id -> absolute index in base list (needed for undo + moves)
+      const baseIndex = new Map();
+      state.checklist.forEach((it, idx)=> baseIndex.set(it.id, idx));
+
+      view.forEach((item) => {
+        const overdue = isOverdue(item);
+        const dueSoon = isDueSoon(item, 24);
+
+        const row = document.createElement("div");
+        row.className =
+          "checkItem"
+          + (item.done ? " done" : "")
+          + (item.priority ? " priority" : "")
+          + (overdue ? " overdue" : "")
+          + (!overdue && dueSoon ? " duesoon" : "");
+
+        row.draggable = manualOk;
+        row.dataset.id = item.id;
+
+        const dueLabel = item.deadline ? formatDueShort(item.deadline) : "";
+        const hasNote = (item.notes || "").trim().length > 0;
+
+        row.innerHTML = `
+          <div class="dragHandle" title="${manualOk ? "Drag to reorder" : "Reorder locked (change filter/sort)"}" aria-hidden="true">
+            <div class="dots"></div>
+          </div>
+          <input type="checkbox" ${item.done ? "checked" : ""} aria-label="Toggle item">
+          <div class="checkMain">
+            <div class="checkLine">
+              <div class="txt"></div>
+              <div class="checkActions">
+                <button class="iconBtn red" data-act="priority" type="button" title="Toggle priority">PRI</button>
+                <button class="iconBtn gold" data-act="deadline" type="button" title="Set deadline">DUE</button>
+                <button class="iconBtn blue" data-act="note" type="button" title="Add note">NOTE</button>
+                <button class="iconBtn" data-act="edit" type="button" title="Edit text">EDIT</button>
+                <button class="iconBtn red" data-act="del" type="button" title="Delete">DEL</button>
+              </div>
+            </div>
+            <div class="badgeRow">
+              ${item.priority && !item.done ? `<span class="badge pri">PRIORITY</span>` : ``}
+              ${dueLabel && !overdue ? `<span class="badge due">DUE ${escapeHtml(dueLabel)}</span>` : ``}
+              ${dueLabel && overdue ? `<span class="badge overdue">OVERDUE ${escapeHtml(dueLabel)}</span>` : ``}
+              ${hasNote ? `<span class="badge note">NOTE</span>` : ``}
+            </div>
+
+            <div class="deadlineRow" data-row="deadline">
+              <input type="datetime-local" value="${escapeHtml(toLocalInputValueFromISO(item.deadline))}">
+              <button class="iconBtn gold" data-act="saveDeadline" type="button">SAVE</button>
+              <button class="iconBtn" data-act="clearDeadline" type="button">CLEAR</button>
+              <button class="iconBtn" data-act="cancelDeadline" type="button">CLOSE</button>
+            </div>
+
+            <div class="inlineEditRow" data-row="edit">
+              <input type="text" value="${escapeHtml(item.text)}" />
+              <button class="iconBtn blue" data-act="saveEdit" type="button">SAVE</button>
+              <button class="iconBtn" data-act="cancelEdit" type="button">CLOSE</button>
+            </div>
+
+            <div class="inlineEditRow" data-row="note">
+              <textarea placeholder="Notes (optional)…">${escapeHtml(item.notes||"")}</textarea>
+              <button class="iconBtn blue" data-act="saveNote" type="button">SAVE</button>
+              <button class="iconBtn" data-act="cancelNote" type="button">CLOSE</button>
+            </div>
+
+            <div class="checkActions" style="justify-content:flex-start; gap:6px;">
+              <button class="iconBtn" data-act="up" type="button" ${manualOk ? "" : "disabled"} title="Move up (manual sort only)">▲</button>
+              <button class="iconBtn" data-act="down" type="button" ${manualOk ? "" : "disabled"} title="Move down (manual sort only)">▼</button>
+            </div>
+          </div>
+        `;
+
+        row.querySelector(".txt").textContent = item.text;
+
+        // checkbox toggle
+        const cb = row.querySelector('input[type="checkbox"]');
+        cb.addEventListener("change", () => {
+          const idx = state.checklist.findIndex(it => it.id === item.id);
+          if (idx < 0) return;
+          state.checklist[idx].done = cb.checked;
+          state.checklist[idx].updatedAt = Date.now();
+          saveState();
+          renderChecklist();
+        });
+
+        function toggleRowSection(key, on){
+          const el = row.querySelector(`[data-row="${key}"]`);
+          if (!el) return;
+          const isOn = el.classList.contains("on");
+          const next = (typeof on === "boolean") ? on : !isOn;
+          // close other sections when opening a new one
+          ["deadline","edit","note"].forEach(k=>{
+            const sec = row.querySelector(`[data-row="${k}"]`);
+            if (!sec) return;
+            sec.classList.toggle("on", (k===key) ? next : false);
+          });
+          if (next){
+            const focusable = el.querySelector("input,textarea");
+            if (focusable) focusable.focus();
+          }
+        }
+
+        // action buttons
+        row.addEventListener("click", (e) => {
+          const btn = e.target.closest("button[data-act]");
+          if (!btn) return;
+          const act = btn.dataset.act;
+
+          const idx = state.checklist.findIndex(it => it.id === item.id);
+          if (idx < 0) return;
+
+          if (act === "priority"){
+            state.checklist[idx].priority = !state.checklist[idx].priority;
+            state.checklist[idx].updatedAt = Date.now();
+            saveState();
+            renderChecklist();
+            return;
+          }
+
+          if (act === "deadline"){
+            toggleRowSection("deadline");
+            return;
+          }
+          if (act === "saveDeadline"){
+            const input = row.querySelector('[data-row="deadline"] input[type="datetime-local"]');
+            const iso = toISOFromLocalInputValue(input.value);
+            state.checklist[idx].deadline = iso;
+            state.checklist[idx].updatedAt = Date.now();
+            saveState();
+            renderChecklist();
+            return;
+          }
+          if (act === "clearDeadline"){
+            state.checklist[idx].deadline = "";
+            state.checklist[idx].updatedAt = Date.now();
+            saveState();
+            renderChecklist();
+            return;
+          }
+          if (act === "cancelDeadline"){
+            toggleRowSection("deadline", false);
+            return;
+          }
+
+          if (act === "edit"){
+            toggleRowSection("edit");
+            return;
+          }
+          if (act === "saveEdit"){
+            const input = row.querySelector('[data-row="edit"] input[type="text"]');
+            const t = (input.value || "").trim();
+            if (t){
+              state.checklist[idx].text = t;
+              state.checklist[idx].updatedAt = Date.now();
+              saveState();
+              renderChecklist();
+            } else {
+              showToast(`Text can’t be blank.`, false);
+            }
+            return;
+          }
+          if (act === "cancelEdit"){
+            toggleRowSection("edit", false);
+            return;
+          }
+
+          if (act === "note"){
+            toggleRowSection("note");
+            return;
+          }
+          if (act === "saveNote"){
+            const ta = row.querySelector('[data-row="note"] textarea');
+            state.checklist[idx].notes = (ta.value || "").trim();
+            state.checklist[idx].updatedAt = Date.now();
+            saveState();
+            renderChecklist();
+            return;
+          }
+          if (act === "cancelNote"){
+            toggleRowSection("note", false);
+            return;
+          }
+
+          if (act === "del"){
+            const abs = baseIndex.get(item.id);
+            const removed = state.checklist.splice(abs, 1)[0];
+            saveState();
+            setUndo({ type:"deleteOne", payload:{ item: removed, index: abs }, when: Date.now() });
+            renderChecklist();
+            showToast(`<b>Deleted</b> 1 item.`);
+            return;
+          }
+
+          // reorder controls (manual only)
+          if (act === "up" && manualOk){
+            const abs = state.checklist.findIndex(it => it.id === item.id);
+            if (abs > 0){
+              const t = state.checklist.splice(abs, 1)[0];
+              state.checklist.splice(abs-1, 0, t);
+              saveState();
+              renderChecklist();
+            }
+            return;
+          }
+          if (act === "down" && manualOk){
+            const abs = state.checklist.findIndex(it => it.id === item.id);
+            if (abs >= 0 && abs < state.checklist.length - 1){
+              const t = state.checklist.splice(abs, 1)[0];
+              state.checklist.splice(abs+1, 0, t);
+              saveState();
+              renderChecklist();
+            }
+            return;
+          }
+        });
+
+        // ESC closes any open section inside row
+        row.addEventListener("keydown", (e)=>{
+          if (e.key === "Escape"){
+            toggleRowSection("deadline", false);
+            toggleRowSection("edit", false);
+            toggleRowSection("note", false);
+            row.blur?.();
+          }
+        });
+
+        // Drag/drop handlers
+        if (manualOk){
+          row.addEventListener("dragstart", (e)=>{
+            dragId = item.id;
+            row.classList.add("dragging");
+            e.dataTransfer.effectAllowed = "move";
+            try{ e.dataTransfer.setData("text/plain", dragId); }catch(err){}
+          });
+          row.addEventListener("dragend", ()=>{
+            dragId = null;
+            row.classList.remove("dragging");
+            checkListEl.querySelectorAll(".dropHint").forEach(el=>el.classList.remove("dropHint"));
+          });
+          row.addEventListener("dragover", (e)=>{
+            if (!dragId) return;
+            e.preventDefault();
+            row.classList.add("dropHint");
+          });
+          row.addEventListener("dragleave", ()=>{
+            row.classList.remove("dropHint");
+          });
+          row.addEventListener("drop", (e)=>{
+            e.preventDefault();
+            row.classList.remove("dropHint");
+            const targetId = item.id;
+            if (!dragId || dragId === targetId) return;
+
+            const fromIndex = state.checklist.findIndex(it => it.id === dragId);
+            const toIndex = state.checklist.findIndex(it => it.id === targetId);
+            if (fromIndex < 0 || toIndex < 0) return;
+
+            // insert before target
+            const moving = state.checklist.splice(fromIndex, 1)[0];
+            const insertAt = (fromIndex < toIndex) ? (toIndex - 1) : toIndex;
+            state.checklist.splice(insertAt, 0, moving);
+            saveState();
+            renderChecklist();
+          });
+        }
+
+        checkListEl.appendChild(row);
+      });
+    }
+
+    // Init prefs if missing
+    state.checklistPrefs = { ...structured(defaultState.checklistPrefs), ...(state.checklistPrefs||{}) };
+    saveState();
     renderChecklist();
+
+    // Keyboard shortcuts for checklist module
+    window.addEventListener("keydown", (e) => {
+      const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+      const mod = isMac ? e.metaKey : e.ctrlKey;
+
+      if (mod && e.key.toLowerCase() === "f"){
+        // focus checklist search (prefer when not inside google box)
+        e.preventDefault();
+        checkSearchEl.focus();
+      }
+
+      if (mod && e.key.toLowerCase() === "z"){
+        e.preventDefault();
+        applyUndo();
+      }
+    });
 
     /************************************************************
      * Blue/Gold auto mode (anchor-date based)
@@ -1922,7 +2840,6 @@
         const safeTime = escapeHtml(p.time);
 
         let labelHTML = safeLabel;
-        let badgeHTML = "";
 
         if (!isMisc && named && link){
           // clickable named class period
@@ -1974,8 +2891,6 @@
       }
 
       // Time marker: slide through visible schedule region
-      // We map current time between firstStart and lastEnd into the holoList scroll area.
-      // Then we position within the scrollable content (accounting for scrollTop).
       const listEl = holoList;
       const wrap = listEl.parentElement;
       if (wrap && listEl){
@@ -1983,7 +2898,6 @@
         const ratio = (clamped - firstStart) / totalSpan;
         const visibleH = listEl.clientHeight;
 
-        // Place marker within visible area (not full scroll height) for readability.
         const y = ratio * (visibleH - 12) + 10; // small padding
         timeMarker.style.top = `${y}px`;
         timeMarkerTag.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
@@ -1991,7 +2905,12 @@
       }
     }
 
-    setInterval(renderCenterScheduleAndTimers, 700);
+    setInterval(() => {
+      renderCenterScheduleAndTimers();
+      // update overdue/dueSoon visuals without needing any interaction
+      renderChecklist();
+    }, 2500);
+
     renderCenterScheduleAndTimers();
 
     /************************************************************
@@ -2012,7 +2931,7 @@
       if (mode === "exportChecklist"){
         modalTitle.textContent = "Export Checklist";
         modalHint.textContent = "Copy this JSON if you only want to move the checklist.";
-        jsonBox.value = JSON.stringify({ checklist: state.checklist }, null, 2);
+        jsonBox.value = JSON.stringify({ checklist: state.checklist, checklistPrefs: state.checklistPrefs }, null, 2);
         applyJsonBtn.style.display = "none";
         jsonBox.readOnly = true;
         return;
@@ -2049,8 +2968,10 @@
 
         // Allow importing a checklist-only file as a convenience
         if (obj.checklist && !obj.blocks && !obj.blueAnchor && !obj.links){
-          state.checklist = Array.isArray(obj.checklist) ? obj.checklist : [];
+          state.checklist = migrateChecklistItems(obj.checklist);
+          state.checklistPrefs = { ...structured(defaultState.checklistPrefs), ...(obj.checklistPrefs||{}) };
           saveState();
+          hydrateChecklistPrefsUI();
           renderChecklist();
           renderCenterScheduleAndTimers();
           closeModalFn();
@@ -2059,16 +2980,18 @@
         }
 
         state = {
-          ...structuredClone(defaultState),
+          ...structured(defaultState),
           ...obj,
-          blocks: { ...structuredClone(defaultState.blocks), ...(obj.blocks||{}) },
-          links:  { ...structuredClone(defaultState.links),  ...(obj.links||{}) },
-          checklist: Array.isArray(obj.checklist) ? obj.checklist : []
+          blocks: { ...structured(defaultState.blocks), ...(obj.blocks||{}) },
+          links:  { ...structured(defaultState.links),  ...(obj.links||{}) },
+          checklistPrefs: { ...structured(defaultState.checklistPrefs), ...(obj.checklistPrefs||{}) },
+          checklist: migrateChecklistItems(obj.checklist)
         };
 
         if (!isValidISODate(state.viewDate)) state.viewDate = isoDate(new Date());
         saveState();
         hydrateSetupUI();
+        hydrateChecklistPrefsUI();
         viewDateEl.value = state.viewDate;
         renderChecklist();
         renderCenterScheduleAndTimers();
@@ -2183,8 +3106,6 @@
 
     /************************************************************
      * ELECTRIC LIGHTNING (canvas overlay)
-     * - periodic, semi-random “real” bolts along console borders
-     * - sometimes around ring/search for atmosphere
      ************************************************************/
     const fxCanvas = document.getElementById("fxLightning");
     const fx = fxCanvas.getContext("2d", { alpha:true });
@@ -2229,7 +3150,6 @@
     }
 
     function branchFrom(pts, branchChance=0.25){
-      // pick a mid point, branch outward
       if (Math.random() > branchChance) return null;
       const idx = Math.floor(pts.length * (0.35 + Math.random()*0.4));
       const p = pts[idx];
@@ -2240,7 +3160,9 @@
       return makeBolt(p.x,p.y,x1,y1, 8+Math.floor(Math.random()*6), 10+Math.random()*10);
     }
 
-    const bolts = []; // {pts, born, life, w, alpha, branches:[pts...]}
+    const bolts = []; // {pts, born, life, w, branches:[pts...]}
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
     function spawnBorderBolt(targetEl, edge="random"){
       const r = rectOf(targetEl);
@@ -2296,7 +3218,6 @@
     }
 
     function spawnRingArc(){
-      // occasional arc near ring circumference
       const ringRect = rectOf(document.getElementById("ring"));
       const cx = ringRect.x + ringRect.w/2;
       const cy = ringRect.y + ringRect.h/2;
@@ -2372,27 +3293,22 @@
     const topbarEl = document.querySelector(".topbar");
 
     function scheduleSparks(){
-      // fire a small cluster sometimes
       const burst = Math.random() < 0.65;
       const targets = [bayEl, cockpitEl, topbarEl];
 
-      // 1–3 bolts
       const count = burst ? (1 + Math.floor(Math.random()*3)) : 1;
       for (let i=0;i<count;i++){
         const t = targets[Math.floor(Math.random()*targets.length)];
         spawnBorderBolt(t, "random");
       }
 
-      // occasional ring arc
       if (Math.random() < 0.35){
         spawnRingArc();
       }
 
-      // next interval: 1.2s–5.0s
       const next = 1200 + Math.random()*3800;
       setTimeout(scheduleSparks, next);
     }
-    // start after a short warmup
     setTimeout(scheduleSparks, 900);
 
     /************************************************************

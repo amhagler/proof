@@ -588,54 +588,6 @@
       white-space:nowrap;
     }
 
-    /* time marker (blue “cursor” that slides down schedule for today) */
-    .timeMarker{
-      position:absolute;
-      left: 8px;
-      right: 8px;
-      height: 0;
-      top: 0;
-      pointer-events:none;
-      z-index:5;
-      opacity:0;
-      transition: opacity .25s ease;
-    }
-    .timeMarker.on{ opacity: 1; }
-    .timeMarker .bar{
-      position:absolute;
-      left: 0;
-      right: 0;
-      top: -1px;
-      height: 2px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(123,231,255,.0), rgba(123,231,255,.75), rgba(45,125,255,.75), rgba(75,255,211,.45), rgba(123,231,255,.0));
-      box-shadow: 0 0 16px rgba(45,125,255,.25);
-      filter: blur(.05px);
-    }
-    .timeMarker .dot{
-      position:absolute;
-      top: -6px;
-      left: 10px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: rgba(123,231,255,.92);
-      box-shadow: 0 0 18px rgba(45,125,255,.38);
-      border: 1px solid rgba(255,255,255,.18);
-    }
-    .timeMarker .tag{
-      position:absolute;
-      top: -14px;
-      right: 10px;
-      font-family: var(--mono);
-      font-size: 10px;
-      color: rgba(234,240,255,.78);
-      background: rgba(7,11,26,.45);
-      border: 1px solid rgba(255,255,255,.10);
-      padding: 3px 8px;
-      border-radius: 999px;
-      backdrop-filter: blur(6px);
-    }
 
     /* orbit nodes */
     .node{
@@ -757,28 +709,121 @@
       position:relative;
       overflow:hidden;
     }
-    .energyFill{
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62));
-      box-shadow: 0 0 22px rgba(45,125,255,.24);
-      transition: width 1.2s ease;
-      position:relative;
-    }
-    .energyMeta{
-      margin-top: 8px;
-      width: min(760px, 92%);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: rgba(234,240,255,.70);
-    }
-    .energyMeta b{ color: rgba(234,240,255,.88); }
+.energyFill{
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62));
+  box-shadow: 0 0 22px rgba(45,125,255,.24);
+  transition: width 1.2s ease;
+  position:relative;
+  overflow:hidden;
 
-    /* Right cockpit panel */
+  /* JS will set this each update so speed is constant */
+  --pulseDur: 3s;
+}
+/* subtle electric micro-arc brightness pulse */
+.energyFill{
+  animation: energyJitter 2.2s steps(2,end) infinite;
+}
+
+@keyframes energyJitter{
+  0%,100% { filter: brightness(1); }
+  50% { filter: brightness(1.06); }
+}
+
+/* A subtle “electric sweep” that travels across ONLY the filled area */
+/* Electric sweep + crackle texture */
+.energyFill::after{
+  content:"";
+  position:absolute;
+  inset: 0;
+
+  /* Layer 1: sweeping bright band */
+  background:
+    linear-gradient(90deg,
+      rgba(45,125,255,0) 0%,
+      rgba(45,125,255,.18) 34%,
+      rgba(123,231,255,.55) 50%,
+      rgba(45,125,255,.18) 66%,
+      rgba(45,125,255,0) 100%
+    );
+
+  transform: translateX(-120%);
+  animation: energySweep var(--pulseDur) linear infinite;
+  mix-blend-mode: screen;
+  opacity: .70;
+  filter: blur(.25px);
+  pointer-events:none;
+}
+
+/* Layer 2: crackle overlay inside the fill */
+.energyFill::before{
+  content:"";
+  position:absolute;
+  inset: 0;
+  pointer-events:none;
+
+  /* A noisy “lightning filament” feel using repeating gradients */
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgba(123,231,255,.00) 0px,
+      rgba(123,231,255,.00) 6px,
+      rgba(123,231,255,.22) 7px,
+      rgba(123,231,255,.00) 10px
+    ),
+    repeating-linear-gradient(
+      65deg,
+      rgba(45,125,255,.00) 0px,
+      rgba(45,125,255,.00) 10px,
+      rgba(45,125,255,.18) 11px,
+      rgba(45,125,255,.00) 16px
+    ),
+    radial-gradient(120px 40px at 20% 50%, rgba(75,255,211,.12), transparent 70%),
+    radial-gradient(140px 50px at 80% 55%, rgba(123,231,255,.10), transparent 72%);
+
+  mix-blend-mode: screen;
+  opacity: .35;
+  filter: blur(.35px);
+
+  /* subtle flicker */
+  animation: energyFlicker 1.25s steps(2,end) infinite;
+}
+
+/* Edge “ionization” glow along the top/bottom of the filled bar */
+.energyFill{
+  position:relative;
+}
+.energyFill{
+  box-shadow:
+    0 0 22px rgba(45,125,255,.24),
+    0 0 0 1px rgba(123,231,255,.10) inset;
+}
+.energyFill{
+  background:
+    linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62));
+}
+.energyFill{
+  /* faint top/bottom glow lines */
+  background-image:
+    linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62)),
+    linear-gradient(180deg, rgba(123,231,255,.22), rgba(123,231,255,0)),
+    linear-gradient(0deg, rgba(45,125,255,.18), rgba(45,125,255,0));
+  background-blend-mode: normal, screen, screen;
+}
+
+@keyframes energySweep{
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(120%); }
+}
+
+@keyframes energyFlicker{
+  0%   { opacity: .26; filter: blur(.35px); }
+  25%  { opacity: .40; filter: blur(.25px); }
+  55%  { opacity: .30; filter: blur(.40px); }
+  100% { opacity: .38; filter: blur(.22px); }
+}    /* Right cockpit panel */
     .cockpit{
       border-radius: var(--radius2);
       background: linear-gradient(180deg, rgba(12,22,56,.82), rgba(10,18,48,.70));
@@ -1359,11 +1404,6 @@
             </div>
 
             <div class="holoListWrap">
-              <div class="timeMarker" id="timeMarker" aria-hidden="true">
-                <div class="bar"></div>
-                <div class="dot"></div>
-                <div class="tag" id="timeMarkerTag">NOW</div>
-              </div>
               <div class="holoList" id="holoList" aria-label="Daily schedule">
                 <div class="periodCard misc">
                   <div class="t">—</div>
@@ -1513,7 +1553,7 @@
                 <div><label>H block link</label><input id="linkH" type="text" placeholder="https://..." /></div>
               </div>
 
-              <div class="tinyHint">Once saved, the center holo shows the schedule for the selected date. The “NOW” marker slides through today’s schedule.</div>
+              <div class="tinyHint">Once saved, the center holo shows the schedule for the selected date. The current period is highlighted automatically.</div>
             </div>
           </div>
         </div>
@@ -1831,9 +1871,6 @@
     const holoList = document.getElementById("holoList");
     const holoStatus = document.getElementById("holoStatus");
     const holoTag = document.getElementById("holoTag");
-
-    const timeMarker = document.getElementById("timeMarker");
-    const timeMarkerTag = document.getElementById("timeMarkerTag");
 
     const energyFill = document.getElementById("energyFill");
     const energyPct = document.getElementById("energyPct");
@@ -2502,10 +2539,31 @@
       return dayKeys[d.getDay()];
     }
 
-    function isClassBlock(block){
-      return ["A","B","C","D","E","F","G","H"].includes(block);
-    }
+function isClassBlock(block){
+  return ["A","B","C","D","E","F","G","H"].includes(block);
+}
 
+// A "listed class" is something you actually teach / need counted:
+// - A–G only if named
+// - H only if Office Hours is active for this week
+// - Reading Period only when immediately followed by a listed class
+function isListedClassPeriod(p, weekForDate){
+  if (p.block === "Reading Period") return !!p.teachReading; // set in buildPeriodsForDate
+  if (!isClassBlock(p.block)) return false;
+
+  if (p.block === "H"){
+    const mode = state.officeHoursMode || "none";
+    const hasOH =
+      (mode === "both") ||
+      (mode === "blue" && weekForDate === "blue") ||
+      (mode === "gold" && weekForDate === "gold");
+
+    return hasOH;
+  }
+
+  // A–G require a name (if no name, treat as "nothing")
+  return !!(state.blocks[p.block] && state.blocks[p.block].trim());
+}
     function blockLabel(block, weekForDate){
       const lunchish = [
         "MS/US Lunch +MS/US Clubs",
@@ -2538,35 +2596,54 @@
       if (!week) return { periods: [], week:null, day:dk };
 
       const src = scheduleByWeek[week]?.[dk] || [];
-      const periods = src.map(p => {
-        const range = parseRange(p.time);
-        const meta = blockLabel(p.block, week);
-        return {
-          ...p,
-          label: meta.label,
-          named: meta.named,
-          blockKey: meta.blockKey,
-          range
-        };
-      }).filter(p => p.range);
+let periods = src.map(p => {
+  const range = parseRange(p.time);
+  const meta = blockLabel(p.block, week);
+  return {
+    ...p,
+    label: meta.label,
+    named: meta.named,
+    blockKey: meta.blockKey,
+    range,
+    teachReading: false
+  };
+}).filter(p => p.range);
 
-      return { periods, week, day:dk };
+// If Reading Period is immediately followed by a listed class, treat it as a class
+for (let i = 0; i < periods.length - 1; i++){
+  const cur = periods[i];
+  const next = periods[i+1];
+  if (cur.block === "Reading Period"){
+    // next period must be a "listed class"
+    const nextIsListed = isListedClassPeriod(next, week);
+    if (nextIsListed){
+      cur.teachReading = true;
+      cur.named = true;          // makes it highlight blue via .periodCard.named
+      cur.label = "Reading Period";
+      cur.blockKey = null;
+    }
+  }
+}
+
+return { periods, week, day:dk };
     }
 
     /************************************************************
      * Center holo schedule + energy + countdown + time marker
      ************************************************************/
-    function findNextClass(periods, minutesNow){
-      const classes = periods.filter(p => isClassBlock(p.block));
-      let best = null;
-      for (const p of classes){
-        if (p.range.start > minutesNow){
-          if (!best || p.range.start < best.range.start) best = p;
-        }
-      }
-      return best;
-    }
+function findNextListedClass(periods, minutesNow, weekForDate){
+  let best = null;
 
+  for (const p of periods){
+    if (!p.range) continue;
+    if (!isListedClassPeriod(p, weekForDate)) continue;
+
+    if (p.range.start > minutesNow){
+      if (!best || p.range.start < best.range.start) best = p;
+    }
+  }
+  return best;
+}
     function formatCountdown(totalSec){
       const m = Math.floor(totalSec / 60);
       const s = totalSec % 60;
@@ -2609,7 +2686,6 @@
       holoStatus.textContent = week ? `${weekName} • ${dayName}` : (dayName);
 
       // Default: hide time marker unless today & schedule present
-      timeMarker.classList.remove("on");
 
       if (!periods.length){
         holoList.innerHTML = `
@@ -2633,14 +2709,13 @@
         const isNow = isToday && (minutesNow >= p.range.start && minutesNow < p.range.end);
 
         const card = document.createElement("div");
-        const isMisc = !isClassBlock(p.block);
+        const isMisc = !isClassBlock(p.block) && !(p.block === "Reading Period" && p.teachReading);
         const named = !!p.named;
 
-        card.className = "periodCard"
-          + (isMisc ? " misc" : "")
-          + (!isMisc && named ? " named" : "")
-          + (isNow ? " now" : "");
-
+card.className = "periodCard"
+  + (isMisc ? " misc" : "")
+  + (named ? " named" : "")
+  + (isNow ? " now" : "");
         const link = (p.blockKey && (state.links[p.blockKey] || "").trim()) || "";
         const safeLabel = escapeHtml(p.label);
         const safeTime = escapeHtml(p.time);
@@ -2681,13 +2756,15 @@
       const pct = Math.round(prog * 100);
 
       energyFill.style.width = `${pct}%`;
+// Pulse speed: constant 3 seconds, regardless of fill %
+energyFill.style.setProperty("--pulseDur", `3s`);
       energyPct.textContent = `${pct}%`;
 
       if (minutesNow < firstStart) energyNote.textContent = "Pre-start";
       else if (minutesNow >= lastEnd) energyNote.textContent = "Complete";
       else energyNote.textContent = "In progress";
 
-      const next = findNextClass(periods, minutesNow);
+      const next = findNextListedClass(periods, minutesNow, week);
       if (!next){
         updateCountdown("No more classes", false);
       } else {
@@ -2695,22 +2772,7 @@
         const warn = deltaSec > 0 && deltaSec <= 600; // <= 10 minutes
         updateCountdown(formatCountdown(deltaSec), warn);
       }
-
-      // Time marker
-      const listEl = holoList;
-      const wrap = listEl.parentElement;
-      if (wrap && listEl){
-        const totalSpan = (lastEnd - firstStart) || 1;
-        const ratio = (clamped - firstStart) / totalSpan;
-        const visibleH = listEl.clientHeight;
-
-        const y = ratio * (visibleH - 12) + 10;
-        timeMarker.style.top = `${y}px`;
-        timeMarkerTag.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
-        timeMarker.classList.add("on");
-      }
     }
-
     setInterval(renderCenterScheduleAndTimers, 700);
     renderCenterScheduleAndTimers();
 

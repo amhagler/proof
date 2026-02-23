@@ -1434,7 +1434,7 @@
       <div class="cockHeader">
         <div class="left">
           <b>Control Console</b>
-          <span>Checklist + schedule entry. Everything saves locally.</span>
+          <span>Checklist + schedule entry.</span>
         </div>
         <div class="pill"><span class="spark"></span><span id="dayModePill">—</span></div>
       </div>
@@ -1465,7 +1465,7 @@
             <div class="checkMetaRow">
               <div class="left">
                 <input class="checkFilter" id="checkFilter" type="text" placeholder="Filter… (text or #tag)" />
-                <div class="tinyHint" id="filterHint" style="margin-top:2px;">Tip: double-click an item to edit. ★ marks priority (orange).</div>
+                <div class="tinyHint" id="filterHint" style="margin-top:2px;">Tip: double-click to edit. ★ marks priority (orange).</div>
               </div>
               <div class="right">
                 <div class="tinyHint" id="dueHint" style="text-align:right;">Overdue items glow red (when due is set).</div>
@@ -1594,7 +1594,7 @@
      * LINKS (ring nodes)
      ************************************************************/
     const links = [
-      { label:"Discussion Tracker", sub:"class-discussion", href:"https://amhagler.github.io/class-discussion/", glyph:"DT" },
+      { label:"Discussion", sub:"class-discussion", href:"https://amhagler.github.io/class-discussion/", glyph:"DT" },
       { label:"Seating Chart", sub:"SC", href:"https://amhagler.github.io/SC/", glyph:"SC" },
       { label:"Rubric", sub:"rubric", href:"https://amhagler.github.io/rubric/", glyph:"RB" },
       { label:"Unit Calendar", sub:"uc", href:"https://amhagler.github.io/uc/", glyph:"UC" },
@@ -1703,7 +1703,7 @@
         { time:"9:15-10:10", block:"A" },
         { time:"10:15-11:10", block:"B" },
         { time:"11:20-12:15", block:"C" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"D" },
         { time:"2:10-3:05", block:"E" },
         { time:"3:10-3:50", block:"H" }
@@ -1713,7 +1713,7 @@
         { time:"9:20-10:15", block:"F" },
         { time:"10:20-11:15", block:"G" },
         { time:"11:20-12:15", block:"A" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"B" },
         { time:"2:10-3:05", block:"C" },
         { time:"3:10-3:50", block:"H" }
@@ -1723,7 +1723,7 @@
         { time:"9:15-10:10", block:"D" },
         { time:"10:15-11:10", block:"E" },
         { time:"11:20-12:15", block:"F" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"G" },
         { time:"2:10-3:05", block:"A" },
         { time:"3:10-3:50", block:"H" }
@@ -1733,7 +1733,7 @@
         { time:"9:15-10:10", block:"B" },
         { time:"10:15-11:10", block:"C" },
         { time:"11:20-12:15", block:"D" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"E" },
         { time:"2:10-3:05", block:"F" },
         { time:"3:10-3:50", block:"H" }
@@ -1743,7 +1743,7 @@
         { time:"9:00-9:55", block:"G" },
         { time:"10:00-10:55", block:"A" },
         { time:"11:05-12:00", block:"B" },
-        { time:"12:00-1:05", block:"MS/US SuperLunch +Affinity Groups" },
+        { time:"12:00-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"C" },
         { time:"2:10-3:05", block:"D" },
         { time:"3:10-3:50", block:"H/X1" }
@@ -1756,7 +1756,7 @@
         { time:"9:15-10:10", block:"E" },
         { time:"10:15-11:10", block:"F" },
         { time:"11:20-12:15", block:"G" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"A" },
         { time:"2:10-3:05", block:"B" },
         { time:"3:10-3:50", block:"H" }
@@ -1766,7 +1766,7 @@
         { time:"9:20-10:15", block:"C" },
         { time:"10:20-11:15", block:"D" },
         { time:"11:20-12:15", block:"E" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"F" },
         { time:"2:10-3:05", block:"G" },
         { time:"3:10-3:50", block:"H" }
@@ -1776,7 +1776,7 @@
         { time:"9:15-10:10", block:"A" },
         { time:"10:15-11:10", block:"B" },
         { time:"11:20-12:15", block:"C" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"D" },
         { time:"2:10-3:05", block:"E" },
         { time:"3:10-3:50", block:"H" }
@@ -1786,7 +1786,7 @@
         { time:"9:15-10:10", block:"F" },
         { time:"10:15-11:10", block:"G" },
         { time:"11:20-12:15", block:"A" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"B" },
         { time:"2:10-3:05", block:"C" },
         { time:"3:10-3:50", block:"H" }
@@ -1796,7 +1796,7 @@
         { time:"9:00-9:55", block:"D" },
         { time:"10:00-10:55", block:"E" },
         { time:"11:00-11:45", block:"H" },
-        { time:"11:45-12:35", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"11:45-12:35", block:"Lunch" },
         { time:"12:40-1:35", block:"F" },
         { time:"1:40-2:35", block:"G" },
         { time:"2:40-3:20", block:"X3" }

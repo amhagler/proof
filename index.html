@@ -6,7 +6,7 @@
   <title>Geffen Cockpit Dashboard</title>
   <style>
     :root{
-      /* Futuristic blue + metallic */
+      /* Futuristic blue + metallic (FF7-ish mako + steel) */
       --bg0:#070B1A;
       --bg1:#0B1230;
       --panel:#0C1638;
@@ -19,8 +19,11 @@
       --electric2:#1E5BFF;
       --cyan:#7BE7FF;
 
-      --metal:#9AA7C1;
-      --metal2:#6D7A96;
+      --mako:#4BFFD3;            /* subtle “mako” accent */
+      --brass:#D7B56D;           /* steampunk brass */
+      --brass2:#8A6B2F;
+      --steel:#9AA7C1;
+      --steel2:#6D7A96;
 
       --gold:#FFE066;
       --red:#FF5A5A;
@@ -38,11 +41,14 @@
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
       --serif: ui-serif, Georgia, "Times New Roman", serif;
 
-      /* Ring sizing (bigger box + stable orbit calc in JS) */
-      --ringSize: 700px;         /* larger ring stage */
+      /* Ring sizing */
+      --ringSize: 720px;         /* ring stage */
       --nodeW: 180px;
       --nodeH: 64px;
-      --ringPad: 34px;           /* safety padding so cards never clip */
+      --ringPad: 36px;           /* safety padding so cards never clip */
+
+      /* SMALLER center holo */
+      --holoInset: 210px;        /* bigger inset => smaller box */
     }
 
     *{ box-sizing:border-box; }
@@ -51,72 +57,87 @@
       margin:0;
       color:var(--ink);
       font-family:var(--sans);
-      background: radial-gradient(1200px 700px at 20% 0%, rgba(45,125,255,.18), transparent 55%),
-                  radial-gradient(1100px 620px at 80% 18%, rgba(123,231,255,.12), transparent 60%),
-                  radial-gradient(900px 520px at 60% 95%, rgba(255,224,102,.08), transparent 55%),
-                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      background:
+        radial-gradient(1200px 700px at 20% 0%, rgba(45,125,255,.16), transparent 55%),
+        radial-gradient(1100px 620px at 80% 18%, rgba(123,231,255,.10), transparent 60%),
+        radial-gradient(900px 520px at 60% 95%, rgba(215,181,109,.08), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
 
-    /* ===== Dynamic starfield layers ===== */
-    .starsA, .starsB, .starsC, .scanlines, .fog{
+    /* ===== Dynamic starfield (now with slightly richer feel) ===== */
+    .starsA, .starsB, .starsC, .starsD, .scanlines, .fog{
       position:fixed;
       inset:0;
       pointer-events:none;
       z-index:0;
     }
 
-    /* Far stars */
     .starsA{
       background-image:
-        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,.35) 40%, transparent 45%),
+        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,.36) 40%, transparent 45%),
         radial-gradient(1px 1px at 120px 180px, rgba(255,255,255,.25) 40%, transparent 45%),
         radial-gradient(1px 1px at 260px 90px, rgba(255,255,255,.22) 40%, transparent 45%),
         radial-gradient(1px 1px at 420px 220px, rgba(255,255,255,.30) 40%, transparent 45%),
         radial-gradient(1px 1px at 640px 140px, rgba(255,255,255,.18) 40%, transparent 45%),
         radial-gradient(1px 1px at 780px 260px, rgba(255,255,255,.22) 40%, transparent 45%);
       background-size: 980px 560px;
-      opacity:.35;
-      filter: blur(.15px);
-      animation: starDriftA 48s linear infinite;
+      opacity:.34;
+      filter: blur(.2px);
+      animation: starDriftA 52s linear infinite;
     }
     @keyframes starDriftA{
       from{ transform: translate3d(0,0,0); }
-      to{ transform: translate3d(-160px, 60px, 0); }
+      to{ transform: translate3d(-170px, 70px, 0); }
     }
 
-    /* Mid stars */
     .starsB{
       background-image:
         radial-gradient(1.5px 1.5px at 60px 90px, rgba(123,231,255,.26) 35%, transparent 40%),
-        radial-gradient(1.5px 1.5px at 240px 260px, rgba(255,255,255,.26) 35%, transparent 40%),
-        radial-gradient(1.5px 1.5px at 520px 140px, rgba(255,255,255,.22) 35%, transparent 40%),
+        radial-gradient(1.5px 1.5px at 240px 260px, rgba(255,255,255,.24) 35%, transparent 40%),
+        radial-gradient(1.5px 1.5px at 520px 140px, rgba(255,255,255,.20) 35%, transparent 40%),
         radial-gradient(1.5px 1.5px at 860px 320px, rgba(123,231,255,.22) 35%, transparent 40%),
-        radial-gradient(1.5px 1.5px at 740px 80px, rgba(255,255,255,.20) 35%, transparent 40%);
+        radial-gradient(1.5px 1.5px at 740px 80px, rgba(255,255,255,.18) 35%, transparent 40%);
       background-size: 1120px 640px;
-      opacity:.30;
-      animation: starDriftB 34s linear infinite;
+      opacity:.28;
+      animation: starDriftB 38s linear infinite;
       mix-blend-mode: screen;
     }
     @keyframes starDriftB{
       from{ transform: translate3d(0,0,0); }
-      to{ transform: translate3d(-240px, 90px, 0); }
+      to{ transform: translate3d(-250px, 95px, 0); }
     }
 
-    /* Near sparkles */
     .starsC{
       background-image:
-        radial-gradient(2px 2px at 110px 120px, rgba(123,231,255,.22) 35%, transparent 40%),
-        radial-gradient(2px 2px at 410px 290px, rgba(255,224,102,.16) 35%, transparent 40%),
-        radial-gradient(2px 2px at 690px 160px, rgba(123,231,255,.20) 35%, transparent 40%),
-        radial-gradient(2px 2px at 980px 360px, rgba(255,255,255,.18) 35%, transparent 40%);
+        radial-gradient(2px 2px at 110px 120px, rgba(123,231,255,.20) 35%, transparent 40%),
+        radial-gradient(2px 2px at 410px 290px, rgba(215,181,109,.16) 35%, transparent 40%),
+        radial-gradient(2px 2px at 690px 160px, rgba(123,231,255,.18) 35%, transparent 40%),
+        radial-gradient(2px 2px at 980px 360px, rgba(255,255,255,.16) 35%, transparent 40%);
       background-size: 1280px 720px;
       opacity:.18;
-      animation: starDriftC 26s linear infinite;
+      animation: starDriftC 30s linear infinite;
     }
     @keyframes starDriftC{
       from{ transform: translate3d(0,0,0); }
-      to{ transform: translate3d(-320px, 120px, 0); }
+      to{ transform: translate3d(-330px, 130px, 0); }
+    }
+
+    /* occasional “comet dust” streaks */
+    .starsD{
+      background-image:
+        linear-gradient(120deg, transparent, rgba(123,231,255,.16), transparent),
+        linear-gradient(120deg, transparent, rgba(255,255,255,.10), transparent);
+      background-size: 700px 2px, 520px 2px;
+      background-repeat: repeat;
+      opacity:.10;
+      filter: blur(.2px);
+      animation: streaks 14s linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes streaks{
+      from{ transform: translate3d(0,0,0) rotate(0.001deg); }
+      to{ transform: translate3d(-420px, 220px, 0) rotate(0.001deg); }
     }
 
     .scanlines{
@@ -127,30 +148,31 @@
         transparent 1px,
         transparent 3px
       );
-      opacity:.16;
+      opacity:.14;
       mix-blend-mode: overlay;
     }
 
     .fog{
       background:
         radial-gradient(1000px 600px at 25% 60%, rgba(123,231,255,.10), transparent 60%),
-        radial-gradient(900px 520px at 70% 45%, rgba(45,125,255,.09), transparent 60%),
-        radial-gradient(700px 420px at 50% 85%, rgba(255,224,102,.06), transparent 65%);
+        radial-gradient(900px 520px at 70% 45%, rgba(45,125,255,.08), transparent 60%),
+        radial-gradient(720px 420px at 52% 86%, rgba(75,255,211,.06), transparent 65%),
+        radial-gradient(700px 420px at 40% 92%, rgba(215,181,109,.06), transparent 70%);
       filter: blur(12px);
-      opacity:.6;
-      animation: fogMove 14s ease-in-out infinite alternate;
+      opacity:.62;
+      animation: fogMove 16s ease-in-out infinite alternate;
     }
     @keyframes fogMove{
       from{ transform: translate3d(-10px, 0, 0) scale(1.02); }
-      to{ transform: translate3d(12px, -8px, 0) scale(1.03); }
+      to{ transform: translate3d(14px, -9px, 0) scale(1.03); }
     }
 
-    /* ===== Electricity crackle helpers ===== */
+    /* ===== Crackle helpers (periodic sparks) ===== */
     @keyframes edgeCrackle{
       0%, 86%, 100% { opacity:0; transform: translate3d(0,0,0) scale(1); }
-      88% { opacity:.55; transform: translate3d(1px,-1px,0) scale(1.01); }
+      88% { opacity:.60; transform: translate3d(1px,-1px,0) scale(1.01); }
       90% { opacity:.22; transform: translate3d(-1px,1px,0) scale(1.00); }
-      92% { opacity:.45; transform: translate3d(2px,0,0) scale(1.01); }
+      92% { opacity:.50; transform: translate3d(2px,0,0) scale(1.01); }
       94% { opacity:0; transform: translate3d(0,0,0) scale(1); }
     }
     @keyframes warnPulse{
@@ -165,11 +187,11 @@
       z-index:5;
       padding: 14px 16px;
       backdrop-filter: blur(10px);
-      background: linear-gradient(to bottom, rgba(7,11,26,.78), rgba(7,11,26,.42));
+      background: linear-gradient(to bottom, rgba(7,11,26,.80), rgba(7,11,26,.42));
       border-bottom: 1px solid rgba(255,255,255,.10);
     }
     .topbarInner{
-      max-width: 1300px;
+      max-width: 1320px;
       margin:0 auto;
       display:flex;
       gap: 14px;
@@ -186,8 +208,8 @@
     }
     .brand .title{
       font-family: var(--serif);
-      letter-spacing:.6px;
-      font-weight: 800;
+      letter-spacing:.7px;
+      font-weight: 900;
       font-size: 18px;
       line-height:1.1;
       color: var(--ink);
@@ -209,20 +231,30 @@
       background: linear-gradient(180deg, rgba(12,22,56,.85), rgba(10,18,48,.75));
       border: 1px solid rgba(255,255,255,.14);
       box-shadow: var(--shadow2);
-      min-width: 280px;
+      min-width: 300px;
       justify-content:center;
       position:relative;
       overflow:hidden;
+    }
+    .clockBox::before{
+      content:"";
+      position:absolute;
+      inset: -2px;
+      background:
+        radial-gradient(220px 70px at 20% 25%, rgba(215,181,109,.10), transparent 70%),
+        radial-gradient(240px 90px at 75% 65%, rgba(75,255,211,.07), transparent 70%);
+      pointer-events:none;
+      opacity:.9;
     }
     .clockBox::after{
       content:"";
       position:absolute; inset:-8px;
       background:
-        radial-gradient(18px 10px at 12% 40%, rgba(123,231,255,0), rgba(123,231,255,0) 58%, rgba(123,231,255,.38) 64%, rgba(123,231,255,0) 74%),
-        radial-gradient(22px 12px at 78% 70%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.32) 66%, rgba(45,125,255,0) 78%);
+        radial-gradient(18px 10px at 12% 40%, rgba(123,231,255,0), rgba(123,231,255,0) 58%, rgba(123,231,255,.40) 64%, rgba(123,231,255,0) 74%),
+        radial-gradient(22px 12px at 78% 70%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.34) 66%, rgba(45,125,255,0) 78%);
       opacity:0;
       pointer-events:none;
-      animation: edgeCrackle 7.4s infinite;
+      animation: edgeCrackle 6.8s infinite;
     }
     .clockTop{
       display:flex;
@@ -255,10 +287,10 @@
       content:"";
       position:absolute; inset:-8px;
       background:
-        radial-gradient(18px 10px at 20% 40%, rgba(123,231,255,0), rgba(123,231,255,0) 58%, rgba(123,231,255,.45) 64%, rgba(123,231,255,0) 74%),
-        radial-gradient(22px 12px at 70% 65%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.35) 66%, rgba(45,125,255,0) 78%),
-        radial-gradient(16px 10px at 85% 30%, rgba(255,224,102,0), rgba(255,224,102,0) 62%, rgba(255,224,102,.22) 68%, rgba(255,224,102,0) 80%);
-      opacity:.55;
+        radial-gradient(18px 10px at 20% 40%, rgba(123,231,255,0), rgba(123,231,255,0) 58%, rgba(123,231,255,.48) 64%, rgba(123,231,255,0) 74%),
+        radial-gradient(22px 12px at 70% 65%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.40) 66%, rgba(45,125,255,0) 78%),
+        radial-gradient(16px 10px at 85% 30%, rgba(215,181,109,0), rgba(215,181,109,0) 62%, rgba(215,181,109,.22) 68%, rgba(215,181,109,0) 80%);
+      opacity:.60;
       pointer-events:none;
       animation: edgeCrackle .9s infinite;
     }
@@ -266,7 +298,7 @@
     .searchWrap{
       flex: 1;
       min-width: 280px;
-      max-width: 560px;
+      max-width: 580px;
       display:flex;
       align-items:center;
       gap:10px;
@@ -278,16 +310,25 @@
       position:relative;
       overflow:hidden;
     }
-    /* occasional crackles on search bar */
+    .searchWrap::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background:
+        radial-gradient(300px 80px at 25% 10%, rgba(215,181,109,.09), transparent 70%),
+        radial-gradient(260px 90px at 70% 90%, rgba(75,255,211,.06), transparent 70%);
+      opacity:.9;
+      pointer-events:none;
+    }
     .searchWrap::after{
       content:"";
       position:absolute; inset:-10px;
       background:
-        radial-gradient(20px 12px at 18% 50%, rgba(123,231,255,0), rgba(123,231,255,0) 58%, rgba(123,231,255,.38) 64%, rgba(123,231,255,0) 76%),
-        radial-gradient(22px 12px at 72% 40%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.32) 66%, rgba(45,125,255,0) 78%);
+        radial-gradient(20px 12px at 18% 50%, rgba(123,231,255,0), rgba(123,231,255,0) 58%, rgba(123,231,255,.40) 64%, rgba(123,231,255,0) 76%),
+        radial-gradient(22px 12px at 72% 40%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.34) 66%, rgba(45,125,255,0) 78%);
       opacity:0;
       pointer-events:none;
-      animation: edgeCrackle 6.6s infinite;
+      animation: edgeCrackle 5.9s infinite;
     }
     .searchWrap .lens{
       width: 18px; height: 18px;
@@ -314,6 +355,8 @@
       color: var(--ink);
       font-family: var(--mono);
       font-size: 13px;
+      position:relative;
+      z-index:2;
     }
     .searchWrap button{
       border:none;
@@ -328,6 +371,8 @@
       box-shadow: 0 0 0 1px rgba(255,255,255,.12) inset, 0 10px 22px rgba(0,0,0,.35);
       transition: transform .08s ease, filter .18s ease;
       flex: 0 0 auto;
+      position:relative;
+      z-index:2;
     }
     .searchWrap button:hover{ filter: brightness(1.05); }
     .searchWrap button:active{ transform: translateY(1px); }
@@ -336,20 +381,20 @@
     .shell{
       position:relative;
       z-index:1;
-      max-width: 1300px;
+      max-width: 1320px;
       margin: 18px auto 40px auto;
       padding: 0 16px;
       display:grid;
-      grid-template-columns: 1.2fr .8fr; /* left ring + right cockpit */
+      grid-template-columns: 1.15fr .85fr; /* left ring + right cockpit */
       gap: 16px;
       align-items:start;
     }
     @media (max-width: 1040px){
       .shell{ grid-template-columns: 1fr; }
-      :root{ --ringSize: 620px; }
+      :root{ --ringSize: 640px; --holoInset: 190px; }
     }
     @media (max-width: 680px){
-      :root{ --ringSize: 560px; --nodeW: 168px; }
+      :root{ --ringSize: 580px; --nodeW: 168px; --holoInset: 175px; }
     }
 
     /* Left: ring bay */
@@ -359,8 +404,7 @@
       background: linear-gradient(180deg, rgba(12,22,56,.76), rgba(10,18,48,.62));
       border: 1px solid rgba(255,255,255,.12);
       box-shadow: var(--shadow);
-      /* IMPORTANT: don't clip the orbit */
-      overflow: visible;
+      overflow: visible; /* don't clip orbit */
       min-height: calc(var(--ringSize) + 120px);
     }
     .bay::before{
@@ -369,13 +413,24 @@
       inset:-2px;
       border-radius: var(--radius2);
       background:
-        radial-gradient(900px 420px at 25% 30%, rgba(45,125,255,.22), transparent 60%),
-        radial-gradient(700px 360px at 70% 60%, rgba(123,231,255,.14), transparent 55%),
-        radial-gradient(520px 320px at 50% 90%, rgba(255,224,102,.08), transparent 60%);
+        radial-gradient(920px 420px at 25% 30%, rgba(45,125,255,.20), transparent 60%),
+        radial-gradient(720px 360px at 70% 60%, rgba(123,231,255,.14), transparent 55%),
+        radial-gradient(520px 320px at 50% 90%, rgba(215,181,109,.10), transparent 60%);
       filter: blur(10px);
-      opacity:.9;
+      opacity:.95;
       pointer-events:none;
       z-index:0;
+    }
+    /* brass “console trim” */
+    .bay .trim{
+      position:absolute;
+      inset:10px;
+      border-radius: calc(var(--radius2) - 6px);
+      border: 1px solid rgba(215,181,109,.20);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.22) inset;
+      pointer-events:none;
+      z-index:1;
+      opacity:.85;
     }
     /* cockpit-style border crackles */
     .bay::after{
@@ -384,18 +439,18 @@
       inset:-8px;
       border-radius: calc(var(--radius2) + 8px);
       background:
-        radial-gradient(22px 12px at 15% 12%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.32) 66%, rgba(123,231,255,0) 80%),
-        radial-gradient(22px 12px at 85% 18%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.28) 66%, rgba(45,125,255,0) 80%),
+        radial-gradient(22px 12px at 15% 12%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.34) 66%, rgba(123,231,255,0) 80%),
+        radial-gradient(22px 12px at 85% 18%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.30) 66%, rgba(45,125,255,0) 80%),
         radial-gradient(22px 12px at 65% 92%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.28) 66%, rgba(123,231,255,0) 80%);
       opacity:0;
       pointer-events:none;
       animation: edgeCrackle 8.2s infinite;
-      z-index:1;
+      z-index:3;
     }
 
     .bayHeader{
       position:relative;
-      z-index:2;
+      z-index:4;
       padding: 14px 14px 10px 14px;
       display:flex;
       align-items:flex-start;
@@ -491,13 +546,14 @@
       position:absolute;
       inset: 64px;
       border-radius:50%;
-      border: 1px dashed rgba(255,255,255,.12);
+      border: 1px dashed rgba(215,181,109,.18);
       box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset;
       opacity:.9;
       pointer-events:none;
       z-index:0;
     }
-    /* Occasional crackles on the ring track */
+
+    /* crackles on ring track */
     .ringCrackle{
       position:absolute;
       inset: 18px;
@@ -506,27 +562,29 @@
       opacity:0;
       z-index:1;
       background:
-        radial-gradient(26px 14px at 22% 28%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.30) 66%, rgba(123,231,255,0) 78%),
-        radial-gradient(30px 16px at 74% 52%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.26) 66%, rgba(45,125,255,0) 78%),
-        radial-gradient(24px 14px at 58% 78%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.22) 66%, rgba(123,231,255,0) 78%);
-      animation: edgeCrackle 7.0s infinite;
+        radial-gradient(26px 14px at 22% 28%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.32) 66%, rgba(123,231,255,0) 78%),
+        radial-gradient(30px 16px at 74% 52%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.28) 66%, rgba(45,125,255,0) 78%),
+        radial-gradient(24px 14px at 58% 78%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.24) 66%, rgba(123,231,255,0) 78%);
+      animation: edgeCrackle 6.9s infinite;
     }
 
-    /* center holo readout (NOW shows daily schedule) */
+    /* Smaller center holo, and visually “quieter” */
     .holo{
       position:absolute;
-      inset: 140px;
-      border-radius: 24px;
-      background: linear-gradient(180deg, rgba(12,22,56,.40), rgba(10,18,48,.18));
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: 0 0 0 1px rgba(45,125,255,.10) inset;
+      inset: var(--holoInset);
+      border-radius: 22px;
+      background:
+        linear-gradient(180deg, rgba(12,22,56,.30), rgba(10,18,48,.14));
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 0 0 1px rgba(45,125,255,.08) inset;
       backdrop-filter: blur(8px);
       display:flex;
       flex-direction:column;
-      gap:10px;
-      padding: 14px 14px 12px 14px;
-      pointer-events:none; /* never steals clicks */
+      gap:8px;
+      padding: 10px 10px 10px 10px;
+      pointer-events:none;
       z-index:2;
+      opacity:.92;
     }
     .holo .holoTop{
       display:flex;
@@ -536,43 +594,43 @@
     }
     .holo .tag{
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 10px;
       letter-spacing:.14em;
       text-transform: uppercase;
-      color: rgba(123,231,255,.85);
+      color: rgba(123,231,255,.82);
     }
     .holo .sub{
       font-family: var(--mono);
-      font-size: 11px;
-      color: rgba(234,240,255,.65);
+      font-size: 10px;
+      color: rgba(234,240,255,.60);
       white-space:nowrap;
     }
     .holo .list{
       display:grid;
       gap: 6px;
       font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(234,240,255,.82);
+      font-size: 11px;
+      color: rgba(234,240,255,.78);
     }
     .holo .line{
       display:flex;
-      gap:10px;
+      gap:8px;
       align-items:flex-start;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
     .holo .dot{
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: rgba(123,231,255,.85);
-      box-shadow: 0 0 10px rgba(123,231,255,.35);
+      background: rgba(123,231,255,.80);
+      box-shadow: 0 0 10px rgba(123,231,255,.25);
       margin-top: 5px;
       flex: 0 0 auto;
     }
-    .holo .line.now{ color: rgba(234,240,255,.96); }
-    .holo .line.now .dot{ background: rgba(255,224,102,.85); box-shadow: 0 0 12px rgba(255,224,102,.25); }
+    .holo .line.now{ color: rgba(234,240,255,.92); }
+    .holo .line.now .dot{ background: rgba(215,181,109,.85); box-shadow: 0 0 12px rgba(215,181,109,.22); }
 
     /* orbit nodes */
     .node{
@@ -584,7 +642,7 @@
       transform: translate(-50%,-50%);
       will-change: transform;
       cursor:pointer;
-      z-index:3;
+      z-index:5;
     }
 
     .cardLink{
@@ -600,7 +658,7 @@
       color: var(--ink);
       background:
         linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)),
-        linear-gradient(180deg, rgba(12,22,56,.78), rgba(10,18,48,.70));
+        linear-gradient(180deg, rgba(12,22,56,.82), rgba(10,18,48,.72));
       border: 1px solid rgba(255,255,255,.14);
       box-shadow:
         0 0 0 1px rgba(45,125,255,.10) inset,
@@ -614,8 +672,10 @@
       content:"";
       position:absolute;
       inset:-1px;
-      background: radial-gradient(240px 90px at 30% 30%, rgba(123,231,255,.18), transparent 60%);
-      opacity:.9;
+      background:
+        radial-gradient(240px 90px at 30% 30%, rgba(123,231,255,.18), transparent 60%),
+        radial-gradient(220px 70px at 75% 65%, rgba(215,181,109,.10), transparent 70%);
+      opacity:.92;
       pointer-events:none;
     }
     .cardLink:hover{
@@ -654,12 +714,13 @@
       width: 34px;
       height: 34px;
       border-radius: 12px;
-      background: linear-gradient(180deg, rgba(123,231,255,.85), rgba(45,125,255,.88));
-      box-shadow: 0 0 0 1px rgba(255,255,255,.16) inset, 0 10px 18px rgba(0,0,0,.35);
+      background:
+        linear-gradient(180deg, rgba(215,181,109,.90), rgba(138,107,47,.72));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 10px 18px rgba(0,0,0,.35);
       display:flex;
       align-items:center;
       justify-content:center;
-      color:#07101f;
+      color:#120f07;
       font-weight: 900;
       font-family: var(--mono);
       flex: 0 0 auto;
@@ -668,14 +729,14 @@
     /* energy bar */
     .energyWrap{
       position:relative;
-      z-index:2;
+      z-index:4;
       padding: 0 14px 14px 14px;
       display:flex;
       align-items:center;
       justify-content:center;
     }
     .energyBar{
-      width: min(720px, 92%);
+      width: min(760px, 92%);
       height: 14px;
       border-radius: 999px;
       background: rgba(255,255,255,.07);
@@ -688,7 +749,7 @@
       height: 100%;
       width: 0%;
       border-radius: 999px;
-      background: linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(255,224,102,.86));
+      background: linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62));
       box-shadow: 0 0 22px rgba(45,125,255,.24);
       transition: width 1.2s ease;
       position:relative;
@@ -699,22 +760,15 @@
       background:
         radial-gradient(16px 10px at 20% 40%, rgba(123,231,255,.0), rgba(123,231,255,.0) 55%, rgba(123,231,255,.35) 60%, rgba(123,231,255,0) 70%),
         radial-gradient(18px 12px at 60% 70%, rgba(45,125,255,.0), rgba(45,125,255,.0) 58%, rgba(45,125,255,.30) 63%, rgba(45,125,255,0) 74%),
-        radial-gradient(14px 10px at 80% 25%, rgba(255,224,102,.0), rgba(255,224,102,.0) 60%, rgba(255,224,102,.22) 66%, rgba(255,224,102,0) 78%);
+        radial-gradient(14px 10px at 80% 25%, rgba(215,181,109,.0), rgba(215,181,109,.0) 60%, rgba(215,181,109,.18) 66%, rgba(215,181,109,0) 78%);
       opacity: 0;
       pointer-events:none;
       filter: blur(.2px);
-      animation: crackle 5.6s infinite;
-    }
-    @keyframes crackle{
-      0%, 84%, 100% { opacity:0; transform: translate3d(0,0,0); }
-      86% { opacity:.65; transform: translate3d(0,-1px,0) scale(1.01); }
-      88% { opacity:.25; transform: translate3d(2px,0,0) scale(1.00); }
-      90% { opacity:.55; transform: translate3d(-1px,1px,0) scale(1.01); }
-      92% { opacity:.0; transform: translate3d(0,0,0); }
+      animation: edgeCrackle 7.2s infinite;
     }
     .energyMeta{
       margin-top: 8px;
-      width: min(720px, 92%);
+      width: min(760px, 92%);
       display:flex;
       justify-content:space-between;
       align-items:center;
@@ -724,7 +778,7 @@
     }
     .energyMeta b{ color: rgba(234,240,255,.88); }
 
-    /* Right cockpit panel */
+    /* Right cockpit panel (CHECKLIST + schedule setup only) */
     .cockpit{
       border-radius: var(--radius2);
       background: linear-gradient(180deg, rgba(12,22,56,.82), rgba(10,18,48,.70));
@@ -737,7 +791,9 @@
       content:"";
       position:absolute;
       inset:-2px;
-      background: radial-gradient(620px 360px at 30% 10%, rgba(123,231,255,.14), transparent 60%);
+      background:
+        radial-gradient(620px 360px at 30% 10%, rgba(123,231,255,.14), transparent 60%),
+        radial-gradient(520px 260px at 70% 80%, rgba(215,181,109,.08), transparent 65%);
       filter: blur(10px);
       opacity:.9;
       pointer-events:none;
@@ -748,8 +804,8 @@
       inset:-10px;
       border-radius: calc(var(--radius2) + 10px);
       background:
-        radial-gradient(22px 12px at 10% 22%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.30) 66%, rgba(123,231,255,0) 80%),
-        radial-gradient(22px 12px at 90% 48%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.26) 66%, rgba(45,125,255,0) 80%),
+        radial-gradient(22px 12px at 10% 22%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.32) 66%, rgba(123,231,255,0) 80%),
+        radial-gradient(22px 12px at 90% 48%, rgba(45,125,255,0), rgba(45,125,255,0) 60%, rgba(45,125,255,.28) 66%, rgba(45,125,255,0) 80%),
         radial-gradient(22px 12px at 55% 92%, rgba(123,231,255,0), rgba(123,231,255,0) 60%, rgba(123,231,255,.26) 66%, rgba(123,231,255,0) 80%);
       opacity:0;
       pointer-events:none;
@@ -832,6 +888,16 @@
       overflow:hidden;
       position:relative;
     }
+    .module::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      background:
+        radial-gradient(280px 80px at 20% 10%, rgba(215,181,109,.08), transparent 70%),
+        radial-gradient(240px 70px at 85% 85%, rgba(75,255,211,.05), transparent 70%);
+      opacity:.9;
+      pointer-events:none;
+    }
     .module::after{
       content:"";
       position:absolute; inset:-10px;
@@ -910,15 +976,6 @@
       z-index:2;
     }
 
-    .row2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 1040px){
-      .row2{ grid-template-columns: 1fr; }
-    }
-
     label{
       display:block;
       font-family: var(--mono);
@@ -946,57 +1003,53 @@
       border-color: rgba(123,231,255,.30);
       box-shadow: 0 0 0 4px rgba(45,125,255,.18);
     }
-    textarea{
-      min-height: 120px;
-      resize: vertical;
-    }
+    textarea{ min-height: 120px; resize: vertical; }
 
-    .todaySchedule{
+    /* Checklist */
+    .checkTop{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .checkTop input{
+      flex:1;
+    }
+    .checkList{
       display:grid;
       gap: 8px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(234,240,255,.82);
+      margin-top: 2px;
     }
-    .period{
+    .checkItem{
       display:flex;
-      justify-content:space-between;
+      gap:10px;
       align-items:flex-start;
-      gap: 10px;
       padding: 10px 10px;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.04);
-    }
-    .period .l{
-      min-width: 0;
-      display:flex;
-      flex-direction:column;
-      gap: 2px;
-    }
-    .period .l b{
+      font-family: var(--mono);
       font-size: 12px;
-      color: rgba(234,240,255,.92);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      color: rgba(234,240,255,.86);
     }
-    .period .l span{
-      font-size: 11px;
-      color: rgba(234,240,255,.62);
-    }
-    .period .r{
+    .checkItem input[type="checkbox"]{
+      width: 18px; height: 18px;
+      margin-top: 2px;
+      accent-color: var(--cyan);
       flex: 0 0 auto;
-      color: rgba(123,231,255,.85);
-      font-size: 11px;
-      white-space:nowrap;
     }
-    .period.now{
-      border-color: rgba(123,231,255,.28);
-      box-shadow: 0 0 0 1px rgba(45,125,255,.10) inset, 0 0 26px rgba(45,125,255,.12);
-      background: rgba(45,125,255,.10);
+    .checkItem .txt{
+      flex:1;
+      line-height:1.25;
+      word-break: break-word;
     }
-
+    .checkItem.done{
+      opacity:.68;
+      border-color: rgba(255,255,255,.10);
+    }
+    .checkItem.done .txt{
+      text-decoration: line-through;
+      color: rgba(183,194,230,.76);
+    }
     .tinyHint{
       font-family: var(--mono);
       font-size: 11px;
@@ -1047,7 +1100,7 @@
     }
 
     .footer{
-      max-width: 1300px;
+      max-width: 1320px;
       margin: 0 auto;
       padding: 0 16px 26px 16px;
       color: rgba(183,194,230,.72);
@@ -1064,6 +1117,7 @@
   <div class="starsA"></div>
   <div class="starsB"></div>
   <div class="starsC"></div>
+  <div class="starsD"></div>
   <div class="fog"></div>
   <div class="scanlines"></div>
 
@@ -1096,6 +1150,8 @@
   <main class="shell">
     <!-- LEFT: Ring bay -->
     <section class="bay">
+      <div class="trim" aria-hidden="true"></div>
+
       <div class="bayHeader">
         <div class="h1">
           <b>Navigation Ring</b>
@@ -1113,7 +1169,7 @@
         <div class="ring" id="ring" aria-label="Link ring" tabindex="0">
           <div class="ringCrackle" aria-hidden="true"></div>
 
-          <!-- center holo (daily schedule view) -->
+          <!-- smaller center holo -->
           <div class="holo" aria-hidden="true">
             <div class="holoTop">
               <div class="tag" id="holoTag">Daily Schedule</div>
@@ -1141,47 +1197,37 @@
       </div>
     </section>
 
-    <!-- RIGHT: Cockpit -->
+    <!-- RIGHT: Cockpit (Checklist + schedule setup only) -->
     <aside class="cockpit">
       <div class="cockHeader">
         <div class="left">
           <b>Control Console</b>
-          <span>Schedule + export. Everything saves locally.</span>
+          <span>Checklist + schedule entry. Everything saves locally.</span>
         </div>
         <div class="pill"><span class="spark"></span><span id="dayModePill">—</span></div>
       </div>
 
       <div class="cockBody">
-        <!-- Schedule view -->
+        <!-- CHECKLIST MODULE (this was missing before in your view) -->
         <div class="module">
           <div class="moduleHd">
-            <b>Schedule View</b>
+            <b>Checklist</b>
             <div class="mini">
-              <input type="date" id="viewDateRight" title="Select date" style="border-radius:999px;padding:8px 10px;border:1px solid rgba(255,255,255,.14);background:rgba(7,11,26,.25);color:var(--ink);font-family:var(--mono);font-size:12px;outline:none;" />
-              <select id="weekMode" title="Week mode (Blue/Gold)">
-                <option value="auto">Auto</option>
-                <option value="blue">Blue</option>
-                <option value="gold">Gold</option>
-              </select>
+              <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear</button>
+              <button class="btn btnGhost" id="exportChecklistBtn" type="button">Export</button>
             </div>
           </div>
           <div class="moduleBd">
-            <div class="tinyHint" id="todayHint">
-              Auto mode uses a locally saved “Blue anchor date” to determine Blue/Gold.
+            <div class="checkTop">
+              <input id="newItemText" type="text" placeholder="Add an agenda item…" />
+              <button class="btn btnPrimary" id="addItemBtn" type="button">Add Item</button>
             </div>
-            <div class="todaySchedule" id="todaySchedule">
-              <div class="period">
-                <div class="l">
-                  <b>Not configured yet</b>
-                  <span>Open Schedule Setup and save your blocks.</span>
-                </div>
-                <div class="r">—</div>
-              </div>
-            </div>
+            <div class="checkList" id="checkList"></div>
+            <div class="tinyHint">Tip: press Enter in the field to add. Items save locally and can be exported/imported.</div>
           </div>
         </div>
 
-        <!-- Export / Import -->
+        <!-- Portability (schedule + checklist) -->
         <div class="module">
           <div class="moduleHd">
             <b>Portability</b>
@@ -1191,7 +1237,7 @@
             </div>
           </div>
           <div class="moduleBd">
-            <div class="tinyHint">Export gives you JSON for schedule settings (and any future modules you add). Import restores it.</div>
+            <div class="tinyHint">Export gives you JSON for schedule settings + checklist. Import restores it.</div>
           </div>
         </div>
 
@@ -1205,11 +1251,11 @@
             </div>
           </div>
           <div class="moduleBd" id="setupBody" style="display:none;">
-            <div class="row2">
+            <div style="display:grid;gap:10px;">
               <div>
                 <label>Blue anchor date</label>
                 <input id="blueAnchor" type="text" placeholder="YYYY-MM-DD (a Monday you know is Blue)" />
-                <div class="tinyHint">Used for Auto week mode. If blank, Auto can’t determine Blue/Gold reliably.</div>
+                <div class="tinyHint">Used for Auto week mode when rendering the schedule in the center of the ring.</div>
               </div>
               <div>
                 <label>Office hours on H block</label>
@@ -1219,29 +1265,26 @@
                   <option value="gold">Gold week only</option>
                   <option value="both">Both weeks</option>
                 </select>
-                <div class="tinyHint">If set, any H period will display “Office Hours”.</div>
               </div>
-            </div>
 
-            <div class="row2">
-              <div><label>A block name</label><input id="A" type="text" placeholder="e.g., 10th Global" /></div>
-              <div><label>B block name</label><input id="B" type="text" placeholder="e.g., Adv Civ" /></div>
-            </div>
-            <div class="row2">
-              <div><label>C block name</label><input id="C" type="text" /></div>
-              <div><label>D block name</label><input id="D" type="text" /></div>
-            </div>
-            <div class="row2">
-              <div><label>E block name</label><input id="E" type="text" /></div>
-              <div><label>F block name</label><input id="F" type="text" /></div>
-            </div>
-            <div class="row2">
-              <div><label>G block name</label><input id="G" type="text" /></div>
-              <div><label>H block name</label><input id="H" type="text" /></div>
-            </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div><label>A block name</label><input id="A" type="text" /></div>
+                <div><label>B block name</label><input id="B" type="text" /></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div><label>C block name</label><input id="C" type="text" /></div>
+                <div><label>D block name</label><input id="D" type="text" /></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div><label>E block name</label><input id="E" type="text" /></div>
+                <div><label>F block name</label><input id="F" type="text" /></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div><label>G block name</label><input id="G" type="text" /></div>
+                <div><label>H block name</label><input id="H" type="text" /></div>
+              </div>
 
-            <div class="tinyHint">
-              Once saved, the center holo will show the daily schedule for whatever date you’ve selected.
+              <div class="tinyHint">Once saved, the center holo will show the schedule for the selected date. The right panel stays checklist-first.</div>
             </div>
           </div>
         </div>
@@ -1268,7 +1311,7 @@
   </div>
 
   <div class="footer">
-    Wheel rotates the ring • Schedule saved in your browser (localStorage) • Export JSON for portability
+    Wheel rotates the ring • Schedule + checklist saved in your browser (localStorage) • Export JSON for portability
   </div>
 
   <script>
@@ -1310,15 +1353,13 @@
     }
     buildNodes();
 
-    // FIX: orbit radius is computed from ring size + card width so nodes NEVER clip.
     function computeOrbitRadius(){
       const cs = getComputedStyle(document.documentElement);
       const nodeW = parseFloat(cs.getPropertyValue("--nodeW")) || 180;
-      const ringPad = parseFloat(cs.getPropertyValue("--ringPad")) || 34;
+      const ringPad = parseFloat(cs.getPropertyValue("--ringPad")) || 36;
       const w = ring.clientWidth || 600;
       const half = w / 2;
-      // keep a margin beyond node half-width
-      return Math.max(140, half - (nodeW / 2) - ringPad);
+      return Math.max(160, half - (nodeW / 2) - ringPad);
     }
 
     function layoutNodes(){
@@ -1372,7 +1413,7 @@
     tickClock();
 
     /************************************************************
-     * SCHEDULE DATA (Blue/Gold)
+     * SCHEDULE DATA (Blue/Gold) – used for center holo + countdown/energy
      ************************************************************/
     const blueWeek = {
       monday: [
@@ -1496,15 +1537,16 @@
     }
 
     /************************************************************
-     * LOCAL STORAGE STATE
+     * LOCAL STORAGE STATE (schedule + checklist)
      ************************************************************/
-    const LS_KEY = "geffen_cockpit_v2";
+    const LS_KEY = "geffen_cockpit_v3";
 
     const defaultState = {
       blueAnchor: "",
       officeHoursMode: "none",
       blocks: { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
-      viewDate: "" // YYYY-MM-DD
+      viewDate: "",
+      checklist: [] // {id, text, done}
     };
 
     function loadState(){
@@ -1516,6 +1558,7 @@
           ...structuredClone(defaultState),
           ...obj,
           blocks: { ...structuredClone(defaultState.blocks), ...(obj.blocks||{}) },
+          checklist: Array.isArray(obj.checklist) ? obj.checklist : []
         };
       }catch(e){
         return structuredClone(defaultState);
@@ -1530,6 +1573,24 @@
     /************************************************************
      * UI refs
      ************************************************************/
+    const dayModePill = document.getElementById("dayModePill");
+    const viewDateEl = document.getElementById("viewDate");
+
+    const holoList = document.getElementById("holoList");
+    const holoStatus = document.getElementById("holoStatus");
+    const holoTag = document.getElementById("holoTag");
+
+    const energyFill = document.getElementById("energyFill");
+    const energyPct = document.getElementById("energyPct");
+    const energyNote = document.getElementById("energyNote");
+
+    // checklist
+    const newItemText = document.getElementById("newItemText");
+    const addItemBtn = document.getElementById("addItemBtn");
+    const clearCheckedBtn = document.getElementById("clearCheckedBtn");
+    const checkListEl = document.getElementById("checkList");
+
+    // schedule setup
     const blueAnchorEl = document.getElementById("blueAnchor");
     const officeHoursModeEl = document.getElementById("officeHoursMode");
     const blockEls = ["A","B","C","D","E","F","G","H"].reduce((acc,k)=>{
@@ -1540,29 +1601,21 @@
     const toggleSetupBtn = document.getElementById("toggleSetup");
     const setupBody = document.getElementById("setupBody");
 
-    const weekModeEl = document.getElementById("weekMode");
-    const dayModePill = document.getElementById("dayModePill");
-
-    const viewDateEl = document.getElementById("viewDate");
-    const viewDateRightEl = document.getElementById("viewDateRight");
-
-    const todayScheduleEl = document.getElementById("todaySchedule");
-    const todayHintEl = document.getElementById("todayHint");
-    const energyFill = document.getElementById("energyFill");
-    const energyPct = document.getElementById("energyPct");
-    const energyNote = document.getElementById("energyNote");
-
-    const holoList = document.getElementById("holoList");
-    const holoStatus = document.getElementById("holoStatus");
-    const holoTag = document.getElementById("holoTag");
+    // export/import
+    const overlay = document.getElementById("overlay");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalHint = document.getElementById("modalHint");
+    const jsonBox = document.getElementById("jsonBox");
+    const closeModal = document.getElementById("closeModal");
+    const copyJsonBtn = document.getElementById("copyJsonBtn");
+    const applyJsonBtn = document.getElementById("applyJsonBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
 
     function isValidISODate(s){
       return /^\d{4}-\d{2}-\d{2}$/.test(s);
     }
 
-    /************************************************************
-     * Setup UI hydration
-     ************************************************************/
     function hydrateSetupUI(){
       blueAnchorEl.value = state.blueAnchor || "";
       officeHoursModeEl.value = state.officeHoursMode || "none";
@@ -1572,23 +1625,18 @@
     }
     hydrateSetupUI();
 
-    // date pickers default
     const todayISO = isoDate(new Date());
     if (!isValidISODate(state.viewDate)) state.viewDate = todayISO;
     viewDateEl.value = state.viewDate;
-    viewDateRightEl.value = state.viewDate;
 
     function setViewDate(val){
       if (!isValidISODate(val)) return;
       state.viewDate = val;
       saveState();
       viewDateEl.value = val;
-      viewDateRightEl.value = val;
-      renderScheduleViews();
+      renderCenterScheduleAndTimers();
     }
-
     viewDateEl.addEventListener("change", (e)=> setViewDate(e.target.value));
-    viewDateRightEl.addEventListener("change", (e)=> setViewDate(e.target.value));
 
     saveScheduleBtn.addEventListener("click", () => {
       state.blueAnchor = (blueAnchorEl.value || "").trim();
@@ -1597,11 +1645,11 @@
         state.blocks[k] = (blockEls[k].value || "").trim();
       }
       saveState();
-      renderScheduleViews();
+      renderCenterScheduleAndTimers();
       flashPill("Saved");
     });
 
-    let setupCollapsed = true; // collapsed by default
+    let setupCollapsed = true;
     toggleSetupBtn.addEventListener("click", () => {
       setupCollapsed = !setupCollapsed;
       setupBody.style.display = setupCollapsed ? "none" : "";
@@ -1615,12 +1663,71 @@
     }
 
     /************************************************************
+     * Checklist logic (LOCAL, visible, with Add + Clear)
+     ************************************************************/
+    function uid(){
+      return Math.random().toString(16).slice(2) + Date.now().toString(16);
+    }
+
+    function renderChecklist(){
+      checkListEl.innerHTML = "";
+      if (!state.checklist.length){
+        const empty = document.createElement("div");
+        empty.className = "tinyHint";
+        empty.textContent = "No items yet. Add one above.";
+        checkListEl.appendChild(empty);
+        return;
+      }
+
+      state.checklist.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.className = "checkItem" + (item.done ? " done" : "");
+        row.innerHTML = `
+          <input type="checkbox" ${item.done ? "checked" : ""} aria-label="Toggle item">
+          <div class="txt"></div>
+        `;
+        row.querySelector(".txt").textContent = item.text;
+
+        const cb = row.querySelector("input");
+        cb.addEventListener("change", () => {
+          state.checklist[idx].done = cb.checked;
+          saveState();
+          renderChecklist();
+        });
+
+        checkListEl.appendChild(row);
+      });
+    }
+
+    function addChecklistItem(text){
+      const t = (text || "").trim();
+      if (!t) return;
+      state.checklist.unshift({ id: uid(), text: t, done: false });
+      saveState();
+      newItemText.value = "";
+      renderChecklist();
+    }
+
+    addItemBtn.addEventListener("click", ()=> addChecklistItem(newItemText.value));
+    newItemText.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter"){
+        e.preventDefault();
+        addChecklistItem(newItemText.value);
+      }
+    });
+
+    clearCheckedBtn.addEventListener("click", ()=>{
+      state.checklist = state.checklist.filter(it => !it.done);
+      saveState();
+      renderChecklist();
+    });
+
+    renderChecklist();
+
+    /************************************************************
      * Blue/Gold auto mode (anchor-date based)
      ************************************************************/
     function getWeekModeForDate(date){
-      const forced = weekModeEl.value;
-      if (forced === "blue" || forced === "gold") return forced;
-
       if (!isValidISODate(state.blueAnchor)) return null;
       const anchor = new Date(state.blueAnchor + "T00:00:00");
       const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -1664,7 +1771,6 @@
           return "Office Hours";
         }
       }
-
       return state.blocks[block] ? `${state.blocks[block]} (${block})` : block;
     }
 
@@ -1694,146 +1800,20 @@
     }
 
     /************************************************************
-     * Render schedule views (right module + center holo + day pill + energy)
+     * Center holo schedule + energy + countdown
      ************************************************************/
-    function renderScheduleViews(){
-      const view = new Date(state.viewDate + "T00:00:00");
-      const now = new Date();
-      const isToday = isoDate(now) === state.viewDate;
-
-      const { periods, week, day } = buildPeriodsForDate(view);
-      const dayName = day.charAt(0).toUpperCase() + day.slice(1);
-      const weekName = week ? week.toUpperCase() : "—";
-
-      if (!week && (day === "saturday" || day === "sunday")){
-        dayModePill.textContent = `Weekend • ${dayName}`;
-      } else if (!week){
-        dayModePill.textContent = `Auto needs anchor date`;
-      } else {
-        dayModePill.textContent = `${weekName} • ${dayName}`;
-      }
-
-      // Hint
-      todayHintEl.textContent = (weekModeEl.value === "auto")
-        ? (isValidISODate(state.blueAnchor)
-            ? `Auto week mode anchored to Blue Monday: ${state.blueAnchor}.`
-            : `Auto mode needs a “Blue anchor date” (a Monday you know is Blue).`)
-        : `Week mode forced to ${weekModeEl.value.toUpperCase()}.`;
-
-      // Right schedule list
-      todayScheduleEl.innerHTML = "";
-
-      if (!periods.length){
-        const row = document.createElement("div");
-        row.className = "period";
-        row.innerHTML = `
-          <div class="l">
-            <b>${(day === "saturday" || day === "sunday") ? "Weekend" : "Schedule not ready"}</b>
-            <span>${(day === "saturday" || day === "sunday") ? "No school blocks today." : "Set a Blue anchor date + save your blocks in Schedule Setup."}</span>
-          </div>
-          <div class="r">—</div>
-        `;
-        todayScheduleEl.appendChild(row);
-
-        // Center holo
-        holoTag.textContent = `Daily Schedule • ${state.viewDate}`;
-        holoStatus.textContent = (day === "saturday" || day === "sunday") ? "Weekend" : "Not configured";
-        holoList.innerHTML = `<div class="line"><div class="dot"></div><div>Enter your schedule on the right.</div></div>`;
-
-        // Energy (only meaningful for today)
-        energyFill.style.width = "0%";
-        energyPct.textContent = "0%";
-        energyNote.textContent = (day === "saturday" || day === "sunday") ? "Standby" : "Awaiting schedule…";
-
-        // Countdown
-        updateCountdown(null, false);
-        return;
-      }
-
-      // determine "now" period only if viewing today
-      const minutesNow = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
-      let active = null;
-
-      periods.forEach(p => {
-        const isNow = isToday && (minutesNow >= p.range.start && minutesNow < p.range.end);
-        if (isNow) active = p;
-
-        const el = document.createElement("div");
-        el.className = "period" + (isNow ? " now" : "");
-        el.innerHTML = `
-          <div class="l">
-            <b>${escapeHtml(p.label)}</b>
-            <span>${escapeHtml(p.block)}</span>
-          </div>
-          <div class="r">${escapeHtml(p.time)}</div>
-        `;
-        todayScheduleEl.appendChild(el);
-      });
-
-      // Center holo schedule (compact)
-      holoTag.textContent = `Daily Schedule • ${state.viewDate}`;
-      holoStatus.textContent = week ? `${weekName} • ${dayName}` : dayName;
-      holoList.innerHTML = "";
-
-      periods.slice(0, 8).forEach(p => {
-        const isNow = isToday && (minutesNow >= p.range.start && minutesNow < p.range.end);
-        const line = document.createElement("div");
-        line.className = "line" + (isNow ? " now" : "");
-        line.innerHTML = `<div class="dot"></div><div style="overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.time)} • ${escapeHtml(p.label)}</div>`;
-        holoList.appendChild(line);
-      });
-
-      // Energy (only for today; otherwise show neutral)
-      if (!isToday){
-        energyFill.style.width = "0%";
-        energyPct.textContent = "—";
-        energyNote.textContent = "Energy grid is live only for today";
-      } else {
-        let lastEnd = Math.max(...periods.map(p => p.range.end));
-        let firstStart = Math.min(...periods.map(p => p.range.start));
-        const clamped = Math.min(Math.max(minutesNow, firstStart), lastEnd);
-        const prog = (clamped - firstStart) / (lastEnd - firstStart);
-        const pct = Math.round(prog * 100);
-
-        energyFill.style.width = `${pct}%`;
-        energyPct.textContent = `${pct}%`;
-
-        if (minutesNow < firstStart) energyNote.textContent = "Pre-start";
-        else if (minutesNow >= lastEnd) energyNote.textContent = "Complete";
-        else if (active) energyNote.textContent = `Now: ${active.block}`;
-        else energyNote.textContent = "In transit";
-      }
-
-      // Countdown
-      if (!isToday){
-        updateCountdown("—", false);
-      } else {
-        const next = findNextClass(periods, minutesNow);
-        if (!next){
-          updateCountdown("No more classes", false);
-        } else {
-          const deltaSec = Math.max(0, Math.round((next.range.start - minutesNow) * 60));
-          const warn = deltaSec > 0 && deltaSec <= 600; // <= 10 minutes
-          updateCountdown(formatCountdown(deltaSec), warn);
-        }
-      }
-    }
-
     function isClassBlock(block){
       return ["A","B","C","D","E","F","G","H"].includes(block);
     }
 
     function findNextClass(periods, minutesNow){
-      // next *class* start after now
       const classes = periods.filter(p => isClassBlock(p.block));
-      // find smallest start > now
       let best = null;
       for (const p of classes){
         if (p.range.start > minutesNow){
           if (!best || p.range.start < best.range.start) best = p;
         }
       }
-      // If before school starts, best will be first class. If during a class, still gives the next class.
       return best;
     }
 
@@ -1854,30 +1834,90 @@
       else countdownBox.classList.remove("warn");
     }
 
-    weekModeEl.addEventListener("change", () => renderScheduleViews());
+    function renderCenterScheduleAndTimers(){
+      const view = new Date(state.viewDate + "T00:00:00");
+      const now = new Date();
+      const isToday = isoDate(now) === state.viewDate;
 
-    // live updates
-    setInterval(renderScheduleViews, 800);
-    renderScheduleViews();
+      const { periods, week, day } = buildPeriodsForDate(view);
+      const dayName = day.charAt(0).toUpperCase() + day.slice(1);
+      const weekName = week ? week.toUpperCase() : "—";
+
+      if (!week && (day === "saturday" || day === "sunday")){
+        dayModePill.textContent = `Weekend • ${dayName}`;
+      } else if (!week){
+        dayModePill.textContent = `Auto needs anchor`;
+      } else {
+        dayModePill.textContent = `${weekName} • ${dayName}`;
+      }
+
+      const minutesNow = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
+
+      holoTag.textContent = `Daily Schedule • ${state.viewDate}`;
+      holoStatus.textContent = week ? `${weekName} • ${dayName}` : (dayName);
+
+      if (!periods.length){
+        holoList.innerHTML = `<div class="line"><div class="dot"></div><div>${(day==="saturday"||day==="sunday") ? "Weekend." : "Set Blue anchor date + save block names."}</div></div>`;
+        energyFill.style.width = "0%";
+        energyPct.textContent = "0%";
+        energyNote.textContent = (day==="saturday"||day==="sunday") ? "Standby" : "Awaiting schedule…";
+        updateCountdown(null, false);
+        return;
+      }
+
+      // highlight current period if today
+      holoList.innerHTML = "";
+      periods.slice(0, 8).forEach(p => {
+        const isNow = isToday && (minutesNow >= p.range.start && minutesNow < p.range.end);
+        const line = document.createElement("div");
+        line.className = "line" + (isNow ? " now" : "");
+        line.innerHTML = `<div class="dot"></div><div style="overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.time)} • ${escapeHtml(p.label)}</div>`;
+        holoList.appendChild(line);
+      });
+
+      // Energy (only for today)
+      if (!isToday){
+        energyFill.style.width = "0%";
+        energyPct.textContent = "—";
+        energyNote.textContent = "Energy grid is live only for today";
+        updateCountdown("—", false);
+        return;
+      }
+
+      const lastEnd = Math.max(...periods.map(p => p.range.end));
+      const firstStart = Math.min(...periods.map(p => p.range.start));
+      const clamped = Math.min(Math.max(minutesNow, firstStart), lastEnd);
+      const prog = (clamped - firstStart) / (lastEnd - firstStart);
+      const pct = Math.round(prog * 100);
+
+      energyFill.style.width = `${pct}%`;
+      energyPct.textContent = `${pct}%`;
+
+      if (minutesNow < firstStart) energyNote.textContent = "Pre-start";
+      else if (minutesNow >= lastEnd) energyNote.textContent = "Complete";
+      else energyNote.textContent = "In progress";
+
+      const next = findNextClass(periods, minutesNow);
+      if (!next){
+        updateCountdown("No more classes", false);
+      } else {
+        const deltaSec = Math.max(0, Math.round((next.range.start - minutesNow) * 60));
+        const warn = deltaSec > 0 && deltaSec <= 600; // <= 10 minutes
+        updateCountdown(formatCountdown(deltaSec), warn);
+      }
+    }
+
+    setInterval(renderCenterScheduleAndTimers, 800);
+    renderCenterScheduleAndTimers();
 
     /************************************************************
-     * EXPORT / IMPORT JSON
+     * Export / Import JSON (schedule + checklist)
      ************************************************************/
-    const overlay = document.getElementById("overlay");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalHint = document.getElementById("modalHint");
-    const jsonBox = document.getElementById("jsonBox");
-    const closeModal = document.getElementById("closeModal");
-    const copyJsonBtn = document.getElementById("copyJsonBtn");
-    const applyJsonBtn = document.getElementById("applyJsonBtn");
-    const exportBtn = document.getElementById("exportBtn");
-    const importBtn = document.getElementById("importBtn");
-
     function openModal(mode){
       overlay.style.display = "flex";
       if (mode === "export"){
         modalTitle.textContent = "Export";
-        modalHint.textContent = "Copy this JSON to move your schedule setup to another computer.";
+        modalHint.textContent = "Copy this JSON to move your schedule + checklist to another computer.";
         jsonBox.value = JSON.stringify(state, null, 2);
         applyJsonBtn.style.display = "none";
         jsonBox.readOnly = true;
@@ -1915,12 +1955,14 @@
           ...structuredClone(defaultState),
           ...obj,
           blocks: { ...structuredClone(defaultState.blocks), ...(obj.blocks||{}) },
+          checklist: Array.isArray(obj.checklist) ? obj.checklist : []
         };
         if (!isValidISODate(state.viewDate)) state.viewDate = isoDate(new Date());
         saveState();
         hydrateSetupUI();
-        setViewDate(state.viewDate);
-        renderScheduleViews();
+        viewDateEl.value = state.viewDate;
+        renderChecklist();
+        renderCenterScheduleAndTimers();
         closeModalFn();
         flashPill("Imported");
       }catch(e){
@@ -1929,9 +1971,8 @@
     });
 
     /************************************************************
-     * Small UX touches
+     * Google search focus with /
      ************************************************************/
-    // focus Google search with /
     window.addEventListener("keydown", (e) => {
       if (e.key === "/" && document.activeElement !== document.getElementById("googleQ")){
         e.preventDefault();
@@ -1939,7 +1980,9 @@
       }
     });
 
-    // stable ring layout on resize
+    /************************************************************
+     * Resize relayout for ring
+     ************************************************************/
     window.addEventListener("resize", () => layoutNodes());
   </script>
 </body>

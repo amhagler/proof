@@ -47,12 +47,8 @@
       --nodeH: 132px;
       --ringPad: 40px;
 
-      /* Center holo sizing */
-      --holoInset: 200px;
-
-      /* FX */
-      --fxGlow: 1;
-      --matrixOpacity: .55;
+      /* SMALLER center holo */
+      --holoInset: 210px;
     }
 
     *{ box-sizing:border-box; }
@@ -75,7 +71,7 @@
       inset:0;
       z-index:0;
       pointer-events:none;
-      opacity: var(--matrixOpacity);
+      opacity:.55;
       mix-blend-mode: screen;
       filter: blur(.15px);
     }
@@ -165,14 +161,14 @@
     .clockBox{
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:6px;
       font-family: var(--mono);
       padding: 10px 12px;
       border-radius: 14px;
       background: linear-gradient(180deg, rgba(12,22,56,.85), rgba(10,18,48,.75));
       border: 1px solid rgba(255,255,255,.14);
       box-shadow: var(--shadow2);
-      min-width: 320px;
+      min-width: 300px;
       justify-content:center;
       position:relative;
       overflow:hidden;
@@ -222,56 +218,6 @@
       border-color: rgba(123,231,255,.22);
       animation: warnPulse 1.6s ease-in-out infinite;
     }
-
-    .nextClassCard{
-      display:none;
-      position:relative;
-      z-index:2;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      box-shadow: 0 0 0 1px rgba(45,125,255,.08) inset, 0 10px 22px rgba(0,0,0,.22);
-      padding: 9px 10px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: rgba(234,240,255,.78);
-      overflow:hidden;
-    }
-    .nextClassCard.on{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .nextClassCard .meta{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .nextClassCard .meta b{
-      font-size: 11px;
-      color: rgba(234,240,255,.92);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .nextClassCard .meta span{
-      font-size: 10px;
-      color: rgba(234,240,255,.66);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .nextClassCard .openBtn{
-      border:none;
-      cursor:pointer;
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 900;
-      padding: 8px 10px;
-      border-radius: 12px;
-      color:#07101f;
-      background: linear-gradient(180deg, rgba(123,231,255,.95), rgba(45,125,255,.92));
-      box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 12px 22px rgba(0,0,0,.28);
-      white-space:nowrap;
-    }
-    .nextClassCard .openBtn:active{ transform: translateY(1px); }
 
     .searchWrap{
       flex: 1;
@@ -346,64 +292,6 @@
     .searchWrap button:hover{ filter: brightness(1.05); }
     .searchWrap button:active{ transform: translateY(1px); }
 
-    /* FX intensity control (unobtrusive) */
-    .fxCtl{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, rgba(12,22,56,.82), rgba(10,18,48,.68));
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: var(--shadow2);
-      font-family: var(--mono);
-      font-size: 11px;
-      color: rgba(234,240,255,.74);
-      position:relative;
-      overflow:hidden;
-      min-width: 210px;
-    }
-    .fxCtl::before{
-      content:"";
-      position:absolute;
-      inset:-1px;
-      background:
-        radial-gradient(220px 70px at 20% 20%, rgba(45,125,255,.12), transparent 70%),
-        radial-gradient(220px 70px at 85% 80%, rgba(215,181,109,.07), transparent 75%);
-      opacity:.85;
-      pointer-events:none;
-    }
-    .fxCtl .fxIcon{
-      width: 24px;
-      height: 24px;
-      border-radius: 10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight: 900;
-      color:#07101f;
-      background: linear-gradient(180deg, rgba(123,231,255,.95), rgba(45,125,255,.92));
-      box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 10px 18px rgba(0,0,0,.25);
-      position:relative;
-      z-index:2;
-      flex: 0 0 auto;
-    }
-    .fxCtl input[type="range"]{
-      width: 110px;
-      position:relative;
-      z-index:2;
-      accent-color: var(--cyan);
-    }
-    .fxCtl .fxLbl{
-      position:relative;
-      z-index:2;
-      min-width: 64px;
-      text-align:right;
-      color: rgba(234,240,255,.80);
-      font-weight: 900;
-      letter-spacing:.06em;
-    }
-
     /* Main layout */
     .shell{
       position:relative;
@@ -418,11 +306,10 @@
     }
     @media (max-width: 1040px){
       .shell{ grid-template-columns: 1fr; }
-      :root{ --ringSize: 640px; --holoInset: 185px; --nodeW:124px; --nodeH:124px; }
+      :root{ --ringSize: 640px; --holoInset: 190px; --nodeW:124px; --nodeH:124px; }
     }
     @media (max-width: 680px){
-      :root{ --ringSize: 580px; --holoInset: 172px; --nodeW:116px; --nodeH:116px; }
-      .fxCtl{ min-width: 100%; }
+      :root{ --ringSize: 580px; --holoInset: 175px; --nodeW:116px; --nodeH:116px; }
     }
 
     /* Left: ring bay */
@@ -433,7 +320,7 @@
       border: 1px solid rgba(255,255,255,.12);
       box-shadow: var(--shadow);
       overflow: visible;
-      min-height: calc(var(--ringSize) + 140px);
+      min-height: calc(var(--ringSize) + 120px);
     }
     .bay::before{
       content:"";
@@ -463,7 +350,7 @@
     .bayHeader{
       position:relative;
       z-index:4;
-      padding: 14px 14px 12px 14px;
+      padding: 14px 14px 10px 14px;
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
@@ -471,13 +358,11 @@
       border-bottom: 1px solid rgba(255,255,255,.10);
       background: linear-gradient(to bottom, rgba(255,255,255,.06), transparent);
       border-radius: var(--radius2);
-      flex-wrap:wrap;
     }
     .bayHeader .h1{
       display:flex;
       flex-direction:column;
       gap:3px;
-      min-width: 260px;
     }
     .bayHeader .h1 b{
       font-family: var(--mono);
@@ -494,19 +379,16 @@
     .bayHeader .datePick{
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:6px;
       align-items:flex-end;
       font-family: var(--mono);
       font-size: 11px;
       color: rgba(234,240,255,.70);
-      min-width: 340px;
     }
     .bayHeader .datePickRow{
       display:flex;
       gap:8px;
       align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
     }
     .bayHeader input[type="date"]{
       border-radius: 999px;
@@ -521,31 +403,6 @@
     .bayHeader input[type="date"]:focus{
       border-color: rgba(123,231,255,.30);
       box-shadow: 0 0 0 4px rgba(45,125,255,.18);
-    }
-
-    .quickBtn{
-      border:none;
-      cursor:pointer;
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 900;
-      padding: 8px 10px;
-      border-radius: 999px;
-      color: rgba(234,240,255,.88);
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 0 0 1px rgba(0,0,0,.16) inset;
-      transition: filter .18s ease, transform .08s ease;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .quickBtn:hover{ filter: brightness(1.05); }
-    .quickBtn:active{ transform: translateY(1px); }
-    .quickBtn.primary{
-      color:#07101f;
-      background: linear-gradient(180deg, rgba(123,231,255,.95), rgba(45,125,255,.92));
-      border-color: rgba(255,255,255,.10);
-      box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 12px 22px rgba(0,0,0,.26);
     }
 
     .ringStage{
@@ -595,23 +452,23 @@
       z-index:0;
     }
 
-    /* Center holo */
+    /* Smaller center holo, and visually “quieter” */
     .holo{
       position:absolute;
       inset: var(--holoInset);
       border-radius: 22px;
-      background: linear-gradient(180deg, rgba(12,22,56,.30), rgba(10,18,48,.14));
+      background:
+        linear-gradient(180deg, rgba(12,22,56,.30), rgba(10,18,48,.14));
       border: 1px solid rgba(255,255,255,.08);
       box-shadow: 0 0 0 1px rgba(45,125,255,.08) inset;
       backdrop-filter: blur(8px);
       display:flex;
       flex-direction:column;
       gap:8px;
-      padding: 10px;
-      pointer-events:auto;
+      padding: 10px 10px 10px 10px;
+      pointer-events:auto; /* allow clicks on schedule links */
       z-index:2;
       opacity:.92;
-      min-height: 220px;
     }
     .holo .holoTop{
       display:flex;
@@ -640,21 +497,18 @@
       border: 1px solid rgba(255,255,255,.08);
       background: rgba(255,255,255,.03);
       overflow:hidden;
-      flex: 1;
-      min-height: 0;
     }
     .holoList{
       display:grid;
-      gap: 6px;
+      gap: 8px;
       padding: 10px;
       font-family: var(--mono);
       font-size: 11px;
       color: rgba(234,240,255,.82);
-      height: 100%;
+      max-height: 250px;
       overflow:auto;
       scrollbar-width: thin;
       scrollbar-color: rgba(123,231,255,.35) rgba(0,0,0,.0);
-      line-height: 1.12;
     }
     .holoList::-webkit-scrollbar{ width: 10px; }
     .holoList::-webkit-scrollbar-thumb{
@@ -670,7 +524,7 @@
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.10);
       background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      padding: 8px 10px;
+      padding: 9px 10px;
       display:flex;
       gap:10px;
       align-items:flex-start;
@@ -755,7 +609,7 @@
       height: 2px;
       border-radius: 999px;
       background: linear-gradient(90deg, rgba(123,231,255,.0), rgba(123,231,255,.75), rgba(45,125,255,.75), rgba(75,255,211,.45), rgba(123,231,255,.0));
-      box-shadow: 0 0 calc(16px * var(--fxGlow)) rgba(45,125,255,.25);
+      box-shadow: 0 0 16px rgba(45,125,255,.25);
       filter: blur(.05px);
     }
     .timeMarker .dot{
@@ -766,7 +620,7 @@
       height: 12px;
       border-radius: 50%;
       background: rgba(123,231,255,.92);
-      box-shadow: 0 0 calc(18px * var(--fxGlow)) rgba(45,125,255,.38);
+      box-shadow: 0 0 18px rgba(45,125,255,.38);
       border: 1px solid rgba(255,255,255,.18);
     }
     .timeMarker .tag{
@@ -794,17 +648,6 @@
       will-change: transform;
       cursor:pointer;
       z-index:5;
-      touch-action:none;
-    }
-    .node.dragging{ z-index: 20; }
-    .node .cardLink:focus{ outline:none; }
-    .node.focused .cardLink{
-      border-color: rgba(123,231,255,.34);
-      box-shadow:
-        0 0 0 1px rgba(45,125,255,.14) inset,
-        0 0 22px rgba(45,125,255,.14),
-        0 16px 28px rgba(0,0,0,.42);
-      filter: brightness(1.06);
     }
 
     /* Circular rotating cards */
@@ -833,7 +676,6 @@
       position:relative;
       overflow:hidden;
       pointer-events:auto;
-      user-select:none;
     }
     .cardLink::after{
       content:"";
@@ -884,7 +726,8 @@
       width: 40px;
       height: 40px;
       border-radius: 14px;
-      background: linear-gradient(180deg, rgba(215,181,109,.92), rgba(138,107,47,.74));
+      background:
+        linear-gradient(180deg, rgba(215,181,109,.92), rgba(138,107,47,.74));
       box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 10px 18px rgba(0,0,0,.35);
       display:flex;
       align-items:center;
@@ -919,7 +762,7 @@
       width: 0%;
       border-radius: 999px;
       background: linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62));
-      box-shadow: 0 0 calc(22px * var(--fxGlow)) rgba(45,125,255,.24);
+      box-shadow: 0 0 22px rgba(45,125,255,.24);
       transition: width 1.2s ease;
       position:relative;
     }
@@ -1139,34 +982,6 @@
       align-items:center;
     }
     .checkTop input{ flex:1; }
-    .checkFilters{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top: 2px;
-    }
-    .filterPill{
-      border:none;
-      cursor:pointer;
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 900;
-      padding: 7px 10px;
-      border-radius: 999px;
-      color: rgba(234,240,255,.82);
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 0 0 1px rgba(0,0,0,.14) inset;
-      user-select:none;
-    }
-    .filterPill.active{
-      color:#07101f;
-      background: linear-gradient(180deg, rgba(123,231,255,.95), rgba(45,125,255,.92));
-      border-color: rgba(255,255,255,.10);
-      box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 10px 18px rgba(0,0,0,.22);
-    }
-
     .checkList{
       display:grid;
       gap: 8px;
@@ -1184,73 +999,17 @@
       font-size: 12px;
       color: rgba(234,240,255,.86);
     }
-    .checkItem.overdue{
-      border-color: rgba(255,90,90,.22);
-      box-shadow: 0 0 0 1px rgba(255,90,90,.08) inset;
-    }
     .checkItem input[type="checkbox"]{
       width: 18px; height: 18px;
       margin-top: 2px;
       accent-color: var(--cyan);
       flex: 0 0 auto;
     }
-    .dragGrip{
-      width: 20px;
-      height: 20px;
-      border-radius: 10px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color: rgba(234,240,255,.70);
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      box-shadow: 0 0 0 1px rgba(0,0,0,.10) inset;
-      user-select:none;
-      cursor: grab;
-      margin-top: 1px;
-      flex: 0 0 auto;
-    }
-    .checkItem.dragging{ opacity:.75; cursor: grabbing; }
-    .checkItem .txtWrap{
-      flex:1;
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
     .checkItem .txt{
+      flex:1;
       line-height:1.25;
       word-break: break-word;
     }
-    .checkMetaRow{
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .tagChip{
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(123,231,255,.22);
-      color: rgba(123,231,255,.92);
-      background: rgba(45,125,255,.10);
-      white-space:nowrap;
-    }
-    .dueBadge{
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(215,181,109,.20);
-      color: rgba(234,240,255,.82);
-      background: rgba(215,181,109,.06);
-      white-space:nowrap;
-    }
-    .dueBadge.overdue{
-      border-color: rgba(255,90,90,.22);
-      background: rgba(255,90,90,.06);
-    }
-
     .checkItem.done{
       opacity:.68;
       border-color: rgba(255,255,255,.10);
@@ -1267,34 +1026,6 @@
       line-height:1.25;
       position:relative;
       z-index:2;
-    }
-
-    /* Ring node editor */
-    .ringList{
-      display:grid;
-      gap:8px;
-    }
-    .ringRow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    .ringRow .miniNote{
-      font-family: var(--mono);
-      font-size: 11px;
-      color: rgba(234,240,255,.62);
-      line-height:1.2;
-    }
-    .ringSelect{
-      width:100%;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(7,11,26,.35);
-      color: var(--ink);
-      padding: 10px 10px;
-      outline:none;
-      font-family: var(--mono);
-      font-size: 13px;
     }
 
     /* Export / import drawer */
@@ -1366,7 +1097,7 @@
     <div class="topbarInner">
       <div class="brand">
         <div class="title">GEFFEN COCKPIT</div>
-        <div class="subtitle">Wheel rotates ring • drag nodes to reorder • “/” focuses search • ←/→ rotate • Enter opens</div>
+        <div class="subtitle">Retro-future dashboard • wheel to rotate the ring • “/” focuses search</div>
       </div>
 
       <form class="searchWrap" action="https://www.google.com/search" method="GET" target="_blank" rel="noopener">
@@ -1374,12 +1105,6 @@
         <input id="googleQ" name="q" type="text" placeholder="Search Google…" autocomplete="off" />
         <button type="submit">SEARCH</button>
       </form>
-
-      <div class="fxCtl" aria-label="FX intensity">
-        <div class="fxIcon" aria-hidden="true">FX</div>
-        <input id="fxRange" type="range" min="0" max="3" step="1" value="2" />
-        <div class="fxLbl" id="fxLabel">MED</div>
-      </div>
 
       <div class="clockBox" aria-label="Clock">
         <div class="clockTop">
@@ -1389,13 +1114,6 @@
         </div>
         <div class="countdown" id="countdownBox">
           <span>Time until next class:</span> <b id="countdownText">—</b>
-        </div>
-        <div class="nextClassCard" id="nextClassCard">
-          <div class="meta">
-            <b id="nextClassTitle">—</b>
-            <span id="nextClassSub">—</span>
-          </div>
-          <button class="openBtn" id="nextClassOpenBtn" type="button" style="display:none;">OPEN</button>
         </div>
       </div>
     </div>
@@ -1409,25 +1127,19 @@
       <div class="bayHeader">
         <div class="h1">
           <b>Navigation Ring</b>
-          <span>Wheel rotates. Drag nodes to reorder. Click node to launch.</span>
+          <span>Scroll your wheel over the ring to rotate. Click a node to launch.</span>
         </div>
-
         <div class="datePick" aria-label="Select date to view schedule">
           <div style="opacity:.85;">View date</div>
           <div class="datePickRow">
             <input type="date" id="viewDate" />
-            <button class="quickBtn primary" id="btnToday" type="button">Today</button>
-            <button class="quickBtn" id="btnTomorrow" type="button">Tomorrow</button>
-            <button class="quickBtn" id="btnNextSchool" type="button">Next school day</button>
-            <button class="quickBtn" id="btnScrollNow" type="button" title="Today only">Auto-scroll to now</button>
-            <button class="quickBtn" id="btnJumpNext" type="button" title="Today only">Jump next class</button>
           </div>
         </div>
       </div>
 
       <div class="ringStage">
         <div class="ring" id="ring" aria-label="Link ring" tabindex="0">
-          <!-- center holo -->
+          <!-- smaller center holo -->
           <div class="holo" id="holo">
             <div class="holoTop">
               <div class="tag" id="holoTag">Daily Schedule</div>
@@ -1448,7 +1160,6 @@
               </div>
             </div>
           </div>
-
           <!-- nodes inserted by JS -->
         </div>
       </div>
@@ -1466,12 +1177,12 @@
       </div>
     </section>
 
-    <!-- RIGHT: Cockpit -->
+    <!-- RIGHT: Cockpit (Checklist + schedule setup only) -->
     <aside class="cockpit" id="cockpit">
       <div class="cockHeader">
         <div class="left">
           <b>Control Console</b>
-          <span>Checklist + ring nodes + schedule entry. Everything saves locally.</span>
+          <span>Checklist + schedule entry. Everything saves locally.</span>
         </div>
         <div class="pill"><span class="spark"></span><span id="dayModePill">—</span></div>
       </div>
@@ -1488,61 +1199,15 @@
           </div>
           <div class="moduleBd">
             <div class="checkTop">
-              <input id="newItemText" type="text" placeholder="Add an agenda item… (use #tags and @due)" />
+              <input id="newItemText" type="text" placeholder="Add an agenda item…" />
               <button class="btn btnPrimary" id="addItemBtn" type="button">Add Item</button>
             </div>
-
-            <div class="checkFilters" id="checkFilters"></div>
-
             <div class="checkList" id="checkList"></div>
-
-            <div class="tinyHint">
-              Tip: Enter to add. Use <b>#tag</b> for tag chips, and due tokens like <b>@2:15</b>, <b>@14:15</b>, <b>@today</b>, <b>@tomorrow</b>. Drag grip to reorder.
-            </div>
+            <div class="tinyHint">Tip: press Enter in the field to add. Items save locally and can be exported/imported.</div>
           </div>
         </div>
 
-        <!-- RING NODES MODULE -->
-        <div class="module">
-          <div class="moduleHd">
-            <b>Ring Nodes</b>
-            <div class="mini">
-              <button class="btn btnGhost" id="ringNewBtn" type="button">New</button>
-              <button class="btn btnPrimary" id="ringSaveBtn" type="button">Save</button>
-              <button class="btn btnDanger" id="ringDeleteBtn" type="button">Delete</button>
-            </div>
-          </div>
-          <div class="moduleBd">
-            <div class="ringRow">
-              <select class="ringSelect" id="ringSelect" aria-label="Select ring node"></select>
-            </div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <div>
-                <label>Label</label>
-                <input id="ringLabel" type="text" placeholder="Node label" />
-              </div>
-              <div>
-                <label>Glyph</label>
-                <input id="ringGlyph" type="text" placeholder="2–3 chars" />
-              </div>
-            </div>
-
-            <div>
-              <label>Subtext</label>
-              <input id="ringSub" type="text" placeholder="Short hint text" />
-            </div>
-
-            <div>
-              <label>URL</label>
-              <input id="ringHref" type="text" placeholder="https://..." />
-            </div>
-
-            <div class="tinyHint">Drag nodes on the ring to reorder (persists). Use this panel to add/edit/delete.</div>
-          </div>
-        </div>
-
-        <!-- Portability (schedule + checklist + ring nodes) -->
+        <!-- Portability (schedule + checklist) -->
         <div class="module">
           <div class="moduleHd">
             <b>Portability</b>
@@ -1552,7 +1217,7 @@
             </div>
           </div>
           <div class="moduleBd">
-            <div class="tinyHint">Export gives you JSON for schedule settings + checklist + ring nodes. Import restores it.</div>
+            <div class="tinyHint">Export gives you JSON for schedule settings + checklist. Import restores it.</div>
           </div>
         </div>
 
@@ -1599,7 +1264,7 @@
                 <div><label>H block name</label><input id="H" type="text" /></div>
               </div>
 
-              <div class="tinyHint" style="margin-top:4px;">Optional: set per-block links (e.g., Drive folders). Named class periods become clickable.</div>
+              <div class="tinyHint" style="margin-top:4px;">Optional: set per-block links (e.g., Google Drive folders). Named class periods become clickable.</div>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div><label>A block link</label><input id="linkA" type="text" placeholder="https://..." /></div>
@@ -1618,7 +1283,7 @@
                 <div><label>H block link</label><input id="linkH" type="text" placeholder="https://..." /></div>
               </div>
 
-              <div class="tinyHint">Once saved, the center holo shows the schedule for the selected date. The blue “NOW” slider aligns to the schedule list.</div>
+              <div class="tinyHint">Once saved, the center holo shows the schedule for the selected date. The “NOW” marker slides through today’s schedule.</div>
             </div>
           </div>
         </div>
@@ -1645,13 +1310,88 @@
   </div>
 
   <div class="footer">
-    Wheel rotates the ring • Drag nodes to reorder • Schedule + checklist saved in your browser (localStorage) • Export JSON for portability
+    Wheel rotates the ring • Schedule + checklist saved in your browser (localStorage) • Export JSON for portability
   </div>
 
   <script>
     /************************************************************
-     * Helpers
+     * LINKS (ring nodes)
      ************************************************************/
+    const links = [
+      { label:"Discussion Tracker", sub:"class-discussion", href:"https://amhagler.github.io/class-discussion/", glyph:"DT" },
+      { label:"Seating Chart", sub:"SC", href:"https://amhagler.github.io/SC/", glyph:"SC" },
+      { label:"Rubric", sub:"rubric", href:"https://amhagler.github.io/rubric/", glyph:"RB" },
+      { label:"Unit Calendar", sub:"uc", href:"https://amhagler.github.io/uc/", glyph:"UC" },
+      { label:"Mafia", sub:"mafia", href:"https://amhagler.github.io/mafia/", glyph:"MF" },
+      { label:"Trivia", sub:"tr", href:"https://amhagler.github.io/tr/", glyph:"TR" },
+      { label:"Portal", sub:"myschoolapp login", href:"https://geffenacademy.myschoolapp.com/app#login", glyph:"PT" },
+      { label:"Gradebook", sub:"SIS gradebook", href:"https://geffenacademy.myschoolapp.com/sis-gradebook/gradebook/27966135?svcid=edu&addin=1", glyph:"GB" },
+    ];
+
+    const ring = document.getElementById("ring");
+    let rotation = 0; // radians
+    let targetRotation = 0;
+
+    function buildNodes(){
+      ring.querySelectorAll(".node").forEach(n => n.remove());
+      links.forEach((l, idx) => {
+        const node = document.createElement("div");
+        node.className = "node";
+        node.dataset.idx = String(idx);
+        node.innerHTML = `
+          <a class="cardLink" href="${l.href}" target="_blank" rel="noopener" aria-label="${escapeHtml(l.label)}">
+            <div class="glyph">${escapeHtml(l.glyph)}</div>
+            <div class="cardTitle">${escapeHtml(l.label)}</div>
+            <div class="cardSub">${escapeHtml(l.sub)}</div>
+          </a>
+        `;
+        ring.appendChild(node);
+      });
+    }
+    buildNodes();
+
+    function computeOrbitRadius(){
+      const cs = getComputedStyle(document.documentElement);
+      const nodeW = parseFloat(cs.getPropertyValue("--nodeW")) || 132;
+      const ringPad = parseFloat(cs.getPropertyValue("--ringPad")) || 40;
+      const w = ring.clientWidth || 600;
+      const half = w / 2;
+      return Math.max(160, half - (nodeW / 2) - ringPad);
+    }
+
+    function layoutNodes(){
+      const nodes = Array.from(ring.querySelectorAll(".node"));
+      const r = computeOrbitRadius();
+      const n = nodes.length;
+      for (let i = 0; i < n; i++){
+        const theta = (Math.PI * 2) * (i / n) + rotation;
+        const x = Math.cos(theta) * r;
+        const y = Math.sin(theta) * r;
+        nodes[i].style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+      }
+    }
+
+    ring.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      targetRotation += (e.deltaY || 0) * 0.0022;
+    }, { passive:false });
+
+    function animateRing(){
+      rotation += (targetRotation - rotation) * 0.10;
+      layoutNodes();
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    /************************************************************
+     * CLOCK (hundredths) + countdown to next class
+     ************************************************************/
+    const dateStr = document.getElementById("dateStr");
+    const timeStr = document.getElementById("timeStr");
+    const ticksStr = document.getElementById("ticksStr");
+    const countdownBox = document.getElementById("countdownBox");
+    const countdownText = document.getElementById("countdownText");
+
     function pad2(n){ return String(n).padStart(2,"0"); }
     function isoDate(d){
       const y = d.getFullYear();
@@ -1659,40 +1399,15 @@
       const da = pad2(d.getDate());
       return `${y}-${m}-${da}`;
     }
-    function escapeHtml(s){
-      return String(s||"")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-    function isValidISODate(s){ return /^\d{4}-\d{2}-\d{2}$/.test(s); }
-    function uid(){
-      return Math.random().toString(16).slice(2) + Date.now().toString(16);
-    }
-    function safeURL(u){
-      const t = String(u||"").trim();
-      if (!t) return "";
-      if (/^https?:\/\//i.test(t)) return t;
-      // allow users to paste "drive.google.com/..." etc.
-      return "https://" + t.replace(/^\/+/, "");
-    }
 
-    /************************************************************
-     * DEFAULT RING NODES
-     ************************************************************/
-    const defaultRingNodes = [
-      { id:"dt", label:"Discussion Tracker", sub:"class-discussion", href:"https://amhagler.github.io/class-discussion/", glyph:"DT" },
-      { id:"sc", label:"Seating Chart", sub:"SC", href:"https://amhagler.github.io/SC/", glyph:"SC" },
-      { id:"rb", label:"Rubric", sub:"rubric", href:"https://amhagler.github.io/rubric/", glyph:"RB" },
-      { id:"uc", label:"Unit Calendar", sub:"uc", href:"https://amhagler.github.io/uc/", glyph:"UC" },
-      { id:"mf", label:"Mafia", sub:"mafia", href:"https://amhagler.github.io/mafia/", glyph:"MF" },
-      { id:"tr", label:"Trivia", sub:"tr", href:"https://amhagler.github.io/tr/", glyph:"TR" },
-      { id:"pt", label:"Portal", sub:"myschoolapp login", href:"https://geffenacademy.myschoolapp.com/app#login", glyph:"PT" },
-      { id:"gb", label:"Gradebook", sub:"SIS gradebook", href:"https://geffenacademy.myschoolapp.com/sis-gradebook/gradebook/27966135?svcid=edu&addin=1", glyph:"GB" },
-    ];
+    function tickClock(){
+      const now = new Date();
+      dateStr.textContent = isoDate(now);
+      timeStr.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+      ticksStr.textContent = `.${pad2(Math.floor(now.getMilliseconds()/10))}`;
+      requestAnimationFrame(tickClock);
+    }
+    tickClock();
 
     /************************************************************
      * SCHEDULE DATA (Blue/Gold)
@@ -1809,7 +1524,8 @@
     function parseTimeToMinutes(t){
       const [hh, mm] = t.split(":").map(Number);
       let h = hh;
-      if (h >= 1 && h <= 6) h += 12; // school schedule convention
+      // treat 1–6 as PM (school schedule convention)
+      if (h >= 1 && h <= 6) h += 12;
       return h * 60 + (mm||0);
     }
     function parseRange(range){
@@ -1817,18 +1533,19 @@
       if (parts.length !== 2) return null;
       return { start: parseTimeToMinutes(parts[0].trim()), end: parseTimeToMinutes(parts[1].trim()) };
     }
-
-    function dayKeyFromDate(d){ return dayKeys[d.getDay()]; }
-    function isClassBlock(block){ return ["A","B","C","D","E","F","G","H"].includes(block); }
-    function isRealClassForJump(block){
-      // “next class” jump should skip lunch/reading/bulletin AND skip H (often office hours)
-      return ["A","B","C","D","E","F","G"].includes(block);
+    function escapeHtml(s){
+      return String(s||"")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
     /************************************************************
-     * LOCAL STORAGE STATE
+     * LOCAL STORAGE STATE (schedule + checklist + per-block links)
      ************************************************************/
-    const LS_KEY = "geffen_cockpit_v5";
+    const LS_KEY = "geffen_cockpit_v4";
 
     const defaultState = {
       blueAnchor: "",
@@ -1836,10 +1553,7 @@
       blocks: { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
       links:  { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
       viewDate: "",
-      checklist: [], // {id, text, done}
-      checkFilter: "ALL",
-      ringNodes: structuredClone(defaultRingNodes),
-      fxLevel: 2
+      checklist: [] // {id, text, done}
     };
 
     function loadState(){
@@ -1847,35 +1561,12 @@
         const raw = localStorage.getItem(LS_KEY);
         if (!raw) return structuredClone(defaultState);
         const obj = JSON.parse(raw);
-
-        // ring nodes: migrate from older "links" array if present
-        let ringNodes = Array.isArray(obj.ringNodes) ? obj.ringNodes : null;
-
-        if (!ringNodes && Array.isArray(obj.linksArray)){
-          ringNodes = obj.linksArray;
-        }
-
-        if (!ringNodes){
-          // migration from previous file where ring was const `links` (not stored)
-          ringNodes = structuredClone(defaultRingNodes);
-        }
-
-        ringNodes = ringNodes.map((n, i) => ({
-          id: String(n.id || n.label || "node_"+i).slice(0, 48) + "_" + i,
-          label: String(n.label || "Node"),
-          sub: String(n.sub || ""),
-          href: String(n.href || ""),
-          glyph: String(n.glyph || "").slice(0, 3) || "ND"
-        }));
-
         return {
           ...structuredClone(defaultState),
           ...obj,
           blocks: { ...structuredClone(defaultState.blocks), ...(obj.blocks||{}) },
           links:  { ...structuredClone(defaultState.links),  ...(obj.links||{}) },
-          checklist: Array.isArray(obj.checklist) ? obj.checklist : [],
-          ringNodes,
-          fxLevel: Number.isFinite(obj.fxLevel) ? obj.fxLevel : 2
+          checklist: Array.isArray(obj.checklist) ? obj.checklist : []
         };
       }catch(e){
         return structuredClone(defaultState);
@@ -1890,40 +1581,19 @@
     /************************************************************
      * UI refs
      ************************************************************/
-    const ring = document.getElementById("ring");
-    const bayEl = document.getElementById("bay");
-    const cockpitEl = document.getElementById("cockpit");
-    const topbarEl = document.querySelector(".topbar");
-
-    // schedule / date controls
+    const dayModePill = document.getElementById("dayModePill");
     const viewDateEl = document.getElementById("viewDate");
-    const btnToday = document.getElementById("btnToday");
-    const btnTomorrow = document.getElementById("btnTomorrow");
-    const btnNextSchool = document.getElementById("btnNextSchool");
-    const btnScrollNow = document.getElementById("btnScrollNow");
-    const btnJumpNext = document.getElementById("btnJumpNext");
 
-    // center holo
     const holoList = document.getElementById("holoList");
     const holoStatus = document.getElementById("holoStatus");
     const holoTag = document.getElementById("holoTag");
+
     const timeMarker = document.getElementById("timeMarker");
     const timeMarkerTag = document.getElementById("timeMarkerTag");
+
     const energyFill = document.getElementById("energyFill");
     const energyPct = document.getElementById("energyPct");
     const energyNote = document.getElementById("energyNote");
-    const dayModePill = document.getElementById("dayModePill");
-
-    // clock + countdown
-    const dateStr = document.getElementById("dateStr");
-    const timeStr = document.getElementById("timeStr");
-    const ticksStr = document.getElementById("ticksStr");
-    const countdownBox = document.getElementById("countdownBox");
-    const countdownText = document.getElementById("countdownText");
-    const nextClassCard = document.getElementById("nextClassCard");
-    const nextClassTitle = document.getElementById("nextClassTitle");
-    const nextClassSub = document.getElementById("nextClassSub");
-    const nextClassOpenBtn = document.getElementById("nextClassOpenBtn");
 
     // checklist
     const newItemText = document.getElementById("newItemText");
@@ -1931,26 +1601,21 @@
     const clearCheckedBtn = document.getElementById("clearCheckedBtn");
     const exportChecklistBtn = document.getElementById("exportChecklistBtn");
     const checkListEl = document.getElementById("checkList");
-    const checkFiltersEl = document.getElementById("checkFilters");
 
     // schedule setup
     const blueAnchorEl = document.getElementById("blueAnchor");
     const officeHoursModeEl = document.getElementById("officeHoursMode");
-    const blockEls = ["A","B","C","D","E","F","G","H"].reduce((acc,k)=>{ acc[k]=document.getElementById(k); return acc; },{});
-    const linkEls  = ["A","B","C","D","E","F","G","H"].reduce((acc,k)=>{ acc[k]=document.getElementById("link"+k); return acc; },{});
+    const blockEls = ["A","B","C","D","E","F","G","H"].reduce((acc,k)=>{
+      acc[k] = document.getElementById(k);
+      return acc;
+    }, {});
+    const linkEls = ["A","B","C","D","E","F","G","H"].reduce((acc,k)=>{
+      acc[k] = document.getElementById("link"+k);
+      return acc;
+    }, {});
     const saveScheduleBtn = document.getElementById("saveScheduleBtn");
     const toggleSetupBtn = document.getElementById("toggleSetup");
     const setupBody = document.getElementById("setupBody");
-
-    // ring editor
-    const ringSelect = document.getElementById("ringSelect");
-    const ringLabel = document.getElementById("ringLabel");
-    const ringSub = document.getElementById("ringSub");
-    const ringHref = document.getElementById("ringHref");
-    const ringGlyph = document.getElementById("ringGlyph");
-    const ringNewBtn = document.getElementById("ringNewBtn");
-    const ringSaveBtn = document.getElementById("ringSaveBtn");
-    const ringDeleteBtn = document.getElementById("ringDeleteBtn");
 
     // export/import
     const overlay = document.getElementById("overlay");
@@ -1963,81 +1628,54 @@
     const exportBtn = document.getElementById("exportBtn");
     const importBtn = document.getElementById("importBtn");
 
-    // FX
-    const fxRange = document.getElementById("fxRange");
-    const fxLabel = document.getElementById("fxLabel");
-
-    /************************************************************
-     * FX intensity
-     ************************************************************/
-    const FX_LEVELS = [
-      { name:"OFF", matrixOpacity:0.0, matrixSpeed:0.0, boltEvery:[999999,999999], boltStrength:0.0, glow:0.55 },
-      { name:"LOW", matrixOpacity:0.28, matrixSpeed:0.65, boltEvery:[3200,6200], boltStrength:0.65, glow:0.75 },
-      { name:"MED", matrixOpacity:0.55, matrixSpeed:1.00, boltEvery:[1400,4600], boltStrength:1.00, glow:1.00 },
-      { name:"HIGH", matrixOpacity:0.72, matrixSpeed:1.28, boltEvery:[900,3200], boltStrength:1.25, glow:1.15 },
-    ];
-    function applyFXLevel(level){
-      const L = FX_LEVELS[level] || FX_LEVELS[2];
-      fxLabel.textContent = L.name;
-      document.documentElement.style.setProperty("--matrixOpacity", String(L.matrixOpacity));
-      document.documentElement.style.setProperty("--fxGlow", String(L.glow));
-      fxRange.value = String(level);
-      state.fxLevel = level;
-      saveState();
-      fxConfig.matrixSpeed = L.matrixSpeed;
-      fxConfig.boltEvery = L.boltEvery;
-      fxConfig.boltStrength = L.boltStrength;
-
-      // if FX is off, clear active bolts immediately for cleanliness
-      if (level === 0){
-        bolts.length = 0;
-      }
-      restartSparkScheduler();
+    function isValidISODate(s){
+      return /^\d{4}-\d{2}-\d{2}$/.test(s);
     }
 
-    fxRange.value = String(state.fxLevel ?? 2);
-    applyFXLevel(Number(fxRange.value));
-    fxRange.addEventListener("input", ()=> applyFXLevel(Number(fxRange.value)));
-
-    /************************************************************
-     * CLOCK (hundredths)
-     ************************************************************/
-    let rafClock = 0;
-    function tickClock(){
-      const now = new Date();
-      dateStr.textContent = isoDate(now);
-      timeStr.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
-      ticksStr.textContent = `.${pad2(Math.floor(now.getMilliseconds()/10))}`;
-      rafClock = requestAnimationFrame(tickClock);
-    }
-    tickClock();
-
-    /************************************************************
-     * Setup UI hydrate/save
-     ************************************************************/
     function hydrateSetupUI(){
       blueAnchorEl.value = state.blueAnchor || "";
       officeHoursModeEl.value = state.officeHoursMode || "none";
-      for (const k of Object.keys(blockEls)) blockEls[k].value = state.blocks[k] || "";
-      for (const k of Object.keys(linkEls)) linkEls[k].value = state.links[k] || "";
+      for (const k of Object.keys(blockEls)){
+        blockEls[k].value = state.blocks[k] || "";
+      }
+      for (const k of Object.keys(linkEls)){
+        linkEls[k].value = state.links[k] || "";
+      }
     }
     hydrateSetupUI();
+
+    const todayISO = isoDate(new Date());
+    if (!isValidISODate(state.viewDate)) state.viewDate = todayISO;
+    viewDateEl.value = state.viewDate;
+
+    function setViewDate(val){
+      if (!isValidISODate(val)) return;
+      state.viewDate = val;
+      saveState();
+      viewDateEl.value = val;
+      renderCenterScheduleAndTimers();
+    }
+    viewDateEl.addEventListener("change", (e)=> setViewDate(e.target.value));
+
+    saveScheduleBtn.addEventListener("click", () => {
+      state.blueAnchor = (blueAnchorEl.value || "").trim();
+      state.officeHoursMode = officeHoursModeEl.value;
+      for (const k of Object.keys(blockEls)){
+        state.blocks[k] = (blockEls[k].value || "").trim();
+      }
+      for (const k of Object.keys(linkEls)){
+        state.links[k] = (linkEls[k].value || "").trim();
+      }
+      saveState();
+      renderCenterScheduleAndTimers();
+      flashPill("Saved");
+    });
 
     let setupCollapsed = true;
     toggleSetupBtn.addEventListener("click", () => {
       setupCollapsed = !setupCollapsed;
       setupBody.style.display = setupCollapsed ? "none" : "";
       toggleSetupBtn.textContent = setupCollapsed ? "Expand" : "Collapse";
-    });
-
-    saveScheduleBtn.addEventListener("click", () => {
-      state.blueAnchor = (blueAnchorEl.value || "").trim();
-      state.officeHoursMode = officeHoursModeEl.value;
-      for (const k of Object.keys(blockEls)) state.blocks[k] = (blockEls[k].value || "").trim();
-      for (const k of Object.keys(linkEls))  state.links[k]  = (linkEls[k].value || "").trim();
-      saveState();
-      renderCenterScheduleAndTimers({ reason:"saveSchedule" });
-      flashPill("Saved");
     });
 
     function flashPill(msg){
@@ -2047,45 +1685,71 @@
     }
 
     /************************************************************
-     * View date + quick date controls
+     * Checklist logic (LOCAL)
      ************************************************************/
-    const todayISO = isoDate(new Date());
-    if (!isValidISODate(state.viewDate)) state.viewDate = todayISO;
-    viewDateEl.value = state.viewDate;
+    function uid(){
+      return Math.random().toString(16).slice(2) + Date.now().toString(16);
+    }
 
-    function setViewDate(val, opts={}){
-      if (!isValidISODate(val)) return;
-      state.viewDate = val;
+    function renderChecklist(){
+      checkListEl.innerHTML = "";
+      if (!state.checklist.length){
+        const empty = document.createElement("div");
+        empty.className = "tinyHint";
+        empty.textContent = "No items yet. Add one above.";
+        checkListEl.appendChild(empty);
+        return;
+      }
+
+      state.checklist.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.className = "checkItem" + (item.done ? " done" : "");
+        row.innerHTML = `
+          <input type="checkbox" ${item.done ? "checked" : ""} aria-label="Toggle item">
+          <div class="txt"></div>
+        `;
+        row.querySelector(".txt").textContent = item.text;
+
+        const cb = row.querySelector("input");
+        cb.addEventListener("change", () => {
+          state.checklist[idx].done = cb.checked;
+          saveState();
+          renderChecklist();
+        });
+
+        checkListEl.appendChild(row);
+      });
+    }
+
+    function addChecklistItem(text){
+      const t = (text || "").trim();
+      if (!t) return;
+      state.checklist.unshift({ id: uid(), text: t, done: false });
       saveState();
-      viewDateEl.value = val;
-      renderCenterScheduleAndTimers({ reason:"setViewDate", ...opts });
-    }
-    viewDateEl.addEventListener("change", (e)=> setViewDate(e.target.value, { user:true }));
-
-    function addDays(iso, n){
-      const d = new Date(iso + "T00:00:00");
-      d.setDate(d.getDate() + n);
-      return isoDate(d);
-    }
-    function nextSchoolDay(iso){
-      let d = new Date(iso + "T00:00:00");
-      do{
-        d.setDate(d.getDate()+1);
-      } while (d.getDay() === 0 || d.getDay() === 6);
-      return isoDate(d);
+      newItemText.value = "";
+      renderChecklist();
     }
 
-    btnToday.addEventListener("click", ()=> setViewDate(todayISO, { autoScrollNow:true }));
-    btnTomorrow.addEventListener("click", ()=> setViewDate(addDays(todayISO, 1)));
-    btnNextSchool.addEventListener("click", ()=> setViewDate(nextSchoolDay(todayISO)));
-    btnScrollNow.addEventListener("click", ()=> {
-      if (state.viewDate !== todayISO) return;
-      scrollScheduleToNowCentered();
+    addItemBtn.addEventListener("click", ()=> addChecklistItem(newItemText.value));
+    newItemText.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter"){
+        e.preventDefault();
+        addChecklistItem(newItemText.value);
+      }
     });
-    btnJumpNext.addEventListener("click", ()=> {
-      if (state.viewDate !== todayISO) return;
-      scrollScheduleToNextClass();
+
+    clearCheckedBtn.addEventListener("click", ()=>{
+      state.checklist = state.checklist.filter(it => !it.done);
+      saveState();
+      renderChecklist();
     });
+
+    exportChecklistBtn.addEventListener("click", () => {
+      // export only checklist (convenient)
+      openModal("exportChecklist");
+    });
+
+    renderChecklist();
 
     /************************************************************
      * Blue/Gold auto mode (anchor-date based)
@@ -2098,7 +1762,7 @@
       const toMonday = (x) => {
         const dd = new Date(x.getFullYear(), x.getMonth(), x.getDate());
         const dow = dd.getDay();
-        const diff = (dow + 6) % 7; // convert Sun=0..Sat=6 to Mon-based offset
+        const diff = (dow + 6) % 7;
         dd.setDate(dd.getDate() - diff);
         return dd;
       };
@@ -2110,8 +1774,16 @@
       return (weeksDiff % 2 === 0) ? "blue" : "gold";
     }
 
+    function dayKeyFromDate(d){
+      return dayKeys[d.getDay()];
+    }
+
+    function isClassBlock(block){
+      return ["A","B","C","D","E","F","G","H"].includes(block);
+    }
+
     function blockLabel(block, weekForDate){
-      const misc = [
+      const lunchish = [
         "MS/US Lunch +MS/US Clubs",
         "MS/US SuperLunch +Affinity Groups",
         "H/X1",
@@ -2120,7 +1792,7 @@
         "Reading Period",
         "Bulletin"
       ];
-      if (misc.includes(block)) return { label:block, named:false, blockKey:null };
+      if (lunchish.includes(block)) return { label:block, named:false, blockKey:null };
 
       if (block === "H"){
         const mode = state.officeHoursMode || "none";
@@ -2158,15 +1830,15 @@
     }
 
     /************************************************************
-     * Next class helpers
+     * Center holo schedule + energy + countdown + time marker
      ************************************************************/
-    function findNextPeriod(periods, minutesNow, predicate){
+    function findNextClass(periods, minutesNow){
+      const classes = periods.filter(p => isClassBlock(p.block));
       let best = null;
-      for (const p of periods){
-        if (!p.range) continue;
-        if (p.range.start <= minutesNow) continue;
-        if (!predicate(p)) continue;
-        if (!best || p.range.start < best.range.start) best = p;
+      for (const p of classes){
+        if (p.range.start > minutesNow){
+          if (!best || p.range.start < best.range.start) best = p;
+        }
       }
       return best;
     }
@@ -2188,23 +1860,9 @@
       else countdownBox.classList.remove("warn");
     }
 
-    function formatStartTime(mins){
-      const h24 = Math.floor(mins / 60);
-      const m = mins % 60;
-      const suffix = h24 >= 12 ? "PM" : "AM";
-      let h12 = h24 % 12;
-      if (h12 === 0) h12 = 12;
-      return `${h12}:${pad2(m)} ${suffix}`;
-    }
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
-    /************************************************************
-     * Center holo schedule + energy + countdown + time marker
-     ************************************************************/
-    let lastAutoScrollKey = ""; // prevents constant re-centering while you scroll
-    let lastRenderedTodayKey = ""; // throttle initial auto-scroll when switching to today
-    let latestTodayPeriodsCache = null; // for jump buttons
-
-    function renderCenterScheduleAndTimers(opts = {}){
+    function renderCenterScheduleAndTimers(){
       const view = new Date(state.viewDate + "T00:00:00");
       const now = new Date();
       const isToday = isoDate(now) === state.viewDate;
@@ -2226,12 +1884,8 @@
       holoTag.textContent = `Daily Schedule • ${state.viewDate}`;
       holoStatus.textContent = week ? `${weekName} • ${dayName}` : (dayName);
 
+      // Default: hide time marker unless today & schedule present
       timeMarker.classList.remove("on");
-      latestTodayPeriodsCache = isToday ? periods : null;
-
-      // hide next-class mini card by default
-      nextClassCard.classList.remove("on");
-      nextClassOpenBtn.style.display = "none";
 
       if (!periods.length){
         holoList.innerHTML = `
@@ -2247,11 +1901,10 @@
         return;
       }
 
-      // render period cards
+      // render block-cards
       holoList.innerHTML = "";
-      const frag = document.createDocumentFragment();
-
-      for (let i=0; i<periods.length; i++){
+      const maxShow = Math.min(periods.length, 12);
+      for (let i=0; i<maxShow; i++){
         const p = periods[i];
         const isNow = isToday && (minutesNow >= p.range.start && minutesNow < p.range.end);
 
@@ -2264,21 +1917,17 @@
           + (!isMisc && named ? " named" : "")
           + (isNow ? " now" : "");
 
-        // tag for scrolling helpers
-        card.dataset.block = p.block;
-        card.dataset.start = String(p.range.start);
-        card.dataset.end = String(p.range.end);
-
         const link = (p.blockKey && (state.links[p.blockKey] || "").trim()) || "";
         const safeLabel = escapeHtml(p.label);
         const safeTime = escapeHtml(p.time);
 
         let labelHTML = safeLabel;
+        let badgeHTML = "";
 
         if (!isMisc && named && link){
-          const u = escapeHtml(safeURL(link));
+          // clickable named class period
           labelHTML = `
-            <a class="periodLink" href="${u}" target="_blank" rel="noopener">
+            <a class="periodLink" href="${escapeHtml(link)}" target="_blank" rel="noopener">
               <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeLabel}</span>
               <span class="linkBadge">OPEN</span>
             </a>
@@ -2290,11 +1939,10 @@
           <div class="lbl">${labelHTML}</div>
         `;
 
-        frag.appendChild(card);
+        holoList.appendChild(card);
       }
-      holoList.appendChild(frag);
 
-      // energy + countdown only for today
+      // Energy + countdown (only for today)
       if (!isToday){
         energyFill.style.width = "0%";
         energyPct.textContent = "—";
@@ -2306,7 +1954,7 @@
       const lastEnd = Math.max(...periods.map(p => p.range.end));
       const firstStart = Math.min(...periods.map(p => p.range.start));
       const clamped = clamp(minutesNow, firstStart, lastEnd);
-      const prog = (clamped - firstStart) / (lastEnd - firstStart || 1);
+      const prog = (clamped - firstStart) / (lastEnd - firstStart);
       const pct = Math.round(prog * 100);
 
       energyFill.style.width = `${pct}%`;
@@ -2316,694 +1964,45 @@
       else if (minutesNow >= lastEnd) energyNote.textContent = "Complete";
       else energyNote.textContent = "In progress";
 
-      // next class countdown (A–G–H considered “class blocks”; but countdown uses A–H)
-      const nextClass = findNextPeriod(periods, minutesNow, (p)=> isClassBlock(p.block));
-      if (!nextClass){
+      const next = findNextClass(periods, minutesNow);
+      if (!next){
         updateCountdown("No more classes", false);
-        nextClassCard.classList.remove("on");
       } else {
-        const deltaSec = Math.max(0, Math.round((nextClass.range.start - minutesNow) * 60));
-        const warn = deltaSec > 0 && deltaSec <= 600;
+        const deltaSec = Math.max(0, Math.round((next.range.start - minutesNow) * 60));
+        const warn = deltaSec > 0 && deltaSec <= 600; // <= 10 minutes
         updateCountdown(formatCountdown(deltaSec), warn);
-
-        // actionable mini-card
-        const startLabel = formatStartTime(Math.round(nextClass.range.start));
-        const b = nextClass.block;
-        const blockName = nextClass.named ? nextClass.label : (state.blocks[b] ? `${state.blocks[b]} (${b})` : b);
-        nextClassTitle.textContent = blockName;
-        nextClassSub.textContent = `Block ${b} • ${startLabel}`;
-
-        const link = (nextClass.blockKey && (state.links[nextClass.blockKey] || "").trim()) || "";
-        if (link){
-          nextClassOpenBtn.style.display = "";
-          nextClassOpenBtn.onclick = ()=> window.open(safeURL(link), "_blank", "noopener");
-        } else {
-          nextClassOpenBtn.style.display = "none";
-          nextClassOpenBtn.onclick = null;
-        }
-        nextClassCard.classList.add("on");
       }
 
-      // time marker: align to scrollable content, not just visible height
-      timeMarker.classList.add("on");
-      timeMarkerTag.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+      // Time marker: slide through visible schedule region
+      // We map current time between firstStart and lastEnd into the holoList scroll area.
+      // Then we position within the scrollable content (accounting for scrollTop).
+      const listEl = holoList;
+      const wrap = listEl.parentElement;
+      if (wrap && listEl){
+        const totalSpan = (lastEnd - firstStart) || 1;
+        const ratio = (clamped - firstStart) / totalSpan;
+        const visibleH = listEl.clientHeight;
 
-      const scrollH = holoList.scrollHeight;
-      const viewH = holoList.clientHeight;
-      const padTop = 10;  // matches holoList padding
-      const padBottom = 10;
-
-      const ratio = (clamped - firstStart) / (lastEnd - firstStart || 1);
-      const yInContent = padTop + ratio * Math.max(1, (scrollH - padTop - padBottom));
-      const yInViewport = yInContent - holoList.scrollTop;
-      timeMarker.style.top = `${Math.round(yInViewport)}px`;
-
-      // auto-scroll center schedule to “now” (today only), but do not fight user scrolling
-      const autoKey = `${state.viewDate}|${weekName}|${dayName}`;
-      if (isToday){
-        const firstTimeViewingToday = (lastRenderedTodayKey !== autoKey);
-        if (opts.autoScrollNow || firstTimeViewingToday){
-          lastRenderedTodayKey = autoKey;
-          scrollScheduleToNowCentered(true);
-        }
-      } else {
-        lastRenderedTodayKey = "";
+        // Place marker within visible area (not full scroll height) for readability.
+        const y = ratio * (visibleH - 12) + 10; // small padding
+        timeMarker.style.top = `${y}px`;
+        timeMarkerTag.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+        timeMarker.classList.add("on");
       }
     }
 
-    function scrollScheduleToNowCentered(force=false){
-      const now = new Date();
-      if (isoDate(now) !== state.viewDate) return;
-
-      // don't re-center every tick while user is using the scroll
-      const key = `${state.viewDate}|${Math.floor(now.getMinutes()/2)}`; // coarse time bucket
-      if (!force && lastAutoScrollKey === key) return;
-      lastAutoScrollKey = key;
-
-      const cards = Array.from(holoList.querySelectorAll(".periodCard"));
-      if (!cards.length) return;
-
-      const minutesNow = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
-
-      // prefer the currently-active period; else nearest future; else last
-      let target = cards.find(c => c.classList.contains("now"));
-      if (!target){
-        target = cards.find(c => Number(c.dataset.start) > minutesNow) || cards[cards.length-1];
-      }
-
-      const top = target.offsetTop;
-      const targetCenter = top + (target.offsetHeight/2);
-      const scrollTo = clamp(targetCenter - holoList.clientHeight/2, 0, holoList.scrollHeight - holoList.clientHeight);
-      holoList.scrollTo({ top: scrollTo, behavior: "smooth" });
-    }
-
-    function scrollScheduleToNextClass(){
-      const now = new Date();
-      if (isoDate(now) !== state.viewDate) return;
-
-      const minutesNow = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
-      const cards = Array.from(holoList.querySelectorAll(".periodCard"));
-      if (!cards.length) return;
-
-      // next real class (A–G), skip reading/lunch/bulletin and skip H
-      const nextCard = cards.find(c => isRealClassForJump(c.dataset.block) && Number(c.dataset.start) > minutesNow);
-      if (!nextCard) return;
-
-      const top = nextCard.offsetTop;
-      const targetCenter = top + (nextCard.offsetHeight/2);
-      const scrollTo = clamp(targetCenter - holoList.clientHeight/2, 0, holoList.scrollHeight - holoList.clientHeight);
-      holoList.scrollTo({ top: scrollTo, behavior: "smooth" });
-    }
-
-    // keep marker aligned while scrolling
-    holoList.addEventListener("scroll", ()=>{
-      // fast recompute marker position from current render caches
-      // (we simply re-run render with "no auto scroll" behavior)
-      // This is light enough: just adjusts marker top + does not rebuild if not needed.
-      // But to avoid rebuild, we call a targeted updater:
-      updateMarkerOnly();
-    }, { passive:true });
-
-    function updateMarkerOnly(){
-      const now = new Date();
-      const isToday = isoDate(now) === state.viewDate;
-      if (!isToday || !latestTodayPeriodsCache || !latestTodayPeriodsCache.length) return;
-
-      const periods = latestTodayPeriodsCache;
-      const minutesNow = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
-
-      const lastEnd = Math.max(...periods.map(p => p.range.end));
-      const firstStart = Math.min(...periods.map(p => p.range.start));
-      const clampedNow = clamp(minutesNow, firstStart, lastEnd);
-
-      const ratio = (clampedNow - firstStart) / (lastEnd - firstStart || 1);
-      const scrollH = holoList.scrollHeight;
-      const padTop = 10, padBottom = 10;
-      const yInContent = padTop + ratio * Math.max(1, (scrollH - padTop - padBottom));
-      const yInViewport = yInContent - holoList.scrollTop;
-
-      timeMarker.style.top = `${Math.round(yInViewport)}px`;
-      timeMarkerTag.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
-      timeMarker.classList.add("on");
-    }
-
-    // periodic render (timers + marker + countdown)
-    let scheduleTimer = 0;
-    function startScheduleTimer(){
-      if (scheduleTimer) clearInterval(scheduleTimer);
-      scheduleTimer = setInterval(()=> renderCenterScheduleAndTimers({ reason:"tick" }), 700);
-    }
-    startScheduleTimer();
+    setInterval(renderCenterScheduleAndTimers, 700);
+    renderCenterScheduleAndTimers();
 
     /************************************************************
-     * Ring: adaptive sizing + layout + drag reorder + keyboard nav
-     ************************************************************/
-    let rotation = 0; // radians
-    let targetRotation = 0;
-    let rafRing = 0;
-    let focusedIdx = 0;
-
-    function applyAdaptiveRingSizing(){
-      const n = state.ringNodes.length;
-      // size range tuned for readability
-      let w, h, pad, inset;
-      if (n <= 6){ w = 148; h = 148; pad = 44; inset = 195; }
-      else if (n <= 8){ w = 136; h = 136; pad = 42; inset = 200; }
-      else if (n <= 10){ w = 126; h = 126; pad = 40; inset = 205; }
-      else if (n <= 12){ w = 116; h = 116; pad = 38; inset = 208; }
-      else { w = 108; h = 108; pad = 36; inset = 210; }
-
-      const root = document.documentElement.style;
-      root.setProperty("--nodeW", w+"px");
-      root.setProperty("--nodeH", h+"px");
-      root.setProperty("--ringPad", pad+"px");
-      root.setProperty("--holoInset", inset+"px");
-    }
-
-    function buildNodes(){
-      applyAdaptiveRingSizing();
-      ring.querySelectorAll(".node").forEach(n => n.remove());
-
-      state.ringNodes.forEach((l, idx) => {
-        const node = document.createElement("div");
-        node.className = "node";
-        node.dataset.idx = String(idx);
-        node.dataset.id = String(l.id);
-
-        node.innerHTML = `
-          <a class="cardLink" href="${escapeHtml(safeURL(l.href))}" target="_blank" rel="noopener"
-             aria-label="${escapeHtml(l.label)}" tabindex="-1">
-            <div class="glyph">${escapeHtml(l.glyph)}</div>
-            <div class="cardTitle">${escapeHtml(l.label)}</div>
-            <div class="cardSub">${escapeHtml(l.sub)}</div>
-          </a>
-        `;
-
-        // hover sets focus
-        node.addEventListener("pointerenter", ()=>{
-          focusedIdx = Number(node.dataset.idx) || 0;
-          updateFocusedNode();
-        });
-
-        // click open (normal link works); also allow clicking the whole node reliably
-        node.addEventListener("click", (e)=>{
-          // if drag just happened, suppress click
-          if (dragState.active && dragState.moved) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }, true);
-
-        ring.appendChild(node);
-      });
-
-      updateFocusedNode();
-    }
-
-    function updateFocusedNode(){
-      const nodes = Array.from(ring.querySelectorAll(".node"));
-      nodes.forEach(n => n.classList.remove("focused"));
-      const f = nodes[clamp(focusedIdx, 0, nodes.length-1)];
-      if (f) f.classList.add("focused");
-    }
-
-    function computeOrbitRadius(){
-      const cs = getComputedStyle(document.documentElement);
-      const nodeW = parseFloat(cs.getPropertyValue("--nodeW")) || 132;
-      const ringPad = parseFloat(cs.getPropertyValue("--ringPad")) || 40;
-      const w = ring.clientWidth || 600;
-      const half = w / 2;
-      // add a little breathing room so nodes never clip inside bay
-      return Math.max(170, half - (nodeW / 2) - ringPad);
-    }
-
-    function layoutNodes(){
-      const nodes = Array.from(ring.querySelectorAll(".node"));
-      const r = computeOrbitRadius();
-      const n = nodes.length || 1;
-
-      for (let i = 0; i < n; i++){
-        const theta = (Math.PI * 2) * (i / n) + rotation;
-        const x = Math.cos(theta) * r;
-        const y = Math.sin(theta) * r;
-        nodes[i].style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
-        nodes[i].dataset.theta = String(theta);
-      }
-    }
-
-    ring.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      targetRotation += (e.deltaY || 0) * 0.0022;
-    }, { passive:false });
-
-    function animateRing(){
-      if (fxPaused) return;
-      rotation += (targetRotation - rotation) * 0.10;
-      layoutNodes();
-      rafRing = requestAnimationFrame(animateRing);
-    }
-
-    // Keyboard nav (doesn't break wheel)
-    ring.addEventListener("keydown", (e)=>{
-      const nodes = state.ringNodes.length || 1;
-      if (e.key === "ArrowLeft"){
-        targetRotation -= (Math.PI * 2) / nodes;
-        focusedIdx = (focusedIdx - 1 + nodes) % nodes;
-        updateFocusedNode();
-        e.preventDefault();
-      } else if (e.key === "ArrowRight"){
-        targetRotation += (Math.PI * 2) / nodes;
-        focusedIdx = (focusedIdx + 1) % nodes;
-        updateFocusedNode();
-        e.preventDefault();
-      } else if (e.key === "Enter"){
-        const node = state.ringNodes[clamp(focusedIdx, 0, nodes-1)];
-        if (node && node.href){
-          window.open(safeURL(node.href), "_blank", "noopener");
-        }
-        e.preventDefault();
-      }
-    });
-
-    // Drag reorder (mouse/touch)
-    const dragState = {
-      active:false,
-      moved:false,
-      pointerId:null,
-      startIdx:-1
-    };
-
-    function pointerToAngle(clientX, clientY){
-      const r = ring.getBoundingClientRect();
-      const cx = r.left + r.width/2;
-      const cy = r.top + r.height/2;
-      return Math.atan2(clientY - cy, clientX - cx);
-    }
-
-    function normalizeAngle(a){
-      while (a < 0) a += Math.PI*2;
-      while (a >= Math.PI*2) a -= Math.PI*2;
-      return a;
-    }
-
-    function indexFromAngle(angle, n){
-      // convert pointer angle to nearest index, compensating for current rotation
-      const a = normalizeAngle(angle - rotation);
-      const idx = Math.round((a / (Math.PI*2)) * n) % n;
-      return idx;
-    }
-
-    function moveArray(arr, from, to){
-      if (from === to) return;
-      const x = arr.splice(from, 1)[0];
-      arr.splice(to, 0, x);
-    }
-
-    function attachNodeDragHandlers(){
-      ring.querySelectorAll(".node").forEach(node=>{
-        node.addEventListener("pointerdown", (e)=>{
-          // start drag only if not clicking the internal link normally (but we still allow drag from anywhere)
-          dragState.active = true;
-          dragState.moved = false;
-          dragState.pointerId = e.pointerId;
-          dragState.startIdx = Number(node.dataset.idx) || 0;
-          node.setPointerCapture(e.pointerId);
-          node.classList.add("dragging");
-          e.preventDefault();
-        });
-
-        node.addEventListener("pointermove", (e)=>{
-          if (!dragState.active || dragState.pointerId !== e.pointerId) return;
-          const nodes = state.ringNodes.length;
-          if (!nodes) return;
-
-          const ang = pointerToAngle(e.clientX, e.clientY);
-          const toIdx = indexFromAngle(ang, nodes);
-          const fromIdx = Number(node.dataset.idx) || 0;
-
-          if (toIdx !== fromIdx){
-            dragState.moved = true;
-            // reorder data
-            moveArray(state.ringNodes, fromIdx, toIdx);
-            saveState();
-
-            // rebuild DOM quickly so indices update cleanly
-            buildNodes();
-            attachNodeDragHandlers();
-            renderRingEditorSelect();
-            focusedIdx = toIdx;
-            updateFocusedNode();
-            layoutNodes();
-          }
-        });
-
-        node.addEventListener("pointerup", (e)=>{
-          if (!dragState.active || dragState.pointerId !== e.pointerId) return;
-          dragState.active = false;
-          dragState.pointerId = null;
-          node.classList.remove("dragging");
-          setTimeout(()=> { dragState.moved = false; }, 0);
-        });
-
-        node.addEventListener("pointercancel", ()=>{
-          dragState.active = false;
-          dragState.pointerId = null;
-          node.classList.remove("dragging");
-        });
-      });
-    }
-
-    buildNodes();
-    attachNodeDragHandlers();
-    layoutNodes();
-    animateRing();
-
-    /************************************************************
-     * Ring node editor UI
-     ************************************************************/
-    function renderRingEditorSelect(){
-      ringSelect.innerHTML = "";
-      state.ringNodes.forEach((n, i)=>{
-        const opt = document.createElement("option");
-        opt.value = n.id;
-        opt.textContent = `${i+1}. ${n.label}`;
-        ringSelect.appendChild(opt);
-      });
-
-      if (!state.ringNodes.length){
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "(No nodes)";
-        ringSelect.appendChild(opt);
-      }
-    }
-
-    function loadRingFormById(id){
-      const node = state.ringNodes.find(n => n.id === id) || state.ringNodes[0];
-      if (!node){
-        ringLabel.value = "";
-        ringSub.value = "";
-        ringHref.value = "";
-        ringGlyph.value = "";
-        return;
-      }
-      ringSelect.value = node.id;
-      ringLabel.value = node.label || "";
-      ringSub.value = node.sub || "";
-      ringHref.value = node.href || "";
-      ringGlyph.value = node.glyph || "";
-    }
-
-    renderRingEditorSelect();
-    loadRingFormById(state.ringNodes[0]?.id || "");
-
-    ringSelect.addEventListener("change", ()=> loadRingFormById(ringSelect.value));
-
-    ringNewBtn.addEventListener("click", ()=>{
-      const newNode = {
-        id: "node_" + uid().slice(0,8),
-        label: "New Node",
-        sub: "subtext",
-        href: "https://",
-        glyph: "NEW"
-      };
-      state.ringNodes.push(newNode);
-      saveState();
-      buildNodes();
-      attachNodeDragHandlers();
-      layoutNodes();
-      renderRingEditorSelect();
-      loadRingFormById(newNode.id);
-      flashPill("New");
-    });
-
-    ringSaveBtn.addEventListener("click", ()=>{
-      const id = ringSelect.value;
-      const node = state.ringNodes.find(n => n.id === id);
-      if (!node) return;
-
-      node.label = (ringLabel.value || "").trim() || "Node";
-      node.sub = (ringSub.value || "").trim();
-      node.href = safeURL(ringHref.value || "");
-      node.glyph = ((ringGlyph.value || "").trim().slice(0,3) || "ND");
-
-      saveState();
-      buildNodes();
-      attachNodeDragHandlers();
-      layoutNodes();
-      renderRingEditorSelect();
-      loadRingFormById(node.id);
-      flashPill("Saved");
-    });
-
-    ringDeleteBtn.addEventListener("click", ()=>{
-      const id = ringSelect.value;
-      const idx = state.ringNodes.findIndex(n => n.id === id);
-      if (idx < 0) return;
-      state.ringNodes.splice(idx, 1);
-      saveState();
-      buildNodes();
-      attachNodeDragHandlers();
-      layoutNodes();
-      renderRingEditorSelect();
-      loadRingFormById(state.ringNodes[clamp(idx,0,state.ringNodes.length-1)]?.id || "");
-      flashPill("Deleted");
-    });
-
-    /************************************************************
-     * Checklist: tags + due parsing + filter pills + drag reorder
-     ************************************************************/
-    function parseTags(text){
-      const tags = [];
-      const re = /(^|\s)#([a-zA-Z][\w-]{0,24})\b/g;
-      let m;
-      while ((m = re.exec(text)) !== null){
-        tags.push(m[2].toLowerCase());
-      }
-      return Array.from(new Set(tags));
-    }
-
-    function parseDue(text){
-      // tokens: @today, @tomorrow, @H:MM, @HH:MM, @2:15, @14:15
-      const lower = text.toLowerCase();
-      const hasToday = /(^|\s)@today\b/.test(lower);
-      const hasTomorrow = /(^|\s)@tomorrow\b/.test(lower);
-
-      const timeMatch = lower.match(/(^|\s)@(\d{1,2}):(\d{2})\b/);
-      const hour = timeMatch ? Number(timeMatch[2]) : null;
-      const min = timeMatch ? Number(timeMatch[3]) : null;
-
-      if (!hasToday && !hasTomorrow && hour == null) return null;
-
-      const base = new Date();
-      base.setSeconds(0,0);
-
-      if (hasTomorrow){
-        base.setDate(base.getDate()+1);
-      }
-      // if @today, keep base date as today
-
-      if (hour != null && min != null && min >= 0 && min < 60){
-        let h = hour;
-        // interpret 1–6 as PM (school convention), otherwise 24h is allowed
-        if (h >= 1 && h <= 6) h += 12;
-        base.setHours(clamp(h,0,23), clamp(min,0,59), 0, 0);
-      } else {
-        // date-only token: treat as end-of-day
-        base.setHours(23,59,0,0);
-      }
-
-      return base;
-    }
-
-    function dueBadgeLabel(due){
-      if (!due) return "";
-      const now = new Date();
-      const sameDay = isoDate(due) === isoDate(now);
-      const tomorrow = isoDate(due) === isoDate(new Date(now.getFullYear(), now.getMonth(), now.getDate()+1));
-      const hm = `${pad2(due.getHours())}:${pad2(due.getMinutes())}`;
-
-      if (sameDay) return `Due today ${hm}`;
-      if (tomorrow) return `Due tomorrow ${hm}`;
-      return `Due ${isoDate(due)} ${hm}`;
-    }
-
-    function getChecklistTagsUniverse(){
-      const set = new Set();
-      for (const it of state.checklist){
-        parseTags(it.text).forEach(t => set.add(t));
-      }
-      return Array.from(set).sort((a,b)=> a.localeCompare(b));
-    }
-
-    function renderChecklistFilters(){
-      const tags = getChecklistTagsUniverse();
-      checkFiltersEl.innerHTML = "";
-
-      const mk = (label, key)=>{
-        const b = document.createElement("button");
-        b.className = "filterPill" + (state.checkFilter === key ? " active" : "");
-        b.type = "button";
-        b.textContent = label;
-        b.addEventListener("click", ()=>{
-          state.checkFilter = key;
-          saveState();
-          renderChecklist();
-        });
-        return b;
-      };
-
-      checkFiltersEl.appendChild(mk("All", "ALL"));
-      tags.forEach(t => checkFiltersEl.appendChild(mk("#"+t, t)));
-    }
-
-    function checklistPassesFilter(item){
-      if (!state.checkFilter || state.checkFilter === "ALL") return true;
-      const tags = parseTags(item.text);
-      return tags.includes(state.checkFilter);
-    }
-
-    function renderChecklist(){
-      renderChecklistFilters();
-      checkListEl.innerHTML = "";
-
-      const filtered = state.checklist.filter(checklistPassesFilter);
-
-      if (!filtered.length){
-        const empty = document.createElement("div");
-        empty.className = "tinyHint";
-        empty.textContent = state.checkFilter && state.checkFilter !== "ALL"
-          ? `No items for #${state.checkFilter}.`
-          : "No items yet. Add one above.";
-        checkListEl.appendChild(empty);
-        return;
-      }
-
-      const now = new Date();
-
-      filtered.forEach((item) => {
-        const idx = state.checklist.findIndex(it => it.id === item.id);
-
-        const tags = parseTags(item.text);
-        const due = parseDue(item.text);
-        const overdue = !!(due && !item.done && due.getTime() < now.getTime());
-
-        const row = document.createElement("div");
-        row.className = "checkItem" + (item.done ? " done" : "") + (overdue ? " overdue" : "");
-        row.draggable = true;
-        row.dataset.id = item.id;
-
-        const metaChips = document.createElement("div");
-        metaChips.className = "checkMetaRow";
-
-        tags.forEach(t=>{
-          const chip = document.createElement("span");
-          chip.className = "tagChip";
-          chip.textContent = "#"+t;
-          metaChips.appendChild(chip);
-        });
-
-        if (due){
-          const badge = document.createElement("span");
-          badge.className = "dueBadge" + (overdue ? " overdue" : "");
-          badge.textContent = dueBadgeLabel(due);
-          metaChips.appendChild(badge);
-        }
-
-        row.innerHTML = `
-          <div class="dragGrip" title="Drag to reorder" aria-hidden="true">≡</div>
-          <input type="checkbox" ${item.done ? "checked" : ""} aria-label="Toggle item">
-          <div class="txtWrap">
-            <div class="txt"></div>
-          </div>
-        `;
-
-        row.querySelector(".txt").textContent = item.text;
-
-        // append meta row if needed
-        if (metaChips.childNodes.length){
-          row.querySelector(".txtWrap").appendChild(metaChips);
-        }
-
-        const cb = row.querySelector("input[type='checkbox']");
-        cb.addEventListener("change", () => {
-          state.checklist[idx].done = cb.checked;
-          saveState();
-          renderChecklist();
-        });
-
-        // Drag reorder
-        row.addEventListener("dragstart", (e)=>{
-          row.classList.add("dragging");
-          e.dataTransfer.setData("text/plain", item.id);
-          e.dataTransfer.effectAllowed = "move";
-        });
-        row.addEventListener("dragend", ()=>{
-          row.classList.remove("dragging");
-        });
-        row.addEventListener("dragover", (e)=>{
-          e.preventDefault();
-          e.dataTransfer.dropEffect = "move";
-        });
-        row.addEventListener("drop", (e)=>{
-          e.preventDefault();
-          const draggedId = e.dataTransfer.getData("text/plain");
-          if (!draggedId || draggedId === item.id) return;
-
-          const from = state.checklist.findIndex(it => it.id === draggedId);
-          const to = state.checklist.findIndex(it => it.id === item.id);
-          if (from < 0 || to < 0) return;
-
-          moveArray(state.checklist, from, to);
-          saveState();
-          renderChecklist();
-        });
-
-        checkListEl.appendChild(row);
-      });
-    }
-
-    function addChecklistItem(text){
-      const t = (text || "").trim();
-      if (!t) return;
-      state.checklist.unshift({ id: uid(), text: t, done: false });
-      saveState();
-      newItemText.value = "";
-      renderChecklist();
-    }
-
-    addItemBtn.addEventListener("click", ()=> addChecklistItem(newItemText.value));
-    newItemText.addEventListener("keydown", (e)=>{
-      if (e.key === "Enter"){
-        e.preventDefault();
-        addChecklistItem(newItemText.value);
-      }
-    });
-
-    clearCheckedBtn.addEventListener("click", ()=>{
-      state.checklist = state.checklist.filter(it => !it.done);
-      saveState();
-      renderChecklist();
-    });
-
-    exportChecklistBtn.addEventListener("click", ()=> openModal("exportChecklist"));
-
-    renderChecklist();
-
-    /************************************************************
-     * Render schedule initially
-     ************************************************************/
-    renderCenterScheduleAndTimers({ autoScrollNow: (state.viewDate === todayISO) });
-
-    /************************************************************
-     * Export / Import JSON (schedule + checklist + ring nodes)
+     * Export / Import JSON (schedule + checklist + links)
      ************************************************************/
     function openModal(mode){
       overlay.style.display = "flex";
 
       if (mode === "export"){
         modalTitle.textContent = "Export";
-        modalHint.textContent = "Copy this JSON to move your schedule + links + checklist + ring nodes to another computer.";
+        modalHint.textContent = "Copy this JSON to move your schedule + links + checklist to another computer.";
         jsonBox.value = JSON.stringify(state, null, 2);
         applyJsonBtn.style.display = "none";
         jsonBox.readOnly = true;
@@ -3048,55 +2047,31 @@
         const obj = JSON.parse(jsonBox.value);
         if (typeof obj !== "object" || !obj) throw new Error("Invalid JSON");
 
-        // checklist-only import convenience
-        if (obj.checklist && !obj.blocks && !obj.blueAnchor && !obj.links && !obj.ringNodes){
+        // Allow importing a checklist-only file as a convenience
+        if (obj.checklist && !obj.blocks && !obj.blueAnchor && !obj.links){
           state.checklist = Array.isArray(obj.checklist) ? obj.checklist : [];
           saveState();
           renderChecklist();
-          renderCenterScheduleAndTimers({ reason:"importChecklist" });
+          renderCenterScheduleAndTimers();
           closeModalFn();
           flashPill("Imported");
           return;
         }
 
-        const merged = {
+        state = {
           ...structuredClone(defaultState),
           ...obj,
           blocks: { ...structuredClone(defaultState.blocks), ...(obj.blocks||{}) },
           links:  { ...structuredClone(defaultState.links),  ...(obj.links||{}) },
-          checklist: Array.isArray(obj.checklist) ? obj.checklist : [],
-          ringNodes: Array.isArray(obj.ringNodes) ? obj.ringNodes : structuredClone(defaultRingNodes),
-          fxLevel: Number.isFinite(obj.fxLevel) ? obj.fxLevel : 2
+          checklist: Array.isArray(obj.checklist) ? obj.checklist : []
         };
 
-        // sanitize ring nodes
-        merged.ringNodes = merged.ringNodes.map((n,i)=>({
-          id: String(n.id || n.label || "node_"+i).slice(0,48) + "_" + i,
-          label: String(n.label || "Node"),
-          sub: String(n.sub || ""),
-          href: String(n.href || ""),
-          glyph: String(n.glyph || "").slice(0,3) || "ND"
-        }));
-
-        if (!isValidISODate(merged.viewDate)) merged.viewDate = isoDate(new Date());
-
-        state = merged;
+        if (!isValidISODate(state.viewDate)) state.viewDate = isoDate(new Date());
         saveState();
-
         hydrateSetupUI();
         viewDateEl.value = state.viewDate;
-
-        applyFXLevel(Number(state.fxLevel ?? 2));
-
         renderChecklist();
-        renderRingEditorSelect();
-        loadRingFormById(state.ringNodes[0]?.id || "");
-        buildNodes();
-        attachNodeDragHandlers();
-        layoutNodes();
-
-        renderCenterScheduleAndTimers({ reason:"import", autoScrollNow:(state.viewDate === isoDate(new Date())) });
-
+        renderCenterScheduleAndTimers();
         closeModalFn();
         flashPill("Imported");
       }catch(e){
@@ -3121,7 +2096,6 @@
       layoutNodes();
       resizeMatrix();
       resizeLightning();
-      updateMarkerOnly();
     });
 
     /************************************************************
@@ -3135,19 +2109,14 @@
     let matrixFontPx = 14;
     let matrixStep = 16;
 
+    // “Electric drops”: mix sparse glyphs + droplet chars
     const glyphs = "01░▒▓╌╎╍╏┆┇┊┋⋮⋯⟡⟢⟣⟠⟟⟞·";
     function randGlyph(){
       return glyphs[Math.floor(Math.random() * glyphs.length)];
     }
 
-    const fxConfig = {
-      matrixSpeed: 1.0,
-      boltEvery: [1400, 4600],
-      boltStrength: 1.0
-    };
-
     function resizeMatrix(){
-      matrixDPR = Math.max(1, window.devicePixelRatio || 1); // do not cap columns (requirement)
+      matrixDPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
       matrixW = Math.floor(window.innerWidth);
       matrixH = Math.floor(window.innerHeight);
       matrixCanvas.width = Math.floor(matrixW * matrixDPR);
@@ -3157,6 +2126,7 @@
 
       mtx.setTransform(matrixDPR,0,0,matrixDPR,0,0);
 
+      // responsive sizing
       matrixFontPx = Math.max(12, Math.min(16, Math.floor(matrixW / 90)));
       matrixStep = Math.floor(matrixFontPx * 1.25);
 
@@ -3170,35 +2140,33 @@
       mtx.font = `${matrixFontPx}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
     }
 
-    let rafMatrix = 0;
     function stepMatrix(){
-      if (fxPaused) return;
-
       // fade with slight tint
       mtx.fillStyle = "rgba(7, 11, 26, 0.08)";
       mtx.fillRect(0,0,matrixW,matrixH);
-
-      const speedMul = fxConfig.matrixSpeed;
 
       for (let i=0; i<matrixCols.length; i++){
         const col = matrixCols[i];
         const x = i * matrixStep;
 
+        // occasionally skip drawing to keep it subtle
         if (Math.random() > col.density) continue;
 
         const ch = randGlyph();
         const y = col.y;
 
+        // glow layer
         mtx.shadowBlur = 14;
         mtx.shadowColor = `rgba(45,125,255,${0.22 + col.glow})`;
         mtx.fillStyle = `rgba(123,231,255,${0.18 + col.glow})`;
         mtx.fillText(ch, x, y);
 
+        // bright core
         mtx.shadowBlur = 0;
         mtx.fillStyle = `rgba(75,255,211,${0.07 + col.glow * 0.7})`;
         mtx.fillText(ch, x, y);
 
-        col.y += (col.speed * matrixStep * 0.22) * speedMul;
+        col.y += col.speed * matrixStep * 0.22;
 
         if (col.y > matrixH + 50){
           col.y = -Math.random() * 200;
@@ -3207,7 +2175,7 @@
           col.glow = 0.08 + Math.random() * 0.20;
         }
       }
-      rafMatrix = requestAnimationFrame(stepMatrix);
+      requestAnimationFrame(stepMatrix);
     }
 
     resizeMatrix();
@@ -3215,13 +2183,15 @@
 
     /************************************************************
      * ELECTRIC LIGHTNING (canvas overlay)
+     * - periodic, semi-random “real” bolts along console borders
+     * - sometimes around ring/search for atmosphere
      ************************************************************/
     const fxCanvas = document.getElementById("fxLightning");
     const fx = fxCanvas.getContext("2d", { alpha:true });
 
     let fxW=0, fxH=0, fxDPR=1;
     function resizeLightning(){
-      fxDPR = Math.max(1, window.devicePixelRatio || 1);
+      fxDPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
       fxW = window.innerWidth;
       fxH = window.innerHeight;
       fxCanvas.width = Math.floor(fxW * fxDPR);
@@ -3245,10 +2215,11 @@
         const t = i/segments;
         const x = x0 + (x1-x0)*t;
         const y = y0 + (y1-y0)*t;
+        // perpendicular jitter
         const dx = x1-x0, dy = y1-y0;
         const len = Math.hypot(dx,dy) || 1;
         const px = -dy/len, py = dx/len;
-        const amp = (1 - Math.abs(0.5 - t)*2) * spread;
+        const amp = (1 - Math.abs(0.5 - t)*2) * spread; // bigger in middle
         pts.push({
           x: jitter(x + px * (Math.random()*2-1) * amp, 1.8),
           y: jitter(y + py * (Math.random()*2-1) * amp, 1.8)
@@ -3258,6 +2229,7 @@
     }
 
     function branchFrom(pts, branchChance=0.25){
+      // pick a mid point, branch outward
       if (Math.random() > branchChance) return null;
       const idx = Math.floor(pts.length * (0.35 + Math.random()*0.4));
       const p = pts[idx];
@@ -3268,11 +2240,9 @@
       return makeBolt(p.x,p.y,x1,y1, 8+Math.floor(Math.random()*6), 10+Math.random()*10);
     }
 
-    const bolts = []; // {pts, born, life, w, branches:[pts...]}
+    const bolts = []; // {pts, born, life, w, alpha, branches:[pts...]}
 
     function spawnBorderBolt(targetEl, edge="random"){
-      if (fxConfig.boltStrength <= 0.01) return;
-
       const r = rectOf(targetEl);
       const inset = 2;
       const pick = edge === "random" ? ["top","right","bottom","left"][Math.floor(Math.random()*4)] : edge;
@@ -3281,19 +2251,23 @@
       if (pick === "top"){
         x0 = r.x + inset + Math.random()*(r.w - inset*2);
         y0 = r.y + inset;
-        x1 = x0; y1 = y0;
+        x1 = r.x + inset + Math.random()*(r.w - inset*2);
+        y1 = r.y + inset;
       } else if (pick === "bottom"){
         x0 = r.x + inset + Math.random()*(r.w - inset*2);
         y0 = r.y + r.h - inset;
-        x1 = x0; y1 = y0;
+        x1 = r.x + inset + Math.random()*(r.w - inset*2);
+        y1 = r.y + r.h - inset;
       } else if (pick === "left"){
         x0 = r.x + inset;
         y0 = r.y + inset + Math.random()*(r.h - inset*2);
-        x1 = x0; y1 = y0;
+        x1 = r.x + inset;
+        y1 = r.y + inset + Math.random()*(r.h - inset*2);
       } else {
         x0 = r.x + r.w - inset;
         y0 = r.y + inset + Math.random()*(r.h - inset*2);
-        x1 = x0; y1 = y0;
+        x1 = r.x + r.w - inset;
+        y1 = r.y + inset + Math.random()*(r.h - inset*2);
       }
 
       // travel along edge
@@ -3305,9 +2279,7 @@
         y1 = clamp(y1, r.y + inset, r.y + r.h - inset);
       }
 
-      const spread = 14 * fxConfig.boltStrength;
-      const pts = makeBolt(x0,y0,x1,y1, 14, spread);
-
+      const pts = makeBolt(x0,y0,x1,y1, 14, 14);
       const branches = [];
       const b1 = branchFrom(pts, 0.55);
       const b2 = branchFrom(pts, 0.35);
@@ -3319,50 +2291,45 @@
         branches,
         born: performance.now(),
         life: 280 + Math.random()*520,
-        w: (1.1 + Math.random()*1.4) * fxConfig.boltStrength
+        w: 1.2 + Math.random()*1.4
       });
     }
 
     function spawnRingArc(){
-      if (fxConfig.boltStrength <= 0.01) return;
-
-      const ringRect = rectOf(ring);
+      // occasional arc near ring circumference
+      const ringRect = rectOf(document.getElementById("ring"));
       const cx = ringRect.x + ringRect.w/2;
       const cy = ringRect.y + ringRect.h/2;
       const rad = ringRect.w/2 - 18;
-
       const a0 = Math.random() * Math.PI * 2;
       const a1 = a0 + (Math.random() > 0.5 ? 1 : -1) * (0.7 + Math.random()*1.0);
-
       const x0 = cx + Math.cos(a0)*rad;
       const y0 = cy + Math.sin(a0)*rad;
       const x1 = cx + Math.cos(a1)*rad;
       const y1 = cy + Math.sin(a1)*rad;
 
-      const spread = 18 * fxConfig.boltStrength;
-      const pts = makeBolt(x0,y0,x1,y1, 18, spread);
-
+      const pts = makeBolt(x0,y0,x1,y1, 18, 18);
       bolts.push({
         pts,
         branches: [],
         born: performance.now(),
         life: 240 + Math.random()*380,
-        w: (1.1 + Math.random()*1.2) * fxConfig.boltStrength
+        w: 1.2 + Math.random()*1.2
       });
     }
 
     function drawBoltPath(pts, alpha, width){
       fx.beginPath();
       fx.moveTo(pts[0].x, pts[0].y);
-      for (let i=1;i<pts.length;i++) fx.lineTo(pts[i].x, pts[i].y);
-
-      const glowMul = Number(getComputedStyle(document.documentElement).getPropertyValue("--fxGlow")) || 1;
+      for (let i=1;i<pts.length;i++){
+        fx.lineTo(pts[i].x, pts[i].y);
+      }
 
       // glow underlay
       fx.globalAlpha = alpha * 0.65;
-      fx.lineWidth = width * (5.0 * glowMul);
+      fx.lineWidth = width * 5.0;
       fx.strokeStyle = "rgba(45,125,255,1)";
-      fx.shadowBlur = 20 * glowMul;
+      fx.shadowBlur = 20;
       fx.shadowColor = "rgba(45,125,255,0.8)";
       fx.stroke();
 
@@ -3374,10 +2341,7 @@
       fx.stroke();
     }
 
-    let rafLightning = 0;
     function stepLightning(){
-      if (fxPaused) return;
-
       fx.clearRect(0,0,fxW,fxH);
       const now = performance.now();
 
@@ -3389,78 +2353,50 @@
           bolts.splice(i,1);
           continue;
         }
+        // quick flash curve
         const alpha = (t < 0.15) ? (t/0.15) : (t < 0.55 ? 1 : (1 - (t-0.55)/0.45));
         drawBoltPath(b.pts, alpha, b.w);
+
         for (const br of b.branches){
           drawBoltPath(br, alpha * 0.8, Math.max(0.9, b.w*0.85));
         }
       }
 
-      rafLightning = requestAnimationFrame(stepLightning);
+      requestAnimationFrame(stepLightning);
     }
     stepLightning();
 
-    // periodic sparks scheduler (controlled by FX intensity + visibility pause)
-    let sparkTimer = 0;
-    function restartSparkScheduler(){
-      if (sparkTimer) clearTimeout(sparkTimer);
-      if (fxPaused) return;
+    // periodic scheduling (random-ish, unobtrusive)
+    const bayEl = document.getElementById("bay");
+    const cockpitEl = document.getElementById("cockpit");
+    const topbarEl = document.querySelector(".topbar");
 
-      const [minMs, maxMs] = fxConfig.boltEvery;
-      if (minMs > 900000) return; // OFF
+    function scheduleSparks(){
+      // fire a small cluster sometimes
+      const burst = Math.random() < 0.65;
+      const targets = [bayEl, cockpitEl, topbarEl];
 
-      const next = minMs + Math.random()*(maxMs - minMs);
-      sparkTimer = setTimeout(()=>{
-        if (fxPaused) return;
+      // 1–3 bolts
+      const count = burst ? (1 + Math.floor(Math.random()*3)) : 1;
+      for (let i=0;i<count;i++){
+        const t = targets[Math.floor(Math.random()*targets.length)];
+        spawnBorderBolt(t, "random");
+      }
 
-        const burst = Math.random() < 0.65;
-        const targets = [bayEl, cockpitEl, topbarEl];
-        const count = burst ? (1 + Math.floor(Math.random()*3)) : 1;
+      // occasional ring arc
+      if (Math.random() < 0.35){
+        spawnRingArc();
+      }
 
-        for (let i=0;i<count;i++){
-          const t = targets[Math.floor(Math.random()*targets.length)];
-          spawnBorderBolt(t, "random");
-        }
-        if (Math.random() < 0.35) spawnRingArc();
-
-        restartSparkScheduler();
-      }, next);
+      // next interval: 1.2s–5.0s
+      const next = 1200 + Math.random()*3800;
+      setTimeout(scheduleSparks, next);
     }
-    restartSparkScheduler();
+    // start after a short warmup
+    setTimeout(scheduleSparks, 900);
 
     /************************************************************
-     * Pause animations when tab not visible
-     ************************************************************/
-    let fxPaused = false;
-    function pauseFX(){
-      fxPaused = true;
-
-      if (rafRing) cancelAnimationFrame(rafRing);
-      if (rafMatrix) cancelAnimationFrame(rafMatrix);
-      if (rafLightning) cancelAnimationFrame(rafLightning);
-      if (sparkTimer) clearTimeout(sparkTimer);
-
-      rafRing = rafMatrix = rafLightning = 0;
-      sparkTimer = 0;
-    }
-    function resumeFX(){
-      if (!fxPaused) return;
-      fxPaused = false;
-
-      // resume loops
-      animateRing();
-      stepMatrix();
-      stepLightning();
-      restartSparkScheduler();
-    }
-
-    document.addEventListener("visibilitychange", ()=>{
-      if (document.visibilityState === "hidden") pauseFX();
-      else resumeFX();
-    });
-
-    /************************************************************
-     * Export/import modal keyboard
+     * Keyboard: ESC closes modal
      ************************************************************/
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && overlay.style.display === "flex"){

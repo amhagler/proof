@@ -43,8 +43,8 @@
 
       /* Ring sizing */
       --ringSize: 720px;         /* ring stage */
-      --nodeW: 180px;
-      --nodeH: 64px;
+      --nodeW: 140px;            /* square so true circle */
+      --nodeH: 140px;
       --ringPad: 36px;           /* safety padding so cards never clip */
 
       /* SMALLER center holo */
@@ -65,7 +65,7 @@
       overflow-x:hidden;
     }
 
-    /* ===== Dynamic starfield (now with slightly richer feel) ===== */
+    /* ===== Dynamic starfield ===== */
     .starsA, .starsB, .starsC, .starsD, .scanlines, .fog{
       position:fixed;
       inset:0;
@@ -84,11 +84,7 @@
       background-size: 980px 560px;
       opacity:.34;
       filter: blur(.2px);
-      animation: starDriftA 52s linear infinite;
-    }
-    @keyframes starDriftA{
-      from{ transform: translate3d(0,0,0); }
-      to{ transform: translate3d(-170px, 70px, 0); }
+      animation: starThroughSpace 38s linear infinite;
     }
 
     .starsB{
@@ -100,12 +96,8 @@
         radial-gradient(1.5px 1.5px at 740px 80px, rgba(255,255,255,.18) 35%, transparent 40%);
       background-size: 1120px 640px;
       opacity:.28;
-      animation: starDriftB 38s linear infinite;
+      animation: starThroughSpace 28s linear infinite;
       mix-blend-mode: screen;
-    }
-    @keyframes starDriftB{
-      from{ transform: translate3d(0,0,0); }
-      to{ transform: translate3d(-250px, 95px, 0); }
     }
 
     .starsC{
@@ -116,11 +108,7 @@
         radial-gradient(2px 2px at 980px 360px, rgba(255,255,255,.16) 35%, transparent 40%);
       background-size: 1280px 720px;
       opacity:.18;
-      animation: starDriftC 30s linear infinite;
-    }
-    @keyframes starDriftC{
-      from{ transform: translate3d(0,0,0); }
-      to{ transform: translate3d(-330px, 130px, 0); }
+      animation: starThroughSpace 22s linear infinite;
     }
 
     /* occasional “comet dust” streaks */
@@ -167,7 +155,13 @@
       to{ transform: translate3d(14px, -9px, 0) scale(1.03); }
     }
 
-    /* ===== Crackle helpers (periodic sparks) ===== */
+    /* Forward motion feel */
+    @keyframes starThroughSpace{
+      0%   { transform: translate3d(0,0,0) scale(1); opacity:.95; }
+      100% { transform: translate3d(-220px, 260px, 0) scale(1.28); opacity:.95; }
+    }
+
+    /* ===== Crackle helpers ===== */
     @keyframes edgeCrackle{
       0%, 86%, 100% { opacity:0; transform: translate3d(0,0,0) scale(1); }
       88% { opacity:.60; transform: translate3d(1px,-1px,0) scale(1.01); }
@@ -178,6 +172,20 @@
     @keyframes warnPulse{
       0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 10px 22px rgba(0,0,0,.35); }
       50% { box-shadow: 0 0 0 1px rgba(123,231,255,.22) inset, 0 0 18px rgba(45,125,255,.32), 0 10px 22px rgba(0,0,0,.35); }
+    }
+
+    /* Random burst toggle */
+    .crackleBurst::after{
+      opacity:.95 !important;
+      animation: edgeCrackle .9s ease-in-out infinite !important;
+    }
+    .crackleBurst .ringCrackle{
+      opacity:.75 !important;
+      animation: edgeCrackle .8s ease-in-out infinite !important;
+    }
+    .crackleBurst .energyBar .crackle{
+      opacity:.75 !important;
+      animation: edgeCrackle .85s ease-in-out infinite !important;
     }
 
     /* Top bar */
@@ -394,7 +402,7 @@
       :root{ --ringSize: 640px; --holoInset: 190px; }
     }
     @media (max-width: 680px){
-      :root{ --ringSize: 580px; --nodeW: 168px; --holoInset: 175px; }
+      :root{ --ringSize: 580px; --nodeW: 132px; --nodeH: 132px; --holoInset: 175px; }
     }
 
     /* Left: ring bay */
@@ -611,7 +619,39 @@
       font-family: var(--mono);
       font-size: 11px;
       color: rgba(234,240,255,.78);
+      position:relative;
     }
+
+    /* "You are here" marker */
+    .nowMarker{
+      position:absolute;
+      right: 6px;
+      top: 0px;
+      width: 14px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(123,231,255,.98), rgba(45,125,255,.92));
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.14) inset,
+        0 0 16px rgba(45,125,255,.34);
+      opacity:0;
+      transform: translate3d(0,0,0);
+      transition: top .65s linear, opacity .2s ease;
+      pointer-events:none;
+      z-index:3;
+    }
+    .nowMarker::after{
+      content:"";
+      position:absolute;
+      left:-6px; top: 50%;
+      width: 10px; height: 2px;
+      transform: translateY(-50%);
+      background: rgba(123,231,255,.85);
+      border-radius: 3px;
+      box-shadow: 0 0 12px rgba(123,231,255,.28);
+      opacity:.9;
+    }
+
     .holo .line{
       display:flex;
       gap:8px;
@@ -619,6 +659,8 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      position:relative;
+      z-index:2;
     }
     .holo .dot{
       width: 6px;
@@ -645,18 +687,22 @@
       z-index:5;
     }
 
+    /* CIRCULAR cards */
     .cardLink{
       width: 100%;
       height: 100%;
       display:flex;
+      flex-direction:column;
       align-items:center;
-      justify-content:space-between;
+      justify-content:center;
       gap:10px;
-      padding: 10px 12px;
-      border-radius: 16px;
+      padding: 14px 10px;
+      border-radius: 50%;
       text-decoration:none;
       color: var(--ink);
       background:
+        radial-gradient(120px 120px at 35% 30%, rgba(123,231,255,.14), transparent 55%),
+        radial-gradient(140px 140px at 70% 70%, rgba(215,181,109,.10), transparent 60%),
         linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)),
         linear-gradient(180deg, rgba(12,22,56,.82), rgba(10,18,48,.72));
       border: 1px solid rgba(255,255,255,.14);
@@ -690,8 +736,12 @@
     .cardLeft{
       display:flex;
       flex-direction:column;
-      gap:2px;
+      gap:4px;
       min-width: 0;
+      text-align:center;
+      align-items:center;
+      justify-content:center;
+      max-width: 92%;
     }
     .cardLeft b{
       font-family: var(--mono);
@@ -711,12 +761,12 @@
       text-overflow:ellipsis;
     }
     .glyph{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
       background:
-        linear-gradient(180deg, rgba(215,181,109,.90), rgba(138,107,47,.72));
-      box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 10px 18px rgba(0,0,0,.35);
+        linear-gradient(180deg, rgba(215,181,109,.92), rgba(138,107,47,.70));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.14) inset, 0 12px 20px rgba(0,0,0,.38);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -724,6 +774,7 @@
       font-weight: 900;
       font-family: var(--mono);
       flex: 0 0 auto;
+      letter-spacing: .06em;
     }
 
     /* energy bar */
@@ -1176,6 +1227,7 @@
               <div class="sub" id="holoStatus">—</div>
             </div>
             <div class="list" id="holoList">
+              <div class="nowMarker" id="nowMarker" aria-hidden="true"></div>
               <div class="line"><div class="dot"></div><div>Enter your schedule on the right.</div></div>
             </div>
           </div>
@@ -1208,7 +1260,7 @@
       </div>
 
       <div class="cockBody">
-        <!-- CHECKLIST MODULE (this was missing before in your view) -->
+        <!-- CHECKLIST MODULE -->
         <div class="module">
           <div class="moduleHd">
             <b>Checklist</b>
@@ -1341,11 +1393,11 @@
         node.dataset.idx = String(idx);
         node.innerHTML = `
           <a class="cardLink" href="${l.href}" target="_blank" rel="noopener">
+            <div class="glyph">${l.glyph}</div>
             <div class="cardLeft">
               <b>${l.label}</b>
               <span>${l.sub}</span>
             </div>
-            <div class="glyph">${l.glyph}</div>
           </a>
         `;
         ring.appendChild(node);
@@ -1355,7 +1407,7 @@
 
     function computeOrbitRadius(){
       const cs = getComputedStyle(document.documentElement);
-      const nodeW = parseFloat(cs.getPropertyValue("--nodeW")) || 180;
+      const nodeW = parseFloat(cs.getPropertyValue("--nodeW")) || 140;
       const ringPad = parseFloat(cs.getPropertyValue("--ringPad")) || 36;
       const w = ring.clientWidth || 600;
       const half = w / 2;
@@ -1577,6 +1629,7 @@
     const viewDateEl = document.getElementById("viewDate");
 
     const holoList = document.getElementById("holoList");
+    const nowMarker = document.getElementById("nowMarker");
     const holoStatus = document.getElementById("holoStatus");
     const holoTag = document.getElementById("holoTag");
 
@@ -1857,7 +1910,14 @@
       holoStatus.textContent = week ? `${weekName} • ${dayName}` : (dayName);
 
       if (!periods.length){
-        holoList.innerHTML = `<div class="line"><div class="dot"></div><div>${(day==="saturday"||day==="sunday") ? "Weekend." : "Set Blue anchor date + save block names."}</div></div>`;
+        holoList.innerHTML = `
+          <div class="nowMarker" id="nowMarker" aria-hidden="true"></div>
+          <div class="line"><div class="dot"></div><div>${(day==="saturday"||day==="sunday") ? "Weekend." : "Set Blue anchor date + save block names."}</div></div>
+        `;
+        // refresh marker ref if we replaced the innerHTML
+        const nm = document.getElementById("nowMarker");
+        if (nm) nm.style.opacity = "0";
+
         energyFill.style.width = "0%";
         energyPct.textContent = "0%";
         energyNote.textContent = (day==="saturday"||day==="sunday") ? "Standby" : "Awaiting schedule…";
@@ -1865,8 +1925,11 @@
         return;
       }
 
+      // keep marker node (don’t lose it)
+      holoList.innerHTML = `<div class="nowMarker" id="nowMarker" aria-hidden="true"></div>`;
+      const marker = document.getElementById("nowMarker");
+
       // highlight current period if today
-      holoList.innerHTML = "";
       periods.slice(0, 8).forEach(p => {
         const isNow = isToday && (minutesNow >= p.range.start && minutesNow < p.range.end);
         const line = document.createElement("div");
@@ -1875,12 +1938,13 @@
         holoList.appendChild(line);
       });
 
-      // Energy (only for today)
+      // Energy + marker (only for today)
       if (!isToday){
         energyFill.style.width = "0%";
         energyPct.textContent = "—";
         energyNote.textContent = "Energy grid is live only for today";
         updateCountdown("—", false);
+        if (marker) marker.style.opacity = "0";
         return;
       }
 
@@ -1889,6 +1953,15 @@
       const clamped = Math.min(Math.max(minutesNow, firstStart), lastEnd);
       const prog = (clamped - firstStart) / (lastEnd - firstStart);
       const pct = Math.round(prog * 100);
+
+      // "You are here" marker slides down the visible schedule list
+      if (marker){
+        const usableH = holoList.clientHeight - 10; // marker height-ish
+        const topPad = 2;
+        const y = topPad + (usableH * prog);
+        marker.style.top = `${Math.max(0, Math.min(usableH, y))}px`;
+        marker.style.opacity = "0.95";
+      }
 
       energyFill.style.width = `${pct}%`;
       energyPct.textContent = `${pct}%`;
@@ -1984,6 +2057,35 @@
      * Resize relayout for ring
      ************************************************************/
     window.addEventListener("resize", () => layoutNodes());
+
+    /************************************************************
+     * Random electricity bursts (console borders + ring track)
+     ************************************************************/
+    const crackleTargets = [
+      document.querySelector(".bay"),
+      document.querySelector(".cockpit"),
+      document.querySelector(".searchWrap"),
+      document.querySelector(".clockBox"),
+      document.querySelector(".pill"),
+      document.querySelector(".energyBar"),
+      document.getElementById("ring")
+    ].filter(Boolean);
+
+    function burstCrackle(){
+      const picks = crackleTargets
+        .slice()
+        .sort(()=> Math.random() - 0.5)
+        .slice(0, 1 + Math.floor(Math.random()*3));
+
+      picks.forEach(el => el.classList.add("crackleBurst"));
+
+      const dur = 450 + Math.random()*650;
+      setTimeout(()=> picks.forEach(el => el.classList.remove("crackleBurst")), dur);
+
+      const next = 1800 + Math.random()*4400;
+      setTimeout(burstCrackle, next);
+    }
+    setTimeout(burstCrackle, 1200);
   </script>
 </body>
 </html>

@@ -27,7 +27,14 @@
 
       --gold:#FFE066;
       --red:#FF5A5A;
+      /* ADHD-friendly urgency colors */
+      --warnYellow: #FFE066;  /* 24h */
+      --warnOrange: #FF9A3D;  /* 1h */
+      --dangerRed:  #FF3B3B;  /* overdue */
 
+      /* Priority purple */
+      --priPurple:  #B66BFF;
+      --priPurple2: #7C3CFF;
       --line: rgba(255,255,255,.10);
       --line2: rgba(255,255,255,.18);
 
@@ -1165,9 +1172,10 @@
       border-color: rgba(255,90,90,.22);
     }
     .iconBtn.priOn{
-      color: rgba(255,224,102,.95);
-      border-color: rgba(255,224,102,.22);
-      background: rgba(255,183,0,.08);
+      color: rgba(182,107,255,.98);
+      border-color: rgba(182,107,255,.30);
+      background: rgba(124,60,255,.12);
+      box-shadow: 0 0 0 1px rgba(182,107,255,.10) inset, 0 0 14px rgba(124,60,255,.18);
     }
 
     /* tags + due chips */
@@ -1197,25 +1205,86 @@
       color: rgba(234,240,255,.85);
     }
 
-    /* PRIORITY: subtle orange */
+    /* PRIORITY: PURPLE (more visible) */
     .checkItem.priority{
-      border-color: rgba(255,224,102,.22);
+      border-color: rgba(182,107,255,.38);
       box-shadow:
-        0 0 0 1px rgba(255,183,0,.10) inset,
-        0 0 18px rgba(255,183,0,.10);
+        0 0 0 1px rgba(182,107,255,.16) inset,
+        0 0 26px rgba(124,60,255,.22);
       background:
-        radial-gradient(260px 80px at 15% 0%, rgba(255,183,0,.10), transparent 65%),
-        rgba(255,255,255,.04);
+        radial-gradient(320px 90px at 15% 0%, rgba(182,107,255,.18), transparent 65%),
+        rgba(255,255,255,.05);
     }
 
-    /* OVERDUE: subtle red glow */
-    @keyframes overdueGlow{
-      0%,100%{ box-shadow: 0 0 0 1px rgba(255,90,90,.12) inset, 0 0 10px rgba(255,90,90,.10); }
-      50%{ box-shadow: 0 0 0 1px rgba(255,90,90,.18) inset, 0 0 18px rgba(255,90,90,.16); }
+    /* DUE WARNING STATES (ADHD-friendly) */
+    @keyframes dueYellowGlow{
+      0%,100%{
+        box-shadow:
+          0 0 0 1px rgba(255,224,102,.22) inset,
+          0 0 14px rgba(255,224,102,.16);
+        filter: brightness(1);
+      }
+      50%{
+        box-shadow:
+          0 0 0 1px rgba(255,224,102,.32) inset,
+          0 0 26px rgba(255,224,102,.26);
+        filter: brightness(1.04);
+      }
+    }
+    .checkItem.due24:not(.done){
+      border-color: rgba(255,224,102,.32);
+      background:
+        radial-gradient(320px 90px at 15% 0%, rgba(255,224,102,.16), transparent 65%),
+        rgba(255,255,255,.05);
+      animation: dueYellowGlow 1.9s ease-in-out infinite;
+    }
+
+    @keyframes dueOrangeGlow{
+      0%,100%{
+        box-shadow:
+          0 0 0 1px rgba(255,154,61,.24) inset,
+          0 0 16px rgba(255,154,61,.18);
+        filter: brightness(1.01);
+      }
+      50%{
+        box-shadow:
+          0 0 0 1px rgba(255,154,61,.38) inset,
+          0 0 30px rgba(255,154,61,.30);
+        filter: brightness(1.07);
+      }
+    }
+    .checkItem.due1h:not(.done){
+      border-color: rgba(255,154,61,.38);
+      background:
+        radial-gradient(340px 100px at 15% 0%, rgba(255,154,61,.18), transparent 65%),
+        rgba(255,255,255,.05);
+      animation: dueOrangeGlow 1.35s ease-in-out infinite;
+    }
+
+    /* OVERDUE: RED + THROB */
+    @keyframes overdueThrob{
+      0%,100%{
+        box-shadow:
+          0 0 0 1px rgba(255,59,59,.28) inset,
+          0 0 18px rgba(255,59,59,.18);
+        transform: translateZ(0) scale(1);
+        filter: brightness(1.02);
+      }
+      50%{
+        box-shadow:
+          0 0 0 1px rgba(255,59,59,.48) inset,
+          0 0 36px rgba(255,59,59,.34);
+        transform: translateZ(0) scale(1.01);
+        filter: brightness(1.10);
+      }
     }
     .checkItem.overdue:not(.done){
-      border-color: rgba(255,90,90,.22);
-      animation: overdueGlow 1.9s ease-in-out infinite;
+      border-color: rgba(255,59,59,.46);
+      background:
+        radial-gradient(360px 110px at 15% 0%, rgba(255,59,59,.16), transparent 65%),
+        rgba(255,255,255,.05);
+      animation: overdueThrob 1.05s ease-in-out infinite;
+    }
     }
 
     /* inline editor */
@@ -2203,51 +2272,183 @@
       renderChecklist();
     }
 
-    function setDue(itemId){
-      const item = state.checklist.find(x => x.id === itemId);
-      if (!item) return;
+function setDue(itemId){
+  const item = state.checklist.find(x => x.id === itemId);
+  if (!item) return;
 
-      // quick prompt (fastest in-class)
-      const cur = item.dueAt ? isoDate(new Date(item.dueAt)) : "";
-      const val = prompt(
-        "Set due date/time.\n\nFormats:\n  2026-03-01\n  2026-03-01 14:30\n  14:30 (today)\n\nLeave blank to clear.",
-        cur
-      );
-      if (val === null) return;
+  const cur = item.dueAt ? new Date(item.dueAt) : null;
+  const curStr = cur
+    ? `${isoDate(cur)} ${pad2(cur.getHours())}:${pad2(cur.getMinutes())}`
+    : "";
 
-      const t = String(val).trim();
-      if (!t){
-        item.dueAt = null;
-        saveState();
-        renderChecklist();
-        return;
-      }
+  const val = prompt(
+`Set due date/time (easier formats):
 
-      // accept "YYYY-MM-DD HH:MM" or "YYYY-MM-DD" or "HH:MM"
-      let dueAt = null;
-      if (/^\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}$/.test(t)){
-        const [dpart, hpart] = t.split(/\s+/);
-        const [hh, mm] = hpart.split(":");
-        const dt = new Date(dpart + "T" + pad2(parseInt(hh,10)) + ":" + pad2(parseInt(mm,10)) + ":00");
-        if (!isNaN(dt.getTime())) dueAt = dt.getTime();
-      } else if (/^\d{4}-\d{2}-\d{2}$/.test(t)){
-        const dt = new Date(t + "T23:59:00");
-        if (!isNaN(dt.getTime())) dueAt = dt.getTime();
-      } else if (/^\d{1,2}:\d{2}$/.test(t)){
-        const now = new Date();
-        const [hh, mm] = t.split(":").map(n => parseInt(n,10));
-        const dt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
-        if (!isNaN(dt.getTime())) dueAt = dt.getTime();
-      }
+Examples:
+  tom
+  tom 2:30
+  3pm
+  14:30
+  fri 9
+  +2h
+  +1d
+  2026-03-01
+  2026-03-01 14:30
 
-      if (!dueAt){
-        alert("Couldn't parse that due value. Try: 2026-03-01 or 2026-03-01 14:30 or 14:30");
-        return;
-      }
-      item.dueAt = dueAt;
-      saveState();
-      renderChecklist();
+Leave blank to clear.`,
+    curStr
+  );
+
+  if (val === null) return;
+
+  const t = String(val).trim().toLowerCase();
+  if (!t){
+    item.dueAt = null;
+    saveState();
+    renderChecklist();
+    return;
+  }
+
+  const dueAt = parseDueInput(t);
+  if (!dueAt){
+    alert("Couldn't parse that due value.\nTry: tom 2:30, 3pm, fri 9, +2h, +1d, 2026-03-01 14:30");
+    return;
+  }
+
+  item.dueAt = dueAt;
+  saveState();
+  renderChecklist();
+}
+
+
+// Flexible due parser used by setDue()
+function parseDueInput(raw){
+  const now = new Date();
+  const s = String(raw || "").trim().toLowerCase();
+
+  const dowMap = {
+    sun:0, sunday:0,
+    mon:1, monday:1,
+    tue:2, tues:2, tuesday:2,
+    wed:3, wednesday:3,
+    thu:4, thur:4, thurs:4, thursday:4,
+    fri:5, friday:5,
+    sat:6, saturday:6
+  };
+
+  function atEndOfDay(d){
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 0, 0).getTime();
+  }
+
+  function parseClock(token){
+    // 14:30, 9, 9:15, 3pm, 3:15pm, 3p
+    const m1 = token.match(/^(\d{1,2})(?::(\d{2}))?\s*(a|am|p|pm)?$/);
+    if (!m1) return null;
+
+    let hh = parseInt(m1[1], 10);
+    const mm = m1[2] ? parseInt(m1[2], 10) : 0;
+    const ap = (m1[3] || "").toLowerCase();
+
+    if (ap){
+      const isPM = ap.startsWith("p");
+      const isAM = ap.startsWith("a");
+      if (isPM && hh < 12) hh += 12;
+      if (isAM && hh === 12) hh = 0;
     }
+
+    if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+    return { hh, mm };
+  }
+
+  function nextDow(targetDow){
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const curDow = d.getDay();
+    let add = (targetDow - curDow + 7) % 7;
+    if (add === 0) add = 7; // "fri" means next Friday
+    d.setDate(d.getDate() + add);
+    return d;
+  }
+
+  // Relative: +2h, +90m, +1d
+  let m = s.match(/^\+(\d+)\s*(m|min|mins|minute|minutes|h|hr|hrs|hour|hours|d|day|days)$/);
+  if (m){
+    const n = parseInt(m[1], 10);
+    const unit = m[2];
+    let ms = 0;
+
+    if (unit.startsWith("m")) ms = n * 60 * 1000;
+    else if (unit.startsWith("h")) ms = n * 60 * 60 * 1000;
+    else ms = n * 24 * 60 * 60 * 1000;
+
+    return now.getTime() + ms;
+  }
+
+  // ISO date-time: YYYY-MM-DD HH:MM
+  if (/^\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}$/.test(s)){
+    const [dpart, tpart] = s.split(/\s+/);
+    const [hh, mm] = tpart.split(":").map(x => parseInt(x, 10));
+    const dt = new Date(dpart + "T" + pad2(hh) + ":" + pad2(mm) + ":00");
+    if (!isNaN(dt.getTime())) return dt.getTime();
+  }
+
+  // ISO date only
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)){
+    const dt = new Date(s + "T23:59:00");
+    if (!isNaN(dt.getTime())) return dt.getTime();
+  }
+
+  // "tom" or "tomorrow"
+  m = s.match(/^(tom|tomorrow)(?:\s+(.+))?$/);
+  if (m){
+    const base = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timeToken = (m[2] || "").trim();
+
+    if (!timeToken) return atEndOfDay(base);
+
+    const clock = parseClock(timeToken);
+    if (!clock) return null;
+
+    const dt = new Date(base.getFullYear(), base.getMonth(), base.getDate(), clock.hh, clock.mm, 0, 0);
+    return dt.getTime();
+  }
+
+  // Weekday: "fri 9"
+  m = s.match(/^([a-z]+)(?:\s+(.+))?$/);
+  if (m && dowMap[m[1]] !== undefined){
+    const base = nextDow(dowMap[m[1]]);
+    const timeToken = (m[2] || "").trim();
+
+    if (!timeToken) return atEndOfDay(base);
+
+    const clock = parseClock(timeToken);
+    if (!clock) return null;
+
+    const dt = new Date(base.getFullYear(), base.getMonth(), base.getDate(), clock.hh, clock.mm, 0, 0);
+    return dt.getTime();
+  }
+
+  // Time only: 3pm, 14:30, 9
+  const clock = parseClock(s);
+  if (clock){
+    let base = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      clock.hh,
+      clock.mm,
+      0,
+      0
+    );
+
+    if (base.getTime() <= now.getTime()){
+      base = new Date(base.getTime() + 24 * 60 * 60 * 1000);
+    }
+
+    return base.getTime();
+  }
+
+  return null;
+}
 
     function deleteItem(itemId){
       const snap = snapshotState();
@@ -2306,8 +2507,18 @@
         row.className = "checkItem" + (item.done ? " done" : "") + (item.priority ? " priority" : "");
         row.dataset.id = item.id;
 
-        const isOverdue = !!(item.dueAt && !item.done && nowTs > item.dueAt);
-        if (isOverdue) row.classList.add("overdue");
+             // Due-state highlighting (ADHD-friendly)
+        if (item.dueAt && !item.done){
+          const deltaMs = item.dueAt - nowTs;
+
+          if (deltaMs <= 0){
+            row.classList.add("overdue");
+          } else if (deltaMs <= 60 * 60 * 1000){
+            row.classList.add("due1h");
+          } else if (deltaMs <= 24 * 60 * 60 * 1000){
+            row.classList.add("due24");
+          }
+        }
 
         // left side elements
         const handle = document.createElement("div");

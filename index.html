@@ -675,8 +675,8 @@
       max-width: 100%;
     }
     .glyph{
-  width: var(--glyphSize, 40px);
-  height: var(--glyphSize, 40px);
+      width: 40px;
+      height: 40px;
       border-radius: 14px;
       background:
         linear-gradient(180deg, rgba(215,181,109,.92), rgba(138,107,47,.74));
@@ -690,40 +690,16 @@
       flex: 0 0 auto;
     }
 
-/* energy bar */
-.energyWrap{
-  position:relative;
-  z-index:4;
-  padding: 0 14px 14px 14px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.energyMeta{
-  width: min(760px, 92%);
-  margin-top: 8px;
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: rgba(234,240,255,.72);
-}
-.energyMeta b{
-  letter-spacing:.14em;
-  text-transform: uppercase;
-  font-size: 10px;
-  color: rgba(123,231,255,.88);
-}
-.energyMeta #energyPct{
-  color: rgba(234,240,255,.92);
-}
-.energyMeta #energyNote{
-  text-align:right;
-  color: rgba(234,240,255,.62);
-  max-width: 60%;
-}    .energyBar{
+    /* energy bar */
+    .energyWrap{
+      position:relative;
+      z-index:4;
+      padding: 0 14px 14px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .energyBar{
       width: min(760px, 92%);
       height: 14px;
       border-radius: 999px;
@@ -1360,44 +1336,6 @@
       z-index:3;
       position:relative;
     }
-
-/* Ring Links editor rows */
-.ringRow{
-  display:grid;
-  grid-template-columns: 22px 1fr;
-  gap:10px;
-  align-items:start;
-  padding: 10px;
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
-  box-shadow: 0 0 0 1px rgba(0,0,0,.14) inset;
-}
-.ringRow.dragOver{
-  border-color: rgba(123,231,255,.28);
-  box-shadow: 0 0 0 1px rgba(45,125,255,.10) inset, 0 0 18px rgba(45,125,255,.12);
-}
-.ringFields{
-  display:grid;
-  gap:8px;
-}
-.ringFields .grid2{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:8px;
-}
-.ringFields .grid3{
-  display:grid;
-  grid-template-columns: 1fr 1fr .6fr;
-  gap:8px;
-}
-.ringMiniActions{
-  display:flex;
-  gap:8px;
-  justify-content:flex-end;
-  flex-wrap:wrap;
-  margin-top:2px;
-}
   </style>
 </head>
 
@@ -1496,7 +1434,7 @@
       <div class="cockHeader">
         <div class="left">
           <b>Control Console</b>
-          <span>Checklist + schedule entry. Everything saves locally.</span>
+          <span>Checklist + schedule entry.</span>
         </div>
         <div class="pill"><span class="spark"></span><span id="dayModePill">—</span></div>
       </div>
@@ -1527,7 +1465,7 @@
             <div class="checkMetaRow">
               <div class="left">
                 <input class="checkFilter" id="checkFilter" type="text" placeholder="Filter… (text or #tag)" />
-                <div class="tinyHint" id="filterHint" style="margin-top:2px;">Tip: double-click an item to edit. ★ marks priority (orange).</div>
+                <div class="tinyHint" id="filterHint" style="margin-top:2px;">Tip: double-click to edit. ★ marks priority (orange).</div>
               </div>
               <div class="right">
                 <div class="tinyHint" id="dueHint" style="text-align:right;">Overdue items glow red (when due is set).</div>
@@ -1538,22 +1476,7 @@
             <div class="tinyHint">Tip: press Enter to add. Drag using the handle. Export/import lives below.</div>
           </div>
         </div>
-<!-- RING LINKS MODULE -->
-<div class="module" id="ringLinksModule">
-  <div class="moduleHd">
-    <b>Ring Links</b>
-    <div class="mini">
-      <button class="btn btnGhost" id="addRingLinkBtn" type="button">Add</button>
-      <button class="btn btnPrimary" id="saveRingLinksBtn" type="button">Save</button>
-    </div>
-  </div>
-  <div class="moduleBd">
-    <div class="tinyHint" style="margin-top:-2px;">
-      Drag by the handle to reorder. Edit fields inline. Save persists to your browser + export JSON.
-    </div>
-    <div id="ringLinksList" style="display:grid;gap:10px;margin-top:6px;"></div>
-  </div>
-</div>
+
         <!-- Portability (schedule + checklist) -->
         <div class="module">
           <div class="moduleHd">
@@ -1670,58 +1593,21 @@
     /************************************************************
      * LINKS (ring nodes)
      ************************************************************/
-const defaultRingLinks = [
-  { id:"dt", label:"Discussion",   sub:"class-discussion", href:"https://amhagler.github.io/class-discussion/", glyph:"DT" },
-  { id:"sc", label:"Seating Chart",sub:"SC",               href:"https://amhagler.github.io/SC/",              glyph:"SC" },
-  { id:"rb", label:"Rubric",       sub:"rubric",           href:"https://amhagler.github.io/rubric/",          glyph:"RB" },
-  { id:"uc", label:"Unit Calendar",sub:"uc",               href:"https://amhagler.github.io/uc/",              glyph:"UC" },
-  { id:"mf", label:"Mafia",        sub:"mafia",            href:"https://amhagler.github.io/mafia/",           glyph:"MF" },
-  { id:"tr", label:"Trivia",       sub:"tr",               href:"https://amhagler.github.io/tr/",              glyph:"TR" },
-  { id:"pt", label:"Portal",       sub:"myschoolapp login",href:"https://geffenacademy.myschoolapp.com/app#login", glyph:"PT" },
-  { id:"gb", label:"Gradebook",    sub:"SIS gradebook",    href:"https://geffenacademy.myschoolapp.com/sis-gradebook/gradebook/27966135?svcid=edu&addin=1", glyph:"GB" },
-];
+    const links = [
+      { label:"Discussion", sub:"class-discussion", href:"https://amhagler.github.io/class-discussion/", glyph:"DT" },
+      { label:"Seating Chart", sub:"SC", href:"https://amhagler.github.io/SC/", glyph:"SC" },
+      { label:"Rubric", sub:"rubric", href:"https://amhagler.github.io/rubric/", glyph:"RB" },
+      { label:"Unit Calendar", sub:"uc", href:"https://amhagler.github.io/uc/", glyph:"UC" },
+      { label:"Mafia", sub:"mafia", href:"https://amhagler.github.io/mafia/", glyph:"MF" },
+      { label:"Trivia", sub:"tr", href:"https://amhagler.github.io/tr/", glyph:"TR" },
+      { label:"Portal", sub:"myschoolapp login", href:"https://geffenacademy.myschoolapp.com/app#login", glyph:"PT" },
+      { label:"Gradebook", sub:"SIS gradebook", href:"https://geffenacademy.myschoolapp.com/sis-gradebook/gradebook/27966135?svcid=edu&addin=1", glyph:"GB" },
+    ];
 
-function normalizeRingLink(obj){
-  const o = (obj && typeof obj === "object") ? obj : {};
-  return {
-    id: o.id || uid(),
-    label: String(o.label || "Untitled").trim(),
-    sub: String(o.sub || "").trim(),
-    href: String(o.href || "").trim(),
-    glyph: String(o.glyph || "LK").trim().slice(0, 3)
-  };
-}
-
-function getRingLinks(){
-  const src = (typeof state !== "undefined" && Array.isArray(state.ringLinks))
-    ? state.ringLinks
-    : defaultRingLinks;
-
-  return src.map(normalizeRingLink).filter(x => x.label && x.href);
-}
-let links = getRingLinks();
     const ring = document.getElementById("ring");
     let rotation = 0; // radians
     let targetRotation = 0;
-function applyRingSizingForCount(count){
-  // fewer links => bigger nodes; more links => smaller nodes
-  const n = Math.max(1, count || 1);
 
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-
-  // tuned for your ring sizes
-  const base = 140;               // default-ish
-  const shrinkPer = 3.6;          // how fast it shrinks
-  const size = clamp(base - (n - 8) * shrinkPer, 92, 148);
-
-  const root = document.documentElement;
-  root.style.setProperty("--nodeW", `${Math.round(size)}px`);
-  root.style.setProperty("--nodeH", `${Math.round(size)}px`);
-
-  // glyph scales a bit too
-  const glyph = clamp(Math.round(size * 0.30), 26, 44);
-  root.style.setProperty("--glyphSize", `${glyph}px`);
-}
     function escapeHtml(s){
       return String(s||"")
         .replaceAll("&","&amp;")
@@ -1731,30 +1617,23 @@ function applyRingSizingForCount(count){
         .replaceAll("'","&#039;");
     }
 
-function buildNodes(){
-  // refresh links from state
-  links = getRingLinks();
-
-  // auto size nodes
-  applyRingSizingForCount(links.length);
-
-  ring.querySelectorAll(".node").forEach(n => n.remove());
-
-  links.forEach((l, idx) => {
-    const node = document.createElement("div");
-    node.className = "node";
-    node.dataset.idx = String(idx);
-    node.innerHTML = `
-      <a class="cardLink" href="${escapeHtml(l.href)}" target="_blank" rel="noopener" aria-label="${escapeHtml(l.label)}">
-        <div class="glyph">${escapeHtml(l.glyph)}</div>
-        <div class="cardTitle">${escapeHtml(l.label)}</div>
-        <div class="cardSub">${escapeHtml(l.sub)}</div>
-      </a>
-    `;
-    ring.appendChild(node);
-  });
-}    
-buildNodes();
+    function buildNodes(){
+      ring.querySelectorAll(".node").forEach(n => n.remove());
+      links.forEach((l, idx) => {
+        const node = document.createElement("div");
+        node.className = "node";
+        node.dataset.idx = String(idx);
+        node.innerHTML = `
+          <a class="cardLink" href="${l.href}" target="_blank" rel="noopener" aria-label="${escapeHtml(l.label)}">
+            <div class="glyph">${escapeHtml(l.glyph)}</div>
+            <div class="cardTitle">${escapeHtml(l.label)}</div>
+            <div class="cardSub">${escapeHtml(l.sub)}</div>
+          </a>
+        `;
+        ring.appendChild(node);
+      });
+    }
+    buildNodes();
 
     function computeOrbitRadius(){
       const cs = getComputedStyle(document.documentElement);
@@ -1824,7 +1703,7 @@ buildNodes();
         { time:"9:15-10:10", block:"A" },
         { time:"10:15-11:10", block:"B" },
         { time:"11:20-12:15", block:"C" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"D" },
         { time:"2:10-3:05", block:"E" },
         { time:"3:10-3:50", block:"H" }
@@ -1834,7 +1713,7 @@ buildNodes();
         { time:"9:20-10:15", block:"F" },
         { time:"10:20-11:15", block:"G" },
         { time:"11:20-12:15", block:"A" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"B" },
         { time:"2:10-3:05", block:"C" },
         { time:"3:10-3:50", block:"H" }
@@ -1844,7 +1723,7 @@ buildNodes();
         { time:"9:15-10:10", block:"D" },
         { time:"10:15-11:10", block:"E" },
         { time:"11:20-12:15", block:"F" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"G" },
         { time:"2:10-3:05", block:"A" },
         { time:"3:10-3:50", block:"H" }
@@ -1854,7 +1733,7 @@ buildNodes();
         { time:"9:15-10:10", block:"B" },
         { time:"10:15-11:10", block:"C" },
         { time:"11:20-12:15", block:"D" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"E" },
         { time:"2:10-3:05", block:"F" },
         { time:"3:10-3:50", block:"H" }
@@ -1864,7 +1743,7 @@ buildNodes();
         { time:"9:00-9:55", block:"G" },
         { time:"10:00-10:55", block:"A" },
         { time:"11:05-12:00", block:"B" },
-        { time:"12:00-1:05", block:"MS/US SuperLunch +Affinity Groups" },
+        { time:"12:00-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"C" },
         { time:"2:10-3:05", block:"D" },
         { time:"3:10-3:50", block:"H/X1" }
@@ -1877,7 +1756,7 @@ buildNodes();
         { time:"9:15-10:10", block:"E" },
         { time:"10:15-11:10", block:"F" },
         { time:"11:20-12:15", block:"G" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"A" },
         { time:"2:10-3:05", block:"B" },
         { time:"3:10-3:50", block:"H" }
@@ -1887,7 +1766,7 @@ buildNodes();
         { time:"9:20-10:15", block:"C" },
         { time:"10:20-11:15", block:"D" },
         { time:"11:20-12:15", block:"E" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"F" },
         { time:"2:10-3:05", block:"G" },
         { time:"3:10-3:50", block:"H" }
@@ -1897,7 +1776,7 @@ buildNodes();
         { time:"9:15-10:10", block:"A" },
         { time:"10:15-11:10", block:"B" },
         { time:"11:20-12:15", block:"C" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"D" },
         { time:"2:10-3:05", block:"E" },
         { time:"3:10-3:50", block:"H" }
@@ -1907,7 +1786,7 @@ buildNodes();
         { time:"9:15-10:10", block:"F" },
         { time:"10:15-11:10", block:"G" },
         { time:"11:20-12:15", block:"A" },
-        { time:"12:15-1:05", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"12:15-1:05", block:"Lunch" },
         { time:"1:10-2:05", block:"B" },
         { time:"2:10-3:05", block:"C" },
         { time:"3:10-3:50", block:"H" }
@@ -1917,7 +1796,7 @@ buildNodes();
         { time:"9:00-9:55", block:"D" },
         { time:"10:00-10:55", block:"E" },
         { time:"11:00-11:45", block:"H" },
-        { time:"11:45-12:35", block:"MS/US Lunch +MS/US Clubs" },
+        { time:"11:45-12:35", block:"Lunch" },
         { time:"12:40-1:35", block:"F" },
         { time:"1:40-2:35", block:"G" },
         { time:"2:40-3:20", block:"X3" }
@@ -1945,46 +1824,38 @@ buildNodes();
      ************************************************************/
     const LS_KEY = "geffen_cockpit_v4";
 
-const defaultState = {
-  blueAnchor: "",
-  officeHoursMode: "none",
-  blocks: { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
-  links:  { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
-
-  // ring links (editable)
-  ringLinks: null, // if null, fall back to built-in defaults
-
-  viewDate: "",
-  checklist: [], // {id, text, done, createdAt, completedAt, dueAt, priority, tags, order}
-  checklistUI: { hideDone:false, filter:"" }
-};
-function loadState(){
-  try{
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return structuredClone(defaultState);
-
-    const obj = JSON.parse(raw);
-
-    // merge with defaults (keeps backward compatibility)
-    const merged = {
-      ...structuredClone(defaultState),
-      ...obj,
-      blocks: { ...structuredClone(defaultState.blocks), ...(obj.blocks || {}) },
-      links:  { ...structuredClone(defaultState.links),  ...(obj.links  || {}) },
-      checklistUI: { ...structuredClone(defaultState.checklistUI), ...(obj.checklistUI || {}) }
+    const defaultState = {
+      blueAnchor: "",
+      officeHoursMode: "none",
+      blocks: { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
+      links:  { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
+      viewDate: "",
+      checklist: [], // {id, text, done, createdAt, completedAt, dueAt, priority, tags, order}
+      checklistUI: { hideDone:false, filter:"" }
     };
 
-    // normalize checklist items
-    merged.checklist = (merged.checklist || []).map((it, idx) => normalizeChecklistItem(it, idx));
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const obj = JSON.parse(raw);
 
-    // keep viewDate sane
-    if (!isValidISODate(merged.viewDate)) merged.viewDate = isoDate(new Date());
+        const merged = {
+          ...structuredClone(defaultState),
+          ...obj,
+          blocks: { ...structuredClone(defaultState.blocks), ...(obj.blocks||{}) },
+          links:  { ...structuredClone(defaultState.links),  ...(obj.links||{}) },
+          checklist: Array.isArray(obj.checklist) ? obj.checklist : [],
+          checklistUI: { ...structuredClone(defaultState.checklistUI), ...(obj.checklistUI||{}) }
+        };
 
-    return merged;
-  }catch(e){
-    return structuredClone(defaultState);
-  }
-}
+        // backward-compat normalize checklist items
+        merged.checklist = (merged.checklist || []).map((it, idx) => normalizeChecklistItem(it, idx));
+        return merged;
+      }catch(e){
+        return structuredClone(defaultState);
+      }
+    }
     function saveState(){
       localStorage.setItem(LS_KEY, JSON.stringify(state));
     }
@@ -2014,10 +1885,7 @@ function loadState(){
     const checkFilterEl = document.getElementById("checkFilter");
     const collapseDoneBtn = document.getElementById("collapseDoneBtn");
     const checkProgressEl = document.getElementById("checkProgress");
-// ring links editor
-const ringLinksList = document.getElementById("ringLinksList");
-const addRingLinkBtn = document.getElementById("addRingLinkBtn");
-const saveRingLinksBtn = document.getElementById("saveRingLinksBtn");
+
     // toast
     const toast = document.getElementById("toast");
     const toastMsg = document.getElementById("toastMsg");
@@ -2643,163 +2511,7 @@ const saveRingLinksBtn = document.getElementById("saveRingLinksBtn");
     collapseDoneBtn.textContent = state.checklistUI?.hideDone ? "Show Done" : "Hide Done";
 
     renderChecklist();
-/************************************************************
- * Ring Links Editor (add/edit/delete/reorder)
- ************************************************************/
-let ringDragId = null;
 
-function renderRingLinksEditor(){
-if (!Array.isArray(state.ringLinks)) state.ringLinks = getRingLinks().map(normalizeRingLink);
-const items = state.ringLinks; // state-backed array, edits persist in-memory
-  ringLinksList.innerHTML = "";
-
-  items.forEach((it) => {
-    const row = document.createElement("div");
-    row.className = "ringRow";
-    row.dataset.id = it.id;
-
-    const handle = document.createElement("div");
-    handle.className = "dragHandle";
-    handle.title = "Drag to reorder";
-    handle.draggable = true;
-
-    const fields = document.createElement("div");
-    fields.className = "ringFields";
-    fields.innerHTML = `
-      <div class="grid2">
-        <div>
-          <label style="margin:0 0 6px 0;">Label</label>
-          <input type="text" data-k="label" value="${escapeHtml(it.label)}" />
-        </div>
-        <div>
-          <label style="margin:0 0 6px 0;">Sub</label>
-          <input type="text" data-k="sub" value="${escapeHtml(it.sub)}" />
-        </div>
-      </div>
-
-      <div class="grid3">
-        <div style="grid-column:1 / span 2;">
-          <label style="margin:0 0 6px 0;">URL</label>
-          <input type="text" data-k="href" value="${escapeHtml(it.href)}" placeholder="https://..." />
-        </div>
-        <div>
-          <label style="margin:0 0 6px 0;">Glyph</label>
-          <input type="text" data-k="glyph" value="${escapeHtml(it.glyph)}" maxlength="3" />
-        </div>
-      </div>
-
-      <div class="ringMiniActions">
-        <button class="iconBtn danger" type="button" data-act="del">Delete</button>
-      </div>
-    `;
-
-    row.appendChild(handle);
-    row.appendChild(fields);
-    ringLinksList.appendChild(row);
-
-    // input binding (edits are “live” in-memory until Save)
-    fields.querySelectorAll("input[data-k]").forEach(inp => {
-      inp.addEventListener("input", () => {
-        const k = inp.getAttribute("data-k");
-        it[k] = inp.value;
-      });
-    });
-
-    // delete
-    fields.querySelector('[data-act="del"]').addEventListener("click", () => {
-      const snap = snapshotState();
-state.ringLinks = state.ringLinks.filter(x => x.id !== it.id);
-      saveState();
-      renderRingLinksEditor();
-      buildNodes();
-      layoutNodes();
-      showUndo(`Deleted ring link: ${it.label || "link"}`, snap);
-    });
-
-    // drag reorder
-    handle.addEventListener("dragstart", (e) => {
-      ringDragId = it.id;
-      try{ e.dataTransfer.setData("text/plain", it.id); }catch(_){}
-      e.dataTransfer.effectAllowed = "move";
-    });
-
-    row.addEventListener("dragover", (e) => {
-      if (!ringDragId || ringDragId === it.id) return;
-      e.preventDefault();
-      row.classList.add("dragOver");
-      e.dataTransfer.dropEffect = "move";
-    });
-
-    row.addEventListener("dragleave", () => row.classList.remove("dragOver"));
-
-    row.addEventListener("drop", (e) => {
-      e.preventDefault();
-      row.classList.remove("dragOver");
-      const fromId = ringDragId;
-      const toId = it.id;
-      ringDragId = null;
-      if (!fromId || fromId === toId) return;
-
-      const snap = snapshotState();
-
-      const fromIdx = items.findIndex(x => x.id === fromId);
-      const toIdx = items.findIndex(x => x.id === toId);
-      if (fromIdx < 0 || toIdx < 0) return;
-
-      const moved = items.splice(fromIdx, 1)[0];
-      items.splice(toIdx, 0, moved);
-
-      state.ringLinks = items.map(normalizeRingLink);
-      saveState();
-      renderRingLinksEditor();
-      buildNodes();
-      layoutNodes();
-      showUndo("Reordered ring links", snap);
-    });
-  });
-
-  // keep the ring sizing synced even before saving
-  applyRingSizingForCount(items.length);
-}
-
-addRingLinkBtn.addEventListener("click", () => {
-  if (!Array.isArray(state.ringLinks)) state.ringLinks = getRingLinks().map(normalizeRingLink);
-  state.ringLinks.unshift(normalizeRingLink({
-    id: uid(),
-    label: "New Link",
-    sub: "",
-    href: "https://",
-    glyph: "LK"
-  }));
-  saveState();
-  renderRingLinksEditor();
-  buildNodes();
-  layoutNodes();
-});
-
-saveRingLinksBtn.addEventListener("click", () => {
-  // read current editor rows into state
-  const rows = Array.from(ringLinksList.querySelectorAll(".ringRow"));
-  const next = rows.map(r => {
-    const id = r.dataset.id || uid();
-    const get = (k) => (r.querySelector(`input[data-k="${k}"]`)?.value || "").trim();
-    return normalizeRingLink({
-      id,
-      label: get("label") || "Untitled",
-      sub: get("sub"),
-      href: get("href"),
-      glyph: get("glyph") || "LK"
-    });
-  });
-
-  state.ringLinks = next;
-  saveState();
-  buildNodes();
-  layoutNodes();
-  flashPill("Saved");
-});
-
-renderRingLinksEditor();
     /************************************************************
      * Blue/Gold auto mode (anchor-date based)
      ************************************************************/
@@ -3123,12 +2835,6 @@ energyFill.style.setProperty("--pulseDur", `3s`);
           saveState();
           renderChecklist();
           renderCenterScheduleAndTimers();
-renderRingLinksEditor();
-buildNodes();
-layoutNodes();
-renderRingLinksEditor();
-buildNodes();
-layoutNodes();
           closeModalFn();
           flashPill("Imported");
           return;

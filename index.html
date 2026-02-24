@@ -3210,15 +3210,73 @@ energyFill.style.setProperty("--pulseDur", `3s`);
       }
     });
 
-    /************************************************************
-     * Google search focus with /
-     ************************************************************/
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement !== document.getElementById("googleQ")){
-        e.preventDefault();
-        document.getElementById("googleQ").focus();
-      }
-    });
+/************************************************************
+ * Global typing capture:
+ * - "/" focuses Google search
+ * - Typing anywhere else (not in a text field) routes into "Add an agenda item"
+ ************************************************************/
+window.addEventListener("keydown", (e) => {
+  // If something else already handled it, don't interfere
+  if (e.defaultPrevented) return;
+
+  const active = document.activeElement;
+  const tag = (active && active.tagName) ? active.tagName.toLowerCase() : "";
+  const isTypingField =
+    tag === "input" ||
+    tag === "textarea" ||
+    tag === "select" ||
+    (active && active.isContentEditable);
+
+  // If the export/import modal is open, let it behave normally
+  if (overlay && overlay.style.display === "flex") return;
+
+  // Keep your existing "/" shortcut for Google search
+  if (e.key === "/" && active !== document.getElementById("googleQ")) {
+    // Only when NOT already in a typing field
+    if (!isTypingField) {
+      e.preventDefault();
+      document.getElementById("googleQ").focus();
+    }
+    return;
+  }
+
+  // If user is already typing in any input/textarea/select/contenteditable, do nothing
+  if (isTypingField) return;
+
+  // Ignore modifier combos (Cmd/Ctrl/Alt) and function keys
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  // Route "Backspace" into the agenda box too (prevents browser back-navigation)
+  if (e.key === "Backspace") {
+    e.preventDefault();
+    newItemText.focus();
+
+    // Delete one char at cursor (like a normal input would)
+    const s = newItemText.selectionStart ?? newItemText.value.length;
+    const t = newItemText.selectionEnd ?? newItemText.value.length;
+    if (s !== t) {
+      newItemText.value = newItemText.value.slice(0, s) + newItemText.value.slice(t);
+      newItemText.setSelectionRange(s, s);
+    } else if (s > 0) {
+      newItemText.value = newItemText.value.slice(0, s - 1) + newItemText.value.slice(s);
+      newItemText.setSelectionRange(s - 1, s - 1);
+    }
+    return;
+  }
+
+  // Printable characters: send into agenda input
+  // (Most printable keys have length 1; e.g., "a", "7", " " etc.)
+  if (typeof e.key === "string" && e.key.length === 1) {
+    e.preventDefault();
+    newItemText.focus();
+
+    // Insert at cursor (preserves editing in the middle of text)
+    const s = newItemText.selectionStart ?? newItemText.value.length;
+    const t = newItemText.selectionEnd ?? newItemText.value.length;
+    newItemText.value = newItemText.value.slice(0, s) + e.key + newItemText.value.slice(t);
+    newItemText.setSelectionRange(s + 1, s + 1);
+  }
+});
 
     /************************************************************
      * Resize relayout for ring + canvases

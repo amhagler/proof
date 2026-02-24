@@ -2788,33 +2788,43 @@ if (fromHasDue && toHasDue && fromItem.dueAt !== toItem.dueAt) return;
     }
 
     function addChecklistItem(rawText){
-      const t = (rawText || "").trim();
-      if (!t) return;
+  const t = (rawText || "").trim();
+  if (!t) return;
 
-      const parsed = parseTagsAndDue(t);
-      const item = normalizeChecklistItem({
-        id: uid(),
-        text: parsed.text,
-        done: false,
-        createdAt: Date.now(),
-        completedAt: null,
-        dueAt: parsed.dueAt || null,
-        priority: false,
-        tags: parsed.tags || [],
-        order: 0
-      }, 0);
+  const parsed = parseTagsAndDue(t);
 
-// With auto-sort, we just append; sorter will place it correctly.
-// No-due items: order = createdAt => newest naturally ends up at bottom.
-// Due items: sorter moves them into the due section by dueAt.
-item.order = item.createdAt;
+  const item = normalizeChecklistItem({
+    id: uid(),
+    text: parsed.text,
+    done: false,
+    createdAt: Date.now(),
+    completedAt: null,
+    dueAt: parsed.dueAt || null,
+    priority: false,
+    tags: parsed.tags || [],
+    order: 0
+  }, 0);
 
-state.checklist = [...state.checklist, item];
-saveState();
-newItemText.value = "";
-renderChecklist();
-    }
+  // With auto-sort, we just append; sorter will place it correctly.
+  item.order = item.createdAt;
 
+  state.checklist = [...state.checklist, item];
+  saveState();
+  newItemText.value = "";
+  renderChecklist();
+
+  // NEW: If no due was provided inline, prompt immediately.
+  if (!item.dueAt){
+    setTimeout(() => {
+      setDue(item.id);
+      // after prompt closes, get you ready for the next entry
+      setTimeout(() => newItemText.focus(), 0);
+    }, 0);
+  } else {
+    // already had a due token; keep flow fast
+    setTimeout(() => newItemText.focus(), 0);
+  }
+}
     addItemBtn.addEventListener("click", ()=> addChecklistItem(newItemText.value));
     newItemText.addEventListener("keydown", (e)=>{
       if (e.key === "Enter"){

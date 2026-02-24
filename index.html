@@ -1112,7 +1112,83 @@
       text-decoration: line-through;
       color: rgba(183,194,230,.76);
     }
+    /* ===== Completion animation (electric pulse -> dim) ===== */
+    @keyframes completePulse{
+      0%{
+        transform: translateZ(0) scale(1);
+        filter: brightness(1);
+        box-shadow:
+          0 0 0 1px rgba(123,231,255,.18) inset,
+          0 12px 26px rgba(0,0,0,.28);
+      }
+      35%{
+        transform: translateZ(0) scale(1.01);
+        filter: brightness(1.12) saturate(1.05);
+        box-shadow:
+          0 0 0 1px rgba(123,231,255,.30) inset,
+          0 0 22px rgba(45,125,255,.35),
+          0 12px 26px rgba(0,0,0,.28);
+      }
+      70%{
+        transform: translateZ(0) scale(1.005);
+        filter: brightness(1.06);
+        box-shadow:
+          0 0 0 1px rgba(123,231,255,.22) inset,
+          0 0 14px rgba(45,125,255,.22),
+          0 12px 26px rgba(0,0,0,.28);
+      }
+      100%{
+        transform: translateZ(0) scale(1);
+        filter: brightness(.92);
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.10) inset,
+          0 12px 26px rgba(0,0,0,.24);
+      }
+    }
 
+    @keyframes electricSheen{
+      0%{ opacity: 0; transform: translateX(-130%) rotate(8deg); }
+      20%{ opacity: .85; }
+      60%{ opacity: .55; }
+      100%{ opacity: 0; transform: translateX(130%) rotate(8deg); }
+    }
+
+    /* Applied only for the brief completion moment */
+    .checkItem.completing{
+      border-color: rgba(123,231,255,.28) !important;
+      animation: completePulse 700ms ease-out both;
+    }
+    .checkItem.completing::before{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius: 14px;
+      pointer-events:none;
+      background:
+        radial-gradient(220px 90px at 20% 10%, rgba(123,231,255,.18), transparent 68%),
+        radial-gradient(240px 110px at 80% 70%, rgba(45,125,255,.14), transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+      mix-blend-mode: screen;
+      opacity:.9;
+    }
+    .checkItem.completing::after{
+      content:"";
+      position:absolute;
+      inset:-8px;
+      border-radius: 18px;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg,
+          rgba(45,125,255,0) 0%,
+          rgba(45,125,255,.22) 35%,
+          rgba(123,231,255,.65) 50%,
+          rgba(45,125,255,.22) 65%,
+          rgba(45,125,255,0) 100%
+        );
+      opacity:.55;
+      filter: blur(.35px);
+      animation: electricSheen 650ms linear both;
+    }
     /* drag handle only */
     .dragHandle{
       width: 18px;
@@ -2578,14 +2654,42 @@ function parseDueInput(raw){
         row.appendChild(mid);
         row.appendChild(actions);
 
-        // checkbox behavior + completion timestamp
+          // checkbox behavior + completion animation (no functional change)
         cb.addEventListener("change", () => {
           const it = state.checklist.find(x => x.id === item.id);
           if (!it) return;
-          it.done = cb.checked;
-          it.completedAt = it.done ? Date.now() : null;
-          saveState();
-          renderChecklist();
+
+          // If unchecking, do it immediately (no ceremony)
+          if (!cb.checked){
+            it.done = false;
+            it.completedAt = null;
+            saveState();
+            renderChecklist();
+            return;
+          }
+
+          // Checking ON: play electric pulse on the current row, then commit state + sparks
+          // Grab rect now (before re-render)
+          const r = row.getBoundingClientRect();
+
+          // lock UI on this row briefly so it doesn't jitter
+          row.classList.add("completing");
+          cb.disabled = true;
+
+          // Commit state AFTER the pulse so it can "snap to dim" on rerender
+          setTimeout(() => {
+            it.done = true;
+            it.completedAt = Date.now();
+            saveState();
+            renderChecklist();
+
+            // After it snaps to dim, throw a few sparks around where it was
+            // (slight delay feels like "unplugged crackle")
+            setTimeout(() => {
+              spawnItemSparks({ x:r.left, y:r.top, w:r.width, h:r.height }, 3 + Math.floor(Math.random()*3));
+            }, 120);
+
+          }, 700);
         });
 
         // edit triggers
@@ -3235,6 +3339,55 @@ energyFill.style.setProperty("--pulseDur", `3s`);
     }
 
     const bolts = []; // {pts, born, life, w, alpha, branches:[pts...]}
+        // Spark a few tiny bolts around a rectangular UI element
+    function spawnItemSparks(rect, count=3){
+      // rect: {x,y,w,h} in viewport coords
+      const pad = 6;
+      const x0 = rect.x - pad;
+      const y0 = rect.y - pad;
+      const x1 = rect.x + rect.w + pad;
+      const y1 = rect.y + rect.h + pad;
+
+      for (let i=0;i<count;i++){
+        const edge = ["top","right","bottom","left"][Math.floor(Math.random()*4)];
+        let sx, sy, ex, ey;
+
+        if (edge === "top"){
+          sx = x0 + Math.random()*(x1-x0);
+          sy = y0;
+          ex = sx + (Math.random()*2-1)*(40 + Math.random()*60);
+          ey = sy + (10 + Math.random()*18);
+        } else if (edge === "bottom"){
+          sx = x0 + Math.random()*(x1-x0);
+          sy = y1;
+          ex = sx + (Math.random()*2-1)*(40 + Math.random()*60);
+          ey = sy - (10 + Math.random()*18);
+        } else if (edge === "left"){
+          sx = x0;
+          sy = y0 + Math.random()*(y1-y0);
+          ex = sx + (10 + Math.random()*18);
+          ey = sy + (Math.random()*2-1)*(40 + Math.random()*60);
+        } else {
+          sx = x1;
+          sy = y0 + Math.random()*(y1-y0);
+          ex = sx - (10 + Math.random()*18);
+          ey = sy + (Math.random()*2-1)*(40 + Math.random()*60);
+        }
+
+        const pts = makeBolt(sx, sy, ex, ey, 10 + Math.floor(Math.random()*6), 10 + Math.random()*10);
+        const branches = [];
+        const b1 = branchFrom(pts, 0.55);
+        if (b1) branches.push(b1);
+
+        bolts.push({
+          pts,
+          branches,
+          born: performance.now(),
+          life: 220 + Math.random()*260,
+          w: 1.0 + Math.random()*1.0
+        });
+      }
+    }
 
     function spawnBorderBolt(targetEl, edge="random"){
       const r = rectOf(targetEl);

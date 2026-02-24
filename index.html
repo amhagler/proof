@@ -1104,15 +1104,74 @@
       min-width: 0;
       cursor: text;
     }
-    .checkItem.done{
-      opacity:.68;
-      border-color: rgba(255,255,255,.10);
-    }
-    .checkItem.done .txt{
-      text-decoration: line-through;
-      color: rgba(183,194,230,.76);
-    }
+.checkItem.done{
+  opacity:.68;
+  border-color: rgba(255,255,255,.10);
+}
+.checkItem.done .txt{
+  text-decoration: line-through;
+  color: rgba(183,194,230,.76);
+}
 
+/* =========================
+   NOW MODE (dim to 70%)
+   - only affects checklist items
+   - does NOT touch ring / schedule / anything else
+   ========================= */
+body.nowMode .checkItem:not(.focusKeep){
+  opacity: .70; /* <- your request: 70%, not 20% */
+  filter: saturate(.92) brightness(.95);
+  transition: opacity .18s ease, filter .18s ease;
+}
+body.nowMode .checkItem.focusKeep{
+  opacity: 1;
+  filter: none;
+}
+
+/* =========================
+   RELATIVE COUNTDOWN CHIP
+   ========================= */
+.chip.rel{
+  border-color: rgba(123,231,255,.22);
+  background: rgba(45,125,255,.10);
+  color: rgba(234,240,255,.90);
+}
+.chip.rel.overdue{
+  border-color: rgba(255,59,59,.35);
+  background: rgba(255,59,59,.10);
+  color: rgba(255,224,224,.95);
+  box-shadow: 0 0 14px rgba(255,59,59,.18);
+}
+
+/* =========================
+   SATISFYING COMPLETE EFFECT
+   - blue electric pulse then dim
+   ========================= */
+@keyframes taskZap{
+  0%{
+    box-shadow: 0 0 0 1px rgba(123,231,255,.10) inset;
+    filter: brightness(1);
+    transform: translateZ(0) scale(1);
+  }
+  35%{
+    box-shadow:
+      0 0 0 1px rgba(123,231,255,.26) inset,
+      0 0 18px rgba(45,125,255,.32),
+      0 0 42px rgba(123,231,255,.20);
+    filter: brightness(1.15);
+    transform: translateZ(0) scale(1.008);
+  }
+  100%{
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.10) inset,
+      0 0 10px rgba(45,125,255,.10);
+    filter: brightness(.98);
+    transform: translateZ(0) scale(1);
+  }
+}
+.checkItem.zap{
+  animation: taskZap .42s ease-out 1;
+}
     /* drag handle only */
     .dragHandle{
       width: 18px;
@@ -1519,11 +1578,16 @@
                 <span id="checkProgress">0/0</span>
               </span>
             </div>
-            <div class="mini">
-              <button class="btn btnGhost" id="collapseDoneBtn" type="button">Hide Done</button>
-              <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear</button>
-              <button class="btn btnGhost" id="exportChecklistBtn" type="button">Export</button>
-            </div>
+   <div class="mini">
+  <button class="btn btnGhost" id="nowModeBtn" type="button" title="Dim everything except your top 3 right-now tasks">Now Mode</button>
+  <button class="btn btnGhost" id="focus3Btn" type="button" title="Show only the top 3 tasks (expand anytime)">3 Things</button>
+  <button class="btn btnGhost" id="expandAllBtn" type="button" title="Expand everything (temporarily)">Expand</button>
+  <button class="btn btnGhost" id="autoPriBtn" type="button" title="Auto-prioritize: Overdue → 1h → 24h → Priority → Oldest">Auto</button>
+
+  <button class="btn btnGhost" id="collapseDoneBtn" type="button">Hide Done</button>
+  <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear</button>
+  <button class="btn btnGhost" id="exportChecklistBtn" type="button">Export</button>
+</div>
           </div>
           <div class="moduleBd">
             <div class="checkTop">
@@ -2171,23 +2235,6 @@
       return JSON.parse(JSON.stringify(state));
     }
 
-    function sortChecklistStable(items){
-      const arr = [...items];
-      // priority first, then by order asc, then createdAt desc as tie-break
-      arr.sort((a,b) => {
-        const pa = a.priority ? 1 : 0;
-        const pb = b.priority ? 1 : 0;
-        if (pa !== pb) return pb - pa;
-        const oa = (typeof a.order === "number") ? a.order : 0;
-        const ob = (typeof b.order === "number") ? b.order : 0;
-        if (oa !== ob) return oa - ob;
-        const ca = (typeof a.createdAt === "number") ? a.createdAt : 0;
-        const cb = (typeof b.createdAt === "number") ? b.createdAt : 0;
-        return cb - ca;
-      });
-      return arr;
-    }
-
     function matchesFilter(item, filter){
       const f = (filter||"").trim().toLowerCase();
       if (!f) return true;
@@ -2464,191 +2511,290 @@ function parseDueInput(raw){
     // drag reorder
     let dragId = null;
 
-    function renderChecklist(){
-      // normalize once
-      state.checklist = (state.checklist || []).map((it, idx) => normalizeChecklistItem(it, idx));
+function sortChecklistStable(items){
+  const arr = [...items];
+  const nowTs = Date.now();
+  const auto = !!state.checklistUI?.autoPrioritize;
 
-      // persist UI state
-      if (!state.checklistUI) state.checklistUI = { hideDone:false, filter:"" };
+  function isOverdue(it){
+    return !!(it.dueAt && !it.done && (it.dueAt - nowTs) <= 0);
+  }
+  function in1h(it){
+    if (!it.dueAt || it.done) return false;
+    const ms = it.dueAt - nowTs;
+    return ms > 0 && ms <= 60*60*1000;
+  }
+  function in24h(it){
+    if (!it.dueAt || it.done) return false;
+    const ms = it.dueAt - nowTs;
+    return ms > 0 && ms <= 24*60*60*1000;
+  }
 
-      const hideDone = !!state.checklistUI.hideDone;
-      const filter = (state.checklistUI.filter || "");
+  function dueKey(it){
+    if (!it.dueAt || it.done) return Number.POSITIVE_INFINITY;
+    return it.dueAt;
+  }
+  function oldestKey(it){
+    return typeof it.createdAt === "number" ? it.createdAt : 0;
+  }
+  function orderKey(it){
+    return (typeof it.order === "number") ? it.order : 0;
+  }
+  function priKey(it){
+    return it.priority ? 1 : 0;
+  }
 
-      // progress
-      const total = state.checklist.length;
-      const doneCount = state.checklist.filter(i => i.done).length;
-      checkProgressEl.textContent = `${doneCount}/${total}`;
+  arr.sort((a,b) => {
 
-      // button text
-      collapseDoneBtn.textContent = hideDone ? "Show Done" : "Hide Done";
+    if (!!a.done !== !!b.done) return a.done ? 1 : -1;
 
-      // filter box value
-      if (checkFilterEl.value !== filter) checkFilterEl.value = filter;
+    if (auto){
+      const bucket = (it) => {
+        if (isOverdue(it)) return 0;
+        if (in1h(it)) return 1;
+        if (in24h(it)) return 2;
+        if (it.priority) return 3;
+        return 4;
+      };
 
-      // render list
-      checkListEl.innerHTML = "";
+      const ba = bucket(a), bb = bucket(b);
+      if (ba !== bb) return ba - bb;
 
-      const nowTs = Date.now();
-
-      let visible = sortChecklistStable(state.checklist)
-        .filter(it => (hideDone ? !it.done : true))
-        .filter(it => matchesFilter(it, filter));
-
-      if (!visible.length){
-        const empty = document.createElement("div");
-        empty.className = "tinyHint";
-        empty.textContent = total ? "No matches. Clear the filter or show done items." : "No items yet. Add one above.";
-        checkListEl.appendChild(empty);
-        return;
+      if (ba <= 2){
+        const da = dueKey(a), db = dueKey(b);
+        if (da !== db) return da - db;
       }
 
-      visible.forEach((item) => {
-        const row = document.createElement("div");
-        row.className = "checkItem" + (item.done ? " done" : "") + (item.priority ? " priority" : "");
-        row.dataset.id = item.id;
+      if (ba === 3){
+        const da = dueKey(a), db = dueKey(b);
+        if (da !== db) return da - db;
+      }
 
-             // Due-state highlighting (ADHD-friendly)
-        if (item.dueAt && !item.done){
-          const deltaMs = item.dueAt - nowTs;
+      const oa = oldestKey(a), ob = oldestKey(b);
+      if (oa !== ob) return oa - ob;
 
-          if (deltaMs <= 0){
-            row.classList.add("overdue");
-          } else if (deltaMs <= 60 * 60 * 1000){
-            row.classList.add("due1h");
-          } else if (deltaMs <= 24 * 60 * 60 * 1000){
-            row.classList.add("due24");
-          }
-        }
-
-        // left side elements
-        const handle = document.createElement("div");
-        handle.className = "dragHandle";
-        handle.title = "Drag to reorder";
-        handle.draggable = true;
-
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = !!item.done;
-        cb.setAttribute("aria-label", "Toggle item");
-
-        const txt = document.createElement("div");
-        txt.className = "txt";
-        txt.textContent = item.text || "";
-
-        // actions
-        const actions = document.createElement("div");
-        actions.className = "checkActions";
-        actions.innerHTML = `
-          <button class="iconBtn ${item.priority ? "priOn" : ""}" type="button" title="Toggle priority">★</button>
-          <button class="iconBtn" type="button" title="Set/clear due">DUE</button>
-          <button class="iconBtn" type="button" title="Edit">✎</button>
-          <button class="iconBtn danger" type="button" title="Delete">🗑</button>
-        `;
-
-        const priBtn = actions.children[0];
-        const dueBtn = actions.children[1];
-        const editBtn = actions.children[2];
-        const delBtn = actions.children[3];
-
-        // chips row
-        const chips = document.createElement("div");
-        chips.className = "chipRow";
-        if (item.dueAt){
-          const c = document.createElement("span");
-          c.className = "chip due";
-          c.textContent = prettyDue(item.dueAt);
-          chips.appendChild(c);
-        }
-        (item.tags || []).slice(0, 6).forEach(t => {
-          const c = document.createElement("span");
-          c.className = "chip tag";
-          c.textContent = "#" + t;
-          chips.appendChild(c);
-        });
-
-        // compose row
-        const mid = document.createElement("div");
-        mid.style.flex = "1";
-        mid.style.minWidth = "0";
-        mid.appendChild(txt);
-        if (chips.childNodes.length) mid.appendChild(chips);
-
-        row.appendChild(handle);
-        row.appendChild(cb);
-        row.appendChild(mid);
-        row.appendChild(actions);
-
-        // checkbox behavior + completion timestamp
-        cb.addEventListener("change", () => {
-          const it = state.checklist.find(x => x.id === item.id);
-          if (!it) return;
-          it.done = cb.checked;
-          it.completedAt = it.done ? Date.now() : null;
-          saveState();
-          renderChecklist();
-        });
-
-        // edit triggers
-        txt.addEventListener("dblclick", () => startEdit(item.id));
-        editBtn.addEventListener("click", () => startEdit(item.id));
-
-        // priority + due + delete
-        priBtn.addEventListener("click", () => togglePriority(item.id));
-        dueBtn.addEventListener("click", () => setDue(item.id));
-        delBtn.addEventListener("click", () => deleteItem(item.id));
-
-        // drag events (handle-only)
-        handle.addEventListener("dragstart", (e) => {
-          dragId = item.id;
-          try{
-            e.dataTransfer.setData("text/plain", item.id);
-          }catch(_){}
-          e.dataTransfer.effectAllowed = "move";
-        });
-
-        row.addEventListener("dragover", (e) => {
-          if (!dragId || dragId === item.id) return;
-          e.preventDefault();
-          row.classList.add("dragOver");
-          e.dataTransfer.dropEffect = "move";
-        });
-
-        row.addEventListener("dragleave", () => row.classList.remove("dragOver"));
-
-        row.addEventListener("drop", (e) => {
-          e.preventDefault();
-          row.classList.remove("dragOver");
-          const fromId = dragId;
-          const toId = item.id;
-          dragId = null;
-          if (!fromId || fromId === toId) return;
-
-          const snap = snapshotState();
-
-          const listSorted = sortChecklistStable(state.checklist);
-
-          const fromIdx = listSorted.findIndex(x => x.id === fromId);
-          const toIdx = listSorted.findIndex(x => x.id === toId);
-          if (fromIdx < 0 || toIdx < 0) return;
-
-          const moved = listSorted.splice(fromIdx, 1)[0];
-          listSorted.splice(toIdx, 0, moved);
-
-          // reassign order sequentially (stable)
-          listSorted.forEach((x, i) => x.order = i);
-
-          // write back by id
-          const byId = new Map(listSorted.map(x => [x.id, x]));
-          state.checklist = state.checklist.map(x => byId.get(x.id) || x);
-
-          saveState();
-          renderChecklist();
-          showUndo("Reordered checklist", snap);
-        });
-
-        checkListEl.appendChild(row);
-      });
+      return orderKey(a) - orderKey(b);
     }
+
+    const da = dueKey(a), db = dueKey(b);
+    if (da !== db) return da - db;
+
+    const pa = priKey(a), pb = priKey(b);
+    if (pa !== pb) return pb - pa;
+
+    const oa = orderKey(a), ob = orderKey(b);
+    if (oa !== ob) return oa - ob;
+
+    const ca = oldestKey(a), cb = oldestKey(b);
+    return ca - cb;
+  });
+
+  return arr;
+}
+
+function fmtRel(ms){
+  const overdue = ms < 0;
+  const a = Math.abs(ms);
+
+  const totalMin = Math.floor(a / 60000);
+  const days = Math.floor(totalMin / (60*24));
+  const hrs  = Math.floor((totalMin - days*60*24) / 60);
+  const mins = totalMin - days*60*24 - hrs*60;
+
+  let s = "";
+  if (days > 0) s += `${days}d `;
+  if (hrs > 0 || days > 0) s += `${hrs}h `;
+  s += `${mins}m`;
+
+  return overdue ? `${s} overdue` : `in ${s}`;
+}
+
+function updateRelativeCountdowns(){
+  const nowTs = Date.now();
+  const rels = document.querySelectorAll(".chip.rel[data-due]");
+  rels.forEach(el => {
+    const dueAt = parseInt(el.dataset.due, 10);
+    if (!dueAt) return;
+    const ms = dueAt - nowTs;
+    el.textContent = fmtRel(ms);
+    el.classList.toggle("overdue", ms <= 0);
+  });
+}
+
+setInterval(updateRelativeCountdowns, 20000);
+
+let _audioCtx = null;
+function playCompleteTick(){
+  try{
+    _audioCtx = _audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _audioCtx;
+
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+
+    o.type = "triangle";
+    o.frequency.setValueAtTime(560, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(860, ctx.currentTime + 0.06);
+
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.10);
+
+    o.connect(g);
+    g.connect(ctx.destination);
+
+    o.start();
+    o.stop(ctx.currentTime + 0.11);
+  }catch(_){}
+}
+
+function renderChecklist(){
+
+  state.checklist = (state.checklist || []).map((it, idx) => normalizeChecklistItem(it, idx));
+
+  if (!state.checklistUI) state.checklistUI = { hideDone:false, filter:"", nowMode:false, focus3:false, autoPrioritize:false };
+  if (typeof state.checklistUI.nowMode !== "boolean") state.checklistUI.nowMode = false;
+  if (typeof state.checklistUI.focus3 !== "boolean") state.checklistUI.focus3 = false;
+  if (typeof state.checklistUI.autoPrioritize !== "boolean") state.checklistUI.autoPrioritize = false;
+
+  const hideDone = !!state.checklistUI.hideDone;
+  const filter = (state.checklistUI.filter || "");
+
+  document.body.classList.toggle("nowMode", !!state.checklistUI.nowMode);
+
+  const total = state.checklist.length;
+  const doneCount = state.checklist.filter(i => i.done).length;
+  checkProgressEl.textContent = `${doneCount}/${total}`;
+
+  collapseDoneBtn.textContent = hideDone ? "Show Done" : "Hide Done";
+  if (checkFilterEl.value !== filter) checkFilterEl.value = filter;
+
+  checkListEl.innerHTML = "";
+
+  const nowTs = Date.now();
+
+  let visible = sortChecklistStable(state.checklist)
+    .filter(it => (hideDone ? !it.done : true))
+    .filter(it => matchesFilter(it, filter));
+
+  if (!visible.length){
+    const empty = document.createElement("div");
+    empty.className = "tinyHint";
+    empty.textContent = total ? "No matches. Clear the filter or show done items." : "No items yet. Add one above.";
+    checkListEl.appendChild(empty);
+    return;
+  }
+
+  let focusSet = new Set();
+
+  if (state.checklistUI.focus3){
+    visible.slice(0,3).forEach(it => focusSet.add(it.id));
+    if (visible.length > 3){
+      const hint = document.createElement("div");
+      hint.className = "tinyHint";
+      hint.textContent = `Showing top 3. Click “Expand” to reveal ${visible.length - 3} more.`;
+      checkListEl.appendChild(hint);
+    }
+    visible = visible.slice(0,3);
+  } else {
+    visible.slice(0,3).forEach(it => focusSet.add(it.id));
+  }
+
+  visible.forEach((item) => {
+
+    const row = document.createElement("div");
+    row.className = "checkItem" + (item.done ? " done" : "") + (item.priority ? " priority" : "");
+    row.dataset.id = item.id;
+
+    if (focusSet.has(item.id)) row.classList.add("focusKeep");
+
+    const handle = document.createElement("div");
+    handle.className = "dragHandle";
+    handle.draggable = true;
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!item.done;
+
+    const txt = document.createElement("div");
+    txt.className = "txt";
+    txt.textContent = item.text || "";
+
+    const actions = document.createElement("div");
+    actions.className = "checkActions";
+    actions.innerHTML = `
+      <button class="iconBtn ${item.priority ? "priOn" : ""}" type="button">★</button>
+      <button class="iconBtn" type="button">DUE</button>
+      <button class="iconBtn" type="button">✎</button>
+      <button class="iconBtn danger" type="button">🗑</button>
+    `;
+
+    const priBtn = actions.children[0];
+    const dueBtn = actions.children[1];
+    const editBtn = actions.children[2];
+    const delBtn = actions.children[3];
+
+    const chips = document.createElement("div");
+    chips.className = "chipRow";
+
+    if (item.dueAt){
+      const abs = document.createElement("span");
+      abs.className = "chip due";
+      abs.textContent = prettyDue(item.dueAt);
+      chips.appendChild(abs);
+
+      const rel = document.createElement("span");
+      rel.className = "chip rel";
+      rel.dataset.due = String(item.dueAt);
+      const ms = item.dueAt - nowTs;
+      rel.textContent = fmtRel(ms);
+      if (ms <= 0) rel.classList.add("overdue");
+      chips.appendChild(rel);
+    }
+
+    row.appendChild(handle);
+    row.appendChild(cb);
+
+    const mid = document.createElement("div");
+    mid.style.flex = "1";
+    mid.style.minWidth = "0";
+    mid.appendChild(txt);
+    if (chips.childNodes.length) mid.appendChild(chips);
+
+    row.appendChild(mid);
+    row.appendChild(actions);
+
+    cb.addEventListener("change", () => {
+      const it = state.checklist.find(x => x.id === item.id);
+      if (!it) return;
+
+      it.done = cb.checked;
+      it.completedAt = it.done ? Date.now() : null;
+      saveState();
+
+      if (it.done){
+        row.classList.add("zap");
+        playCompleteTick();
+        setTimeout(() => {
+          renderChecklist();
+          updateRelativeCountdowns();
+        }, 240);
+      } else {
+        renderChecklist();
+        updateRelativeCountdowns();
+      }
+    });
+
+    priBtn.addEventListener("click", () => togglePriority(item.id));
+    dueBtn.addEventListener("click", () => setDue(item.id));
+    editBtn.addEventListener("click", () => startEdit(item.id));
+    delBtn.addEventListener("click", () => deleteItem(item.id));
+
+    checkListEl.appendChild(row);
+  });
+
+  requestAnimationFrame(updateRelativeCountdowns);
+}
 
     function addChecklistItem(rawText){
       const t = (rawText || "").trim();

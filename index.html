@@ -2137,7 +2137,9 @@
         dueAt: typeof base.dueAt === "number" ? base.dueAt : null,
         priority: !!base.priority,
         tags: Array.isArray(base.tags) ? base.tags : [],
-        order: typeof base.order === "number" ? base.order : (idx || 0)
+     order: typeof base.order === "number"
+  ? base.order
+  : (typeof base.createdAt === "number" ? base.createdAt : (idx || 0))
       };
     }
 
@@ -2247,22 +2249,42 @@
       return JSON.parse(JSON.stringify(state));
     }
 
-    function sortChecklistStable(items){
-      const arr = [...items];
-      // priority first, then by order asc, then createdAt desc as tie-break
-      arr.sort((a,b) => {
-        const pa = a.priority ? 1 : 0;
-        const pb = b.priority ? 1 : 0;
-        if (pa !== pb) return pb - pa;
-        const oa = (typeof a.order === "number") ? a.order : 0;
-        const ob = (typeof b.order === "number") ? b.order : 0;
-        if (oa !== ob) return oa - ob;
-        const ca = (typeof a.createdAt === "number") ? a.createdAt : 0;
-        const cb = (typeof b.createdAt === "number") ? b.createdAt : 0;
-        return cb - ca;
-      });
-      return arr;
+function sortChecklistStable(items){
+  const arr = [...items];
+
+  arr.sort((a,b) => {
+    const aHasDue = (typeof a.dueAt === "number");
+    const bHasDue = (typeof b.dueAt === "number");
+
+    // 1) Due items first
+    if (aHasDue !== bHasDue) return aHasDue ? -1 : 1;
+
+    // 2) If both have due: soonest due first
+    if (aHasDue && bHasDue){
+      if (a.dueAt !== b.dueAt) return a.dueAt - b.dueAt;
+
+      // tie-breakers inside same exact due timestamp:
+      const pa = a.priority ? 1 : 0;
+      const pb = b.priority ? 1 : 0;
+      if (pa !== pb) return pb - pa;
+
+      const oa = (typeof a.order === "number") ? a.order : a.createdAt || 0;
+      const ob = (typeof b.order === "number") ? b.order : b.createdAt || 0;
+      if (oa !== ob) return oa - ob;
+
+      return (a.createdAt || 0) - (b.createdAt || 0);
     }
+
+    // 3) Neither has due: oldest first, newest at bottom
+    const oa = (typeof a.order === "number") ? a.order : (a.createdAt || 0);
+    const ob = (typeof b.order === "number") ? b.order : (b.createdAt || 0);
+    if (oa !== ob) return oa - ob;
+
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  });
+
+  return arr;
+}
 
     function matchesFilter(item, filter){
       const f = (filter||"").trim().toLowerCase();
@@ -2726,7 +2748,18 @@ function parseDueInput(raw){
           const toId = item.id;
           dragId = null;
           if (!fromId || fromId === toId) return;
+const fromItem = state.checklist.find(x => x.id === fromId);
+const toItem = state.checklist.find(x => x.id === toId);
+if (!fromItem || !toItem) return;
 
+// Only allow manual reorder within the same bucket:
+// - both no-due, OR
+// - both due AND same exact dueAt
+const fromHasDue = typeof fromItem.dueAt === "number";
+const toHasDue = typeof toItem.dueAt === "number";
+
+if (fromHasDue !== toHasDue) return;
+if (fromHasDue && toHasDue && fromItem.dueAt !== toItem.dueAt) return;
           const snap = snapshotState();
 
           const listSorted = sortChecklistStable(state.checklist);
@@ -2771,15 +2804,15 @@ function parseDueInput(raw){
         order: 0
       }, 0);
 
-      // Put new item at top: bump others' order
-      const sorted = sortChecklistStable(state.checklist);
-      sorted.forEach(x => x.order = (typeof x.order === "number" ? x.order : 0) + 1);
-      item.order = 0;
+// With auto-sort, we just append; sorter will place it correctly.
+// No-due items: order = createdAt => newest naturally ends up at bottom.
+// Due items: sorter moves them into the due section by dueAt.
+item.order = item.createdAt;
 
-      state.checklist = [item, ...sorted];
-      saveState();
-      newItemText.value = "";
-      renderChecklist();
+state.checklist = [...state.checklist, item];
+saveState();
+newItemText.value = "";
+renderChecklist();
     }
 
     addItemBtn.addEventListener("click", ()=> addChecklistItem(newItemText.value));

@@ -1469,7 +1469,150 @@
       display:grid;
       gap: 10px;
     }
+/* ===== Calendar popover (month view) ===== */
+.calBtn{
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: rgba(234,240,255,.86);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor:pointer;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.14) inset;
+}
+.calBtn:hover{ filter: brightness(1.06); }
+.calBtn:active{ transform: translateY(1px); }
 
+.calPop{
+  position:absolute;
+  right:0;
+  top: calc(100% + 10px);
+  width: 310px;
+  max-width: min(86vw, 310px);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(12,22,56,.94), rgba(10,18,48,.88));
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 18px 60px rgba(0,0,0,.55);
+  padding: 10px;
+  display:none;
+  z-index: 30;
+  overflow:hidden;
+}
+
+.calPop.on{ display:block; }
+
+.calHd{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding: 6px 6px 8px 6px;
+}
+
+.calTitle{
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing:.08em;
+  text-transform: uppercase;
+  color: rgba(234,240,255,.86);
+}
+
+.calNav{
+  width: 34px;
+  height: 30px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: rgba(234,240,255,.86);
+  cursor:pointer;
+  font-family: var(--mono);
+  font-weight: 900;
+}
+.calNav:hover{ filter: brightness(1.06); }
+.calNav:active{ transform: translateY(1px); }
+
+.calDow{
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap:6px;
+  padding: 0 6px 8px 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(234,240,255,.55);
+  letter-spacing:.08em;
+  text-transform: uppercase;
+}
+
+.calGrid{
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap:6px;
+  padding: 0 6px 10px 6px;
+}
+
+.calDay{
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  color: rgba(234,240,255,.86);
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  user-select:none;
+  position:relative;
+  overflow:hidden;
+}
+
+.calDay:hover{
+  border-color: rgba(123,231,255,.22);
+  box-shadow: 0 0 0 1px rgba(45,125,255,.10) inset, 0 0 16px rgba(45,125,255,.12);
+  filter: brightness(1.06);
+}
+
+.calDay.dim{
+  opacity:.45;
+  background: rgba(255,255,255,.02);
+}
+
+.calDay.today{
+  border-color: rgba(215,181,109,.22);
+  box-shadow: 0 0 0 1px rgba(215,181,109,.14) inset, 0 0 18px rgba(215,181,109,.12);
+}
+
+.calDay.selected{
+  border-color: rgba(123,231,255,.34);
+  box-shadow: 0 0 0 1px rgba(123,231,255,.16) inset, 0 0 22px rgba(45,125,255,.20);
+  background:
+    radial-gradient(140px 44px at 50% 0%, rgba(45,125,255,.16), transparent 70%),
+    rgba(255,255,255,.05);
+}
+
+.calFoot{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  padding: 0 6px 4px 6px;
+}
+
+.calMiniBtn{
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: rgba(234,240,255,.86);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 7px 10px;
+  border-radius: 14px;
+  cursor:pointer;
+}
+.calMiniBtn:hover{ filter: brightness(1.06); }
+.calMiniBtn:active{ transform: translateY(1px); }
     .footer{
       max-width: 1320px;
       margin: 0 auto;
@@ -1531,13 +1674,36 @@
           <b>Navigation Ring</b>
           <span>Scroll your wheel over the ring to rotate. Click a node to launch.</span>
         </div>
-        <div class="datePick" aria-label="Select date to view schedule">
-          <div style="opacity:.85;">View date</div>
-          <div class="datePickRow">
-            <input type="date" id="viewDate" />
-          </div>
-        </div>
+     <div class="datePick" aria-label="Select date to view schedule">
+  <div style="opacity:.85;display:flex;gap:8px;align-items:center;justify-content:flex-end;">
+    <span>View date</span>
+    <button class="calBtn" id="calToggleBtn" type="button" aria-label="Open calendar">CAL</button>
+  </div>
+
+  <div class="datePickRow" style="position:relative;">
+    <input type="date" id="viewDate" />
+    
+    <!-- Calendar popover -->
+    <div class="calPop" id="calPop" aria-label="Calendar" role="dialog" aria-modal="false">
+      <div class="calHd">
+        <button class="calNav" id="calPrev" type="button" aria-label="Previous month">◀</button>
+        <div class="calTitle" id="calTitle">—</div>
+        <button class="calNav" id="calNext" type="button" aria-label="Next month">▶</button>
       </div>
+
+      <div class="calDow" aria-hidden="true">
+        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+      </div>
+
+      <div class="calGrid" id="calGrid"></div>
+
+      <div class="calFoot">
+        <button class="calMiniBtn" id="calToday" type="button">Today</button>
+        <button class="calMiniBtn" id="calClose" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
       <div class="ringStage">
         <div class="ring" id="ring" aria-label="Link ring" tabindex="0">
@@ -2012,6 +2178,17 @@
      ************************************************************/
     const dayModePill = document.getElementById("dayModePill");
     const viewDateEl = document.getElementById("viewDate");
+    // calendar popover UI
+const calToggleBtn = document.getElementById("calToggleBtn");
+const calPop = document.getElementById("calPop");
+const calTitle = document.getElementById("calTitle");
+const calGrid = document.getElementById("calGrid");
+const calPrev = document.getElementById("calPrev");
+const calNext = document.getElementById("calNext");
+const calToday = document.getElementById("calToday");
+const calClose = document.getElementById("calClose");
+
+let calCursor = null; // Date object pointing at the visible month (1st of month)
 
     const holoList = document.getElementById("holoList");
     const holoStatus = document.getElementById("holoStatus");
@@ -2089,7 +2266,11 @@
       viewDateEl.value = val;
       renderCenterScheduleAndTimers();
     }
-    viewDateEl.addEventListener("change", (e)=> setViewDate(e.target.value));
+viewDateEl.addEventListener("change", (e)=> {
+  setViewDate(e.target.value);
+  setCalCursorFromView();
+  if (calPop.classList.contains("on")) renderCalendar();
+});
 
     saveScheduleBtn.addEventListener("click", () => {
       state.blueAnchor = (blueAnchorEl.value || "").trim();
@@ -2104,7 +2285,103 @@
       renderCenterScheduleAndTimers();
       flashPill("Saved");
     });
+function monthName(y, m){
+  const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${names[m]} ${y}`;
+}
 
+function setCalCursorFromView(){
+  const d = new Date(state.viewDate + "T00:00:00");
+  calCursor = new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+function openCal(){
+  if (!calCursor) setCalCursorFromView();
+  calPop.classList.add("on");
+  renderCalendar();
+}
+
+function closeCal(){
+  calPop.classList.remove("on");
+}
+
+function renderCalendar(){
+  if (!calCursor) setCalCursorFromView();
+
+  const y = calCursor.getFullYear();
+  const m = calCursor.getMonth();
+  calTitle.textContent = monthName(y, m);
+
+  // Build a 6-week grid (42 cells)
+  calGrid.innerHTML = "";
+
+  const first = new Date(y, m, 1);
+  const startDow = first.getDay(); // 0=Sun
+  const gridStart = new Date(y, m, 1 - startDow);
+
+  const today = new Date();
+  const todayISO = isoDate(today);
+  const selectedISO = state.viewDate;
+
+  for (let i = 0; i < 42; i++){
+    const d = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
+    const dISO = isoDate(d);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "calDay" + (d.getMonth() !== m ? " dim" : "")
+      + (dISO === todayISO ? " today" : "")
+      + (dISO === selectedISO ? " selected" : "");
+
+    btn.textContent = String(d.getDate());
+    btn.dataset.iso = dISO;
+
+    btn.addEventListener("click", () => {
+      setViewDate(dISO);
+      // keep cursor in sync if user clicked a dim day from adjacent month
+      setCalCursorFromView();
+      renderCalendar();
+      closeCal();
+    });
+
+    calGrid.appendChild(btn);
+  }
+}
+
+// Toggle button
+calToggleBtn.addEventListener("click", () => {
+  if (calPop.classList.contains("on")) closeCal();
+  else openCal();
+});
+
+calClose.addEventListener("click", closeCal);
+
+calPrev.addEventListener("click", () => {
+  if (!calCursor) setCalCursorFromView();
+  calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1);
+  renderCalendar();
+});
+
+calNext.addEventListener("click", () => {
+  if (!calCursor) setCalCursorFromView();
+  calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1);
+  renderCalendar();
+});
+
+calToday.addEventListener("click", () => {
+  const t = isoDate(new Date());
+  setViewDate(t);
+  setCalCursorFromView();
+  renderCalendar();
+  closeCal();
+});
+
+// Close calendar if you click outside it
+document.addEventListener("mousedown", (e) => {
+  if (!calPop.classList.contains("on")) return;
+  const within = calPop.contains(e.target) || calToggleBtn.contains(e.target);
+  if (!within) closeCal();
+});
     let setupCollapsed = true;
     toggleSetupBtn.addEventListener("click", () => {
       setupCollapsed = !setupCollapsed;

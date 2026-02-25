@@ -717,7 +717,24 @@
   border-bottom: 1px solid rgba(255,255,255,.08);
   background: linear-gradient(to bottom, rgba(255,255,255,.05), rgba(255,255,255,.02));
 }
+/* Collapsible wall sections */
+.wallHd{ cursor: pointer; user-select:none; }
 
+.wallSection.collapsed .wallBd{ display:none; }
+.wallSection.collapsed .wallHd{ border-bottom: 0; }
+
+.wallChevron{
+  font-family: var(--mono);
+  font-weight: 900;
+  font-size: 12px;
+  opacity:.75;
+  margin-left: 10px;
+}
+
+.wallSection.collapsed .wallChevron{
+  transform: rotate(-90deg);
+  opacity:.6;
+}
 .wallTitle{
   display:flex;
   flex-direction:column;
@@ -2059,7 +2076,7 @@
       links:  { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
       viewDate: "",
       checklist: [], // {id, text, done, createdAt, completedAt, dueAt, priority, tags, order}
-      checklistUI: { hideDone:false, filter:"" }
+      checklistUI: { hideDone:false, filter:"", laterCollapsed:true }
     };
 
     function loadState(){
@@ -2956,12 +2973,16 @@ function renderChecklist(){
     const hd = document.createElement("div");
     hd.className = "wallHd";
     hd.innerHTML = `
-      <div class="wallTitle">
-        <b>${escapeHtml(title)}</b>
-        <span>${escapeHtml(subtitle || "")}</span>
-      </div>
-      <div class="wallCount">${items.length}</div>
-    `;
+  hd.innerHTML = `
+  <div class="wallTitle">
+    <b>${escapeHtml(title)}</b>
+    <span>${escapeHtml(subtitle || "")}</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="wallCount">${items.length}</div>
+    ${opts.collapsibleKey ? `<div class="wallChevron">▾</div>` : ``}
+  </div>
+`;
 
     const bd = document.createElement("div");
     bd.className = "wallBd";
@@ -3001,6 +3022,33 @@ function renderChecklist(){
 
     sec.appendChild(hd);
     sec.appendChild(bd);
+
+    // Collapsible sections (used for "Later")
+if (opts.collapsibleKey){
+  const key = opts.collapsibleKey;
+
+  // default true for Later if undefined
+  if (!state.checklistUI) state.checklistUI = { hideDone:false, filter:"", laterCollapsed:true };
+
+  const isCollapsed = (key === "later")
+    ? (state.checklistUI.laterCollapsed !== false)
+    : !!state.checklistUI[key + "Collapsed"];
+
+  if (isCollapsed) sec.classList.add("collapsed");
+
+  hd.addEventListener("click", () => {
+    const nowCollapsed = !sec.classList.contains("collapsed");
+    sec.classList.toggle("collapsed", nowCollapsed);
+
+    if (key === "later"){
+      state.checklistUI.laterCollapsed = nowCollapsed;
+    } else {
+      state.checklistUI[key + "Collapsed"] = nowCollapsed;
+    }
+
+    saveState();
+  });
+}
     return sec;
   }
 
@@ -3026,7 +3074,7 @@ function renderChecklist(){
   const sNoDue = section("No Due Date", "Set one so it rises", buckets.nodue, { className:"nodue", compact:true });
   if (sNoDue) parts.push(sNoDue);
 
-  const sLater = section("Later", "Beyond this week", buckets.later);
+  const sLater = section("Later", "Beyond this week", buckets.later, { collapsibleKey:"later" });
   if (sLater) parts.push(sLater);
 
   parts.forEach(p => checkListEl.appendChild(p));

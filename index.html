@@ -696,7 +696,108 @@
       font-family: var(--mono);
       flex: 0 0 auto;
     }
+/* ===== TIME WALL (bucketed checklist) ===== */
+.wallSection{
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 18px;
+  background: rgba(255,255,255,.03);
+  overflow:hidden;
+}
 
+.wallSection.compact .wallBd{
+  padding-top: 8px;
+}
+
+.wallHd{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: linear-gradient(to bottom, rgba(255,255,255,.05), rgba(255,255,255,.02));
+}
+
+.wallTitle{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+}
+
+.wallTitle b{
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing:.14em;
+  text-transform: uppercase;
+  color: rgba(234,240,255,.90);
+}
+
+.wallTitle span{
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(234,240,255,.62);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width: 52ch;
+}
+
+.wallCount{
+  font-family: var(--mono);
+  font-weight: 900;
+  font-size: 12px;
+  color: rgba(123,231,255,.92);
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(123,231,255,.22);
+  background: rgba(45,125,255,.10);
+  flex: 0 0 auto;
+}
+
+/* body padding + spacing between items */
+.wallBd{
+  padding: 10px;
+  display:grid;
+  gap: 8px;
+}
+
+/* Subheader when grouping by day */
+.wallSubHd{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  padding: 8px 10px;
+  margin-top: 2px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.02);
+}
+
+.wallSubHd b{
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing:.06em;
+  color: rgba(234,240,255,.86);
+}
+
+.wallSubHd span{
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(234,240,255,.55);
+}
+
+/* Optional vibe tint per bucket */
+.wallSection.overdue .wallHd b{ color: rgba(255,90,90,.95); }
+.wallSection.today .wallHd b{ color: rgba(255,224,102,.95); }
+.wallSection.nodue .wallHd b{ color: rgba(183,194,230,.90); }
+
+/* Make the whole wall feel like one “stack” */
+#checkList{
+  display:grid;
+  gap: 12px;
+}
     /* energy bar */
     .energyWrap{
       position:relative;
@@ -720,33 +821,40 @@
   height: 100%;
   width: 0%;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62));
-  box-shadow: 0 0 22px rgba(45,125,255,.24);
-  transition: width 1.2s ease;
   position:relative;
   overflow:hidden;
 
-  /* JS will set this each update so speed is constant */
+  /* base fill */
+  background-image:
+    linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62)),
+    linear-gradient(180deg, rgba(123,231,255,.22), rgba(123,231,255,0)),
+    linear-gradient(0deg, rgba(45,125,255,.18), rgba(45,125,255,0));
+  background-blend-mode: normal, screen, screen;
+
+  box-shadow:
+    0 0 22px rgba(45,125,255,.24),
+    0 0 0 1px rgba(123,231,255,.10) inset;
+
+  transition: width 1.2s ease;
+
+  /* JS sets this so pulse speed is constant */
   --pulseDur: 3s;
-}
-/* subtle electric micro-arc brightness pulse */
-.energyFill{
+
+  /* subtle electric “jitter” */
   animation: energyJitter 2.2s steps(2,end) infinite;
 }
 
+/* subtle electric micro-arc brightness pulse */
 @keyframes energyJitter{
   0%,100% { filter: brightness(1); }
   50% { filter: brightness(1.06); }
 }
 
-/* A subtle “electric sweep” that travels across ONLY the filled area */
-/* Electric sweep + crackle texture */
+/* sweeping bright band */
 .energyFill::after{
   content:"";
   position:absolute;
   inset: 0;
-
-  /* Layer 1: sweeping bright band */
   background:
     linear-gradient(90deg,
       rgba(45,125,255,0) 0%,
@@ -755,7 +863,6 @@
       rgba(45,125,255,.18) 66%,
       rgba(45,125,255,0) 100%
     );
-
   transform: translateX(-120%);
   animation: energySweep var(--pulseDur) linear infinite;
   mix-blend-mode: screen;
@@ -764,14 +871,12 @@
   pointer-events:none;
 }
 
-/* Layer 2: crackle overlay inside the fill */
+/* crackle texture overlay */
 .energyFill::before{
   content:"";
   position:absolute;
   inset: 0;
   pointer-events:none;
-
-  /* A noisy “lightning filament” feel using repeating gradients */
   background:
     repeating-linear-gradient(
       115deg,
@@ -789,35 +894,10 @@
     ),
     radial-gradient(120px 40px at 20% 50%, rgba(75,255,211,.12), transparent 70%),
     radial-gradient(140px 50px at 80% 55%, rgba(123,231,255,.10), transparent 72%);
-
   mix-blend-mode: screen;
   opacity: .35;
   filter: blur(.35px);
-
-  /* subtle flicker */
   animation: energyFlicker 1.25s steps(2,end) infinite;
-}
-
-/* Edge “ionization” glow along the top/bottom of the filled bar */
-.energyFill{
-  position:relative;
-}
-.energyFill{
-  box-shadow:
-    0 0 22px rgba(45,125,255,.24),
-    0 0 0 1px rgba(123,231,255,.10) inset;
-}
-.energyFill{
-  background:
-    linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62));
-}
-.energyFill{
-  /* faint top/bottom glow lines */
-  background-image:
-    linear-gradient(90deg, rgba(123,231,255,.95), rgba(45,125,255,.92), rgba(75,255,211,.62)),
-    linear-gradient(180deg, rgba(123,231,255,.22), rgba(123,231,255,0)),
-    linear-gradient(0deg, rgba(45,125,255,.18), rgba(45,125,255,0));
-  background-blend-mode: normal, screen, screen;
 }
 
 @keyframes energySweep{
@@ -830,7 +910,8 @@
   25%  { opacity: .40; filter: blur(.25px); }
   55%  { opacity: .30; filter: blur(.40px); }
   100% { opacity: .38; filter: blur(.22px); }
-}    /* Right cockpit panel */
+}
+    /* Right cockpit panel */
     .cockpit{
       border-radius: var(--radius2);
       background: linear-gradient(180deg, rgba(12,22,56,.82), rgba(10,18,48,.70));
@@ -1585,42 +1666,44 @@
       </div>
 
       <div class="cockBody">
-        <!-- CHECKLIST MODULE -->
-        <div class="module">
-          <div class="moduleHd">
-            <div style="display:flex;gap:10px;align-items:center;">
-              <b>Checklist</b>
-              <span class="pill" style="padding:6px 10px;border-radius:999px;font-size:11px;">
-                <span class="spark" style="width:7px;height:7px;"></span>
-                <span id="checkProgress">0/0</span>
-              </span>
-            </div>
-            <div class="mini">
-              <button class="btn btnGhost" id="collapseDoneBtn" type="button">Hide Done</button>
-              <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear</button>
-              <button class="btn btnGhost" id="exportChecklistBtn" type="button">Export</button>
-            </div>
-          </div>
-          <div class="moduleBd">
-            <div class="checkTop">
-              <input id="newItemText" type="text" placeholder="Add an agenda item… (use #tags, add @YYYY-MM-DD or @2:30 for due)" />
-              <button class="btn btnPrimary" id="addItemBtn" type="button">Add Item</button>
-            </div>
+<!-- TIME WALL (replaces Checklist module) -->
+<div class="module">
+  <div class="moduleHd">
+    <div style="display:flex;gap:10px;align-items:center;">
+      <b>Time Wall</b>
+      <span class="pill" style="padding:6px 10px;border-radius:999px;font-size:11px;">
+        <span class="spark" style="width:7px;height:7px;"></span>
+        <span id="checkProgress">0/0</span>
+      </span>
+    </div>
+    <div class="mini">
+      <button class="btn btnGhost" id="collapseDoneBtn" type="button">Hide Done</button>
+      <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear</button>
+      <button class="btn btnGhost" id="exportChecklistBtn" type="button">Export</button>
+    </div>
+  </div>
 
-            <div class="checkMetaRow">
-              <div class="left">
-                <input class="checkFilter" id="checkFilter" type="text" placeholder="Filter… (text or #tag)" />
-                <div class="tinyHint" id="filterHint" style="margin-top:2px;">Tip: double-click to edit. ★ marks priority (orange).</div>
-              </div>
-              <div class="right">
-                <div class="tinyHint" id="dueHint" style="text-align:right;">Overdue items glow red (when due is set).</div>
-              </div>
-            </div>
+  <div class="moduleBd">
+    <div class="checkTop">
+      <input id="newItemText" type="text" placeholder="Add a task… (use #tags, add @YYYY-MM-DD or @2:30 for due)" />
+      <button class="btn btnPrimary" id="addItemBtn" type="button">Add Item</button>
+    </div>
 
-            <div class="checkList" id="checkList"></div>
-            <div class="tinyHint">Tip: press Enter to add. Drag using the handle. Export/import lives below.</div>
-          </div>
-        </div>
+    <div class="checkMetaRow">
+      <div class="left">
+        <input class="checkFilter" id="checkFilter" type="text" placeholder="Filter… (text or #tag)" />
+        <div class="tinyHint" id="filterHint">Tip: double-click to edit. ★ marks priority.</div>
+      </div>
+      <div class="right">
+        <div class="tinyHint" id="dueHint">Overdue glows red. Due soon rises upward.</div>
+      </div>
+    </div>
+
+  <div class="checkList" id="checkList"></div>
+
+    <div class="tinyHint">Press Enter to add. Drag using handle.</div>
+  </div>
+</div>
 
         <!-- Portability (schedule + checklist) -->
         <div class="module">
@@ -2562,231 +2645,392 @@ function parseDueInput(raw){
     // drag reorder
     let dragId = null;
 
-    function renderChecklist(){
-      // normalize once
-      state.checklist = (state.checklist || []).map((it, idx) => normalizeChecklistItem(it, idx));
+function renderChecklist(){
+  // normalize once
+  state.checklist = (state.checklist || []).map((it, idx) => normalizeChecklistItem(it, idx));
 
-      // persist UI state
-      if (!state.checklistUI) state.checklistUI = { hideDone:false, filter:"" };
+  // persist UI state
+  if (!state.checklistUI) state.checklistUI = { hideDone:false, filter:"" };
 
-      const hideDone = !!state.checklistUI.hideDone;
-      const filter = (state.checklistUI.filter || "");
+  const hideDone = !!state.checklistUI.hideDone;
+  const filter = (state.checklistUI.filter || "");
 
-      // progress
-      const total = state.checklist.length;
-      const doneCount = state.checklist.filter(i => i.done).length;
-      checkProgressEl.textContent = `${doneCount}/${total}`;
+  // progress
+  const total = state.checklist.length;
+  const doneCount = state.checklist.filter(i => i.done).length;
+  checkProgressEl.textContent = `${doneCount}/${total}`;
 
-      // button text
-      collapseDoneBtn.textContent = hideDone ? "Show Done" : "Hide Done";
+  // button text
+  collapseDoneBtn.textContent = hideDone ? "Show Done" : "Hide Done";
 
-      // filter box value
-      if (checkFilterEl.value !== filter) checkFilterEl.value = filter;
+  // filter box value
+  if (checkFilterEl.value !== filter) checkFilterEl.value = filter;
 
-      // render list
-      checkListEl.innerHTML = "";
+  // clear wall
+  checkListEl.innerHTML = "";
 
-      const nowTs = Date.now();
+  const nowTs = Date.now();
+  const now = new Date(nowTs);
 
-      let visible = sortChecklistStable(state.checklist)
-        .filter(it => (hideDone ? !it.done : true))
-        .filter(it => matchesFilter(it, filter));
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0,0,0,0);
+  const endOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23,59,59,999);
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, 0,0,0,0);
 
-      if (!visible.length){
-        const empty = document.createElement("div");
-        empty.className = "tinyHint";
-        empty.textContent = total ? "No matches. Clear the filter or show done items." : "No items yet. Add one above.";
-        checkListEl.appendChild(empty);
+  const today0 = startOfDay(now);
+  const tomorrow0 = addDays(now, 1);
+  const day2 = addDays(now, 2);
+  const day3 = addDays(now, 3);
+  const day4 = addDays(now, 4);
+
+  // Calendar week: now -> end of Sunday
+  const endOfWeek = (() => {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0,0,0,0);
+    const dow = d.getDay(); // 0 Sun ... 6 Sat
+    const daysToSun = (7 - dow) % 7; // if Sunday, 0
+    const sun = new Date(d.getFullYear(), d.getMonth(), d.getDate() + daysToSun, 23,59,59,999);
+    return sun;
+  })();
+
+  const withinMs = (ts, a, b) => ts >= a.getTime() && ts <= b.getTime();
+  const iso = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  const niceDay = (d) => {
+    const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    return `${names[d.getDay()]} ${pad2(d.getMonth()+1)}/${pad2(d.getDate())}`;
+  };
+
+  // Reuse your existing row builder logic (with behaviors intact)
+  function buildRow(item){
+    const row = document.createElement("div");
+    row.className = "checkItem" + (item.done ? " done" : "") + (item.priority ? " priority" : "");
+    row.dataset.id = item.id;
+
+    // Due-state highlighting (ADHD-friendly)
+    if (item.dueAt && !item.done){
+      const deltaMs = item.dueAt - nowTs;
+      if (deltaMs <= 0){
+        row.classList.add("overdue");
+      } else if (deltaMs <= 60 * 60 * 1000){
+        row.classList.add("due1h");
+      } else if (deltaMs <= 24 * 60 * 60 * 1000){
+        row.classList.add("due24");
+      }
+    }
+
+    const handle = document.createElement("div");
+    handle.className = "dragHandle";
+    handle.title = "Drag to reorder";
+    handle.draggable = true;
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!item.done;
+    cb.setAttribute("aria-label", "Toggle item");
+
+    const txt = document.createElement("div");
+    txt.className = "txt";
+    txt.textContent = item.text || "";
+
+    const actions = document.createElement("div");
+    actions.className = "checkActions";
+    actions.innerHTML = `
+      <button class="iconBtn ${item.priority ? "priOn" : ""}" type="button" title="Toggle priority">★</button>
+      <button class="iconBtn" type="button" title="Set/clear due">DUE</button>
+      <button class="iconBtn" type="button" title="Edit">✎</button>
+      <button class="iconBtn danger" type="button" title="Delete">🗑</button>
+    `;
+
+    const priBtn = actions.children[0];
+    const dueBtn = actions.children[1];
+    const editBtn = actions.children[2];
+    const delBtn = actions.children[3];
+
+    const chips = document.createElement("div");
+    chips.className = "chipRow";
+    if (item.dueAt){
+      const c = document.createElement("span");
+      c.className = "chip due";
+      c.textContent = prettyDue(item.dueAt);
+      chips.appendChild(c);
+    }
+    (item.tags || []).slice(0, 6).forEach(t => {
+      const c = document.createElement("span");
+      c.className = "chip tag";
+      c.textContent = "#" + t;
+      chips.appendChild(c);
+    });
+
+    const mid = document.createElement("div");
+    mid.style.flex = "1";
+    mid.style.minWidth = "0";
+    mid.appendChild(txt);
+    if (chips.childNodes.length) mid.appendChild(chips);
+
+    row.appendChild(handle);
+    row.appendChild(cb);
+    row.appendChild(mid);
+    row.appendChild(actions);
+
+    // checkbox behavior + completion animation
+    cb.addEventListener("change", () => {
+      const it = state.checklist.find(x => x.id === item.id);
+      if (!it) return;
+
+      if (!cb.checked){
+        it.done = false;
+        it.completedAt = null;
+        saveState();
+        renderChecklist();
         return;
       }
 
-      visible.forEach((item) => {
-        const row = document.createElement("div");
-        row.className = "checkItem" + (item.done ? " done" : "") + (item.priority ? " priority" : "");
-        row.dataset.id = item.id;
+      const r = row.getBoundingClientRect();
+      row.classList.add("completing");
+      cb.disabled = true;
 
-             // Due-state highlighting (ADHD-friendly)
-        if (item.dueAt && !item.done){
-          const deltaMs = item.dueAt - nowTs;
+      setTimeout(() => {
+        it.done = true;
+        it.completedAt = Date.now();
+        saveState();
+        renderChecklist();
 
-          if (deltaMs <= 0){
-            row.classList.add("overdue");
-          } else if (deltaMs <= 60 * 60 * 1000){
-            row.classList.add("due1h");
-          } else if (deltaMs <= 24 * 60 * 60 * 1000){
-            row.classList.add("due24");
-          }
-        }
+        setTimeout(() => {
+          spawnItemSparks({ x:r.left, y:r.top, w:r.width, h:r.height }, 3 + Math.floor(Math.random()*3));
+        }, 120);
 
-        // left side elements
-        const handle = document.createElement("div");
-        handle.className = "dragHandle";
-        handle.title = "Drag to reorder";
-        handle.draggable = true;
+      }, 700);
+    });
 
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = !!item.done;
-        cb.setAttribute("aria-label", "Toggle item");
+    txt.addEventListener("dblclick", () => startEdit(item.id));
+    editBtn.addEventListener("click", () => startEdit(item.id));
+    priBtn.addEventListener("click", () => togglePriority(item.id));
+    dueBtn.addEventListener("click", () => setDue(item.id));
+    delBtn.addEventListener("click", () => deleteItem(item.id));
 
-        const txt = document.createElement("div");
-        txt.className = "txt";
-        txt.textContent = item.text || "";
+    // drag events (handle-only)
+    handle.addEventListener("dragstart", (e) => {
+      dragId = item.id;
+      try{ e.dataTransfer.setData("text/plain", item.id); }catch(_){}
+      e.dataTransfer.effectAllowed = "move";
+    });
 
-        // actions
-        const actions = document.createElement("div");
-        actions.className = "checkActions";
-        actions.innerHTML = `
-          <button class="iconBtn ${item.priority ? "priOn" : ""}" type="button" title="Toggle priority">★</button>
-          <button class="iconBtn" type="button" title="Set/clear due">DUE</button>
-          <button class="iconBtn" type="button" title="Edit">✎</button>
-          <button class="iconBtn danger" type="button" title="Delete">🗑</button>
-        `;
+    row.addEventListener("dragover", (e) => {
+      if (!dragId || dragId === item.id) return;
+      e.preventDefault();
+      row.classList.add("dragOver");
+      e.dataTransfer.dropEffect = "move";
+    });
 
-        const priBtn = actions.children[0];
-        const dueBtn = actions.children[1];
-        const editBtn = actions.children[2];
-        const delBtn = actions.children[3];
+    row.addEventListener("dragleave", () => row.classList.remove("dragOver"));
 
-        // chips row
-        const chips = document.createElement("div");
-        chips.className = "chipRow";
-        if (item.dueAt){
-          const c = document.createElement("span");
-          c.className = "chip due";
-          c.textContent = prettyDue(item.dueAt);
-          chips.appendChild(c);
-        }
-        (item.tags || []).slice(0, 6).forEach(t => {
-          const c = document.createElement("span");
-          c.className = "chip tag";
-          c.textContent = "#" + t;
-          chips.appendChild(c);
-        });
+    row.addEventListener("drop", (e) => {
+      e.preventDefault();
+      row.classList.remove("dragOver");
+      const fromId = dragId;
+      const toId = item.id;
+      dragId = null;
+      if (!fromId || fromId === toId) return;
 
-        // compose row
-        const mid = document.createElement("div");
-        mid.style.flex = "1";
-        mid.style.minWidth = "0";
-        mid.appendChild(txt);
-        if (chips.childNodes.length) mid.appendChild(chips);
+      const fromItem = state.checklist.find(x => x.id === fromId);
+      const toItem = state.checklist.find(x => x.id === toId);
+      if (!fromItem || !toItem) return;
 
-        row.appendChild(handle);
-        row.appendChild(cb);
-        row.appendChild(mid);
-        row.appendChild(actions);
+      // Only allow manual reorder within the same bucket:
+      // - both no-due, OR
+      // - both due AND same exact dueAt
+      const fromHasDue = typeof fromItem.dueAt === "number";
+      const toHasDue = typeof toItem.dueAt === "number";
+      if (fromHasDue !== toHasDue) return;
+      if (fromHasDue && toHasDue && fromItem.dueAt !== toItem.dueAt) return;
 
-          // checkbox behavior + completion animation (no functional change)
-        cb.addEventListener("change", () => {
-          const it = state.checklist.find(x => x.id === item.id);
-          if (!it) return;
+      const snap = snapshotState();
 
-          // If unchecking, do it immediately (no ceremony)
-          if (!cb.checked){
-            it.done = false;
-            it.completedAt = null;
-            saveState();
-            renderChecklist();
-            return;
-          }
+      const listSorted = sortChecklistStable(state.checklist);
+      const fromIdx = listSorted.findIndex(x => x.id === fromId);
+      const toIdx = listSorted.findIndex(x => x.id === toId);
+      if (fromIdx < 0 || toIdx < 0) return;
 
-          // Checking ON: play electric pulse on the current row, then commit state + sparks
-          // Grab rect now (before re-render)
-          const r = row.getBoundingClientRect();
+      const moved = listSorted.splice(fromIdx, 1)[0];
+      listSorted.splice(toIdx, 0, moved);
 
-          // lock UI on this row briefly so it doesn't jitter
-          row.classList.add("completing");
-          cb.disabled = true;
+      listSorted.forEach((x, i) => x.order = i);
 
-          // Commit state AFTER the pulse so it can "snap to dim" on rerender
-          setTimeout(() => {
-            it.done = true;
-            it.completedAt = Date.now();
-            saveState();
-            renderChecklist();
+      const byId = new Map(listSorted.map(x => [x.id, x]));
+      state.checklist = state.checklist.map(x => byId.get(x.id) || x);
 
-            // After it snaps to dim, throw a few sparks around where it was
-            // (slight delay feels like "unplugged crackle")
-            setTimeout(() => {
-              spawnItemSparks({ x:r.left, y:r.top, w:r.width, h:r.height }, 3 + Math.floor(Math.random()*3));
-            }, 120);
+      saveState();
+      renderChecklist();
+      showUndo("Reordered checklist", snap);
+    });
 
-          }, 700);
-        });
+    return row;
+  }
 
-        // edit triggers
-        txt.addEventListener("dblclick", () => startEdit(item.id));
-        editBtn.addEventListener("click", () => startEdit(item.id));
+  // Apply UI visibility + filter
+  const visible = sortChecklistStable(state.checklist)
+    .filter(it => (hideDone ? !it.done : true))
+    .filter(it => matchesFilter(it, filter));
 
-        // priority + due + delete
-        priBtn.addEventListener("click", () => togglePriority(item.id));
-        dueBtn.addEventListener("click", () => setDue(item.id));
-        delBtn.addEventListener("click", () => deleteItem(item.id));
+  if (!visible.length){
+    const empty = document.createElement("div");
+    empty.className = "tinyHint";
+    empty.textContent = total ? "No matches. Clear the filter or show done items." : "No tasks yet. Add one above.";
+    checkListEl.appendChild(empty);
+    return;
+  }
 
-        // drag events (handle-only)
-        handle.addEventListener("dragstart", (e) => {
-          dragId = item.id;
-          try{
-            e.dataTransfer.setData("text/plain", item.id);
-          }catch(_){}
-          e.dataTransfer.effectAllowed = "move";
-        });
+  // Bucket logic (time compression)
+  function bucketFor(item){
+    if (!item.dueAt) return "nodue";
 
-        row.addEventListener("dragover", (e) => {
-          if (!dragId || dragId === item.id) return;
-          e.preventDefault();
-          row.classList.add("dragOver");
-          e.dataTransfer.dropEffect = "move";
-        });
+    const due = new Date(item.dueAt);
+    const delta = item.dueAt - nowTs;
 
-        row.addEventListener("dragleave", () => row.classList.remove("dragOver"));
+    if (!item.done && delta <= 0) return "overdue";
 
-        row.addEventListener("drop", (e) => {
-          e.preventDefault();
-          row.classList.remove("dragOver");
-          const fromId = dragId;
-          const toId = item.id;
-          dragId = null;
-          if (!fromId || fromId === toId) return;
-const fromItem = state.checklist.find(x => x.id === fromId);
-const toItem = state.checklist.find(x => x.id === toId);
-if (!fromItem || !toItem) return;
+    // <= 60 minutes ALWAYS appears in TODAY (even if “tomorrow”)
+    if (!item.done && delta > 0 && delta <= 60*60*1000) return "today";
 
-// Only allow manual reorder within the same bucket:
-// - both no-due, OR
-// - both due AND same exact dueAt
-const fromHasDue = typeof fromItem.dueAt === "number";
-const toHasDue = typeof toItem.dueAt === "number";
+    // Calendar day buckets
+    const dueISO = iso(startOfDay(due));
+    const todayISO = iso(today0);
+    const tomISO = iso(tomorrow0);
+    const d2ISO = iso(day2);
+    const d3ISO = iso(day3);
+    const d4ISO = iso(day4);
 
-if (fromHasDue !== toHasDue) return;
-if (fromHasDue && toHasDue && fromItem.dueAt !== toItem.dueAt) return;
-          const snap = snapshotState();
+    if (dueISO === todayISO) return "today";
+    if (dueISO === tomISO) return "tomorrow";
+    if (dueISO === d2ISO || dueISO === d3ISO || dueISO === d4ISO) return "next3";
 
-          const listSorted = sortChecklistStable(state.checklist);
+    // This week (calendar week, from now through Sunday)
+    if (item.dueAt <= endOfWeek.getTime()) return "thisweek";
 
-          const fromIdx = listSorted.findIndex(x => x.id === fromId);
-          const toIdx = listSorted.findIndex(x => x.id === toId);
-          if (fromIdx < 0 || toIdx < 0) return;
+    return "later";
+  }
 
-          const moved = listSorted.splice(fromIdx, 1)[0];
-          listSorted.splice(toIdx, 0, moved);
+  const buckets = {
+    overdue: [],
+    today: [],
+    tomorrow: [],
+    next3: [],
+    thisweek: [],
+    nodue: [],
+    later: []
+  };
 
-          // reassign order sequentially (stable)
-          listSorted.forEach((x, i) => x.order = i);
+  visible.forEach(it => {
+    buckets[bucketFor(it)].push(it);
+  });
 
-          // write back by id
-          const byId = new Map(listSorted.map(x => [x.id, x]));
-          state.checklist = state.checklist.map(x => byId.get(x.id) || x);
+  // Sort within buckets
+  // - due buckets: by dueAt, then priority, then order
+  // - nodue: by priority then order
+  const sortDue = (a,b) => {
+    const ad = a.dueAt || 0, bd = b.dueAt || 0;
+    if (ad !== bd) return ad - bd;
+    const pa = a.priority ? 1 : 0, pb = b.priority ? 1 : 0;
+    if (pa !== pb) return pb - pa;
+    const oa = (typeof a.order === "number") ? a.order : (a.createdAt || 0);
+    const ob = (typeof b.order === "number") ? b.order : (b.createdAt || 0);
+    if (oa !== ob) return oa - ob;
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  };
+  const sortNoDue = (a,b) => {
+    const pa = a.priority ? 1 : 0, pb = b.priority ? 1 : 0;
+    if (pa !== pb) return pb - pa;
+    const oa = (typeof a.order === "number") ? a.order : (a.createdAt || 0);
+    const ob = (typeof b.order === "number") ? b.order : (b.createdAt || 0);
+    if (oa !== ob) return oa - ob;
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  };
 
-          saveState();
-          renderChecklist();
-          showUndo("Reordered checklist", snap);
-        });
+  ["overdue","today","tomorrow","next3","thisweek","later"].forEach(k => buckets[k].sort(sortDue));
+  buckets.nodue.sort(sortNoDue);
 
-        checkListEl.appendChild(row);
+  function section(title, subtitle, items, opts={}){
+    if (!items.length) return null;
+
+    const sec = document.createElement("div");
+    sec.className = "wallSection" + (opts.className ? " " + opts.className : "") + (opts.compact ? " compact" : "");
+
+    const hd = document.createElement("div");
+    hd.className = "wallHd";
+    hd.innerHTML = `
+      <div class="wallTitle">
+        <b>${escapeHtml(title)}</b>
+        <span>${escapeHtml(subtitle || "")}</span>
+      </div>
+      <div class="wallCount">${items.length}</div>
+    `;
+
+    const bd = document.createElement("div");
+    bd.className = "wallBd";
+
+    // optionally group by day inside the section
+    if (opts.groupByDay){
+      const byDay = new Map();
+
+      items.forEach(it => {
+        const d = new Date(it.dueAt);
+        const key = iso(startOfDay(d));
+        if (!byDay.has(key)) byDay.set(key, []);
+        byDay.get(key).push(it);
       });
+
+      // day keys ascending
+      const dayKeysSorted = Array.from(byDay.keys()).sort((a,b) => {
+        const ta = new Date(a + "T00:00:00").getTime();
+        const tb = new Date(b + "T00:00:00").getTime();
+        return ta - tb;
+      });
+
+      dayKeysSorted.forEach((k) => {
+        const dd = new Date(k + "T00:00:00");
+        const sub = document.createElement("div");
+        sub.className = "wallSubHd";
+        sub.innerHTML = `<b>${escapeHtml(niceDay(dd))}</b><span>${escapeHtml(k)}</span>`;
+        bd.appendChild(sub);
+
+        const list = byDay.get(k) || [];
+        list.sort(sortDue).forEach(it => bd.appendChild(buildRow(it)));
+      });
+
+    } else {
+      items.forEach(it => bd.appendChild(buildRow(it)));
     }
 
+    sec.appendChild(hd);
+    sec.appendChild(bd);
+    return sec;
+  }
+
+  // Build wall in the exact vertical order you wanted
+  const parts = [];
+
+  const sOver = section("Overdue", "Past due", buckets.overdue, { className:"overdue" });
+  if (sOver) parts.push(sOver);
+
+  const sToday = section("Today", "Now + due soon", buckets.today, { className:"today" });
+  if (sToday) parts.push(sToday);
+
+  const sTom = section("Tomorrow", "Next calendar day", buckets.tomorrow);
+  if (sTom) parts.push(sTom);
+
+  const sN3 = section("Next 3 Days", "Calendar-based", buckets.next3, { groupByDay:true });
+  if (sN3) parts.push(sN3);
+
+  const sWeek = section("This Week", "Through Sunday", buckets.thisweek, { groupByDay:true });
+  if (sWeek) parts.push(sWeek);
+
+  // No-due MUST be small + above Later
+  const sNoDue = section("No Due Date", "Set one so it rises", buckets.nodue, { className:"nodue", compact:true });
+  if (sNoDue) parts.push(sNoDue);
+
+  const sLater = section("Later", "Beyond this week", buckets.later);
+  if (sLater) parts.push(sLater);
+
+  parts.forEach(p => checkListEl.appendChild(p));
+}
     function addChecklistItem(rawText){
   const t = (rawText || "").trim();
   if (!t) return;

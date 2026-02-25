@@ -1804,7 +1804,33 @@
     </div>
     <div class="pill"><span class="spark"></span><span id="dayModePill">—</span></div>
   </div>
+<!-- Calendar Drawer (slides out behind checklist) -->
+<div class="calDrawer" id="calDrawer" aria-label="Calendar drawer">
+  <button class="calTab" id="calTab" type="button" aria-expanded="false" aria-controls="calPanel">
+    CAL
+  </button>
 
+  <div class="calPanel" id="calPanel">
+    <div class="calHd">
+      <div class="calTitle" id="calTitle">—</div>
+      <div class="calMini">
+        <button class="calBtn" id="calPrev" type="button">‹</button>
+        <button class="calBtn" id="calToday" type="button">TODAY</button>
+        <button class="calBtn" id="calNext" type="button">›</button>
+      </div>
+    </div>
+
+    <div class="calDow">
+      <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+    </div>
+
+    <div class="calGrid" id="calGrid" role="grid" aria-label="Four-week calendar"></div>
+
+    <div class="calHint">
+      Click a day to change “View date” (and the center schedule).
+    </div>
+  </div>
+</div>
   <div class="cockBody">
     <!-- CHECKLIST MODULE -->
     <div class="module">
@@ -2284,7 +2310,14 @@ calendarBase: "",  // ISO date for the first day shown (we’ll store the Monday
     const applyJsonBtn = document.getElementById("applyJsonBtn");
     const exportBtn = document.getElementById("exportBtn");
     const importBtn = document.getElementById("importBtn");
-
+// calendar drawer
+const calDrawer = document.getElementById("calDrawer");
+const calTab = document.getElementById("calTab");
+const calTitle = document.getElementById("calTitle");
+const calGrid = document.getElementById("calGrid");
+const calPrev = document.getElementById("calPrev");
+const calNext = document.getElementById("calNext");
+const calToday = document.getElementById("calToday");
     function isValidISODate(s){
       return /^\d{4}-\d{2}-\d{2}$/.test(s);
     }
@@ -2312,6 +2345,116 @@ calendarBase: "",  // ISO date for the first day shown (we’ll store the Monday
       viewDateEl.value = val;
       renderCenterScheduleAndTimers();
     }
+    /************************************************************
+ * Calendar Drawer (4-week view)
+ ************************************************************/
+let calOpen = false;
+
+function startOfMonday(d){
+  // d is Date
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dow = x.getDay(); // 0 Sun ... 6 Sat
+  const diff = (dow + 6) % 7; // how many days back to Monday
+  x.setDate(x.getDate() - diff);
+  return x;
+}
+
+function addDays(d, n){
+  const x = new Date(d.getTime());
+  x.setDate(x.getDate() + n);
+  return x;
+}
+
+function monthLabel(d){
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function renderCalendar(){
+  if (!calGrid) return;
+
+  const selected = new Date(state.viewDate + "T00:00:00");
+  const today = new Date();
+  const todayISO = isoDate(today);
+
+  // 4-week view anchored to the Monday of the selected week
+  const start = startOfMonday(selected);
+
+  // Title: span across the 28 days (often crosses months)
+  const end = addDays(start, 27);
+  const title =
+    (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear())
+      ? monthLabel(start)
+      : `${monthLabel(start)} → ${monthLabel(end)}`;
+  calTitle.textContent = title;
+
+  calGrid.innerHTML = "";
+
+  for (let i = 0; i < 28; i++){
+    const d = addDays(start, i);
+    const dISO = isoDate(d);
+
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = "calDay";
+    cell.textContent = String(d.getDate());
+    cell.setAttribute("role","gridcell");
+    cell.setAttribute("aria-label", dISO);
+
+    // styling hooks
+    if (dISO === todayISO) cell.classList.add("today");
+    if (dISO === state.viewDate) cell.classList.add("selected");
+
+    // dim days outside selected month (optional, but helpful)
+    if (d.getMonth() !== selected.getMonth()) cell.classList.add("outMonth");
+
+    cell.addEventListener("click", () => {
+      setViewDate(dISO);
+      renderCalendar();
+      // keep drawer open; just update selection
+    });
+
+    calGrid.appendChild(cell);
+  }
+}
+
+function setCalendarOpen(on){
+  calOpen = !!on;
+  if (!calDrawer) return;
+  calDrawer.classList.toggle("open", calOpen);
+  if (calTab) calTab.setAttribute("aria-expanded", calOpen ? "true" : "false");
+  if (calOpen) renderCalendar();
+}
+
+// tab click
+if (calTab){
+  calTab.addEventListener("click", () => setCalendarOpen(!calOpen));
+}
+
+// nav buttons
+if (calPrev){
+  calPrev.addEventListener("click", () => {
+    const d = new Date(state.viewDate + "T00:00:00");
+    setViewDate(isoDate(addDays(d, -7))); // jump 1 week
+    renderCalendar();
+  });
+}
+if (calNext){
+  calNext.addEventListener("click", () => {
+    const d = new Date(state.viewDate + "T00:00:00");
+    setViewDate(isoDate(addDays(d, 7))); // jump 1 week
+    renderCalendar();
+  });
+}
+if (calToday){
+  calToday.addEventListener("click", () => {
+    setViewDate(isoDate(new Date()));
+    renderCalendar();
+  });
+}
+
+// initial render (drawer closed, but keep calendar ready)
+renderCalendar();
     viewDateEl.addEventListener("change", (e)=> setViewDate(e.target.value));
 
     saveScheduleBtn.addEventListener("click", () => {

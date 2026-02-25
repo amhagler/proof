@@ -1494,7 +1494,7 @@
   z-index: 5;
 
   /* hidden by default: slide left */
-  transform: translateX(calc(-100% + 22px));
+transform: translateX(calc(-100% + 48px));
   transition: transform .22s ease;
   pointer-events:none; /* only enable when open (so it doesn't block clicks) */
 }
@@ -1804,33 +1804,7 @@
     </div>
     <div class="pill"><span class="spark"></span><span id="dayModePill">—</span></div>
   </div>
-<!-- Calendar Drawer (slides out behind checklist) -->
-<div class="calDrawer" id="calDrawer" aria-label="Calendar drawer">
-  <button class="calTab" id="calTab" type="button" aria-expanded="false" aria-controls="calPanel">
-    CAL
-  </button>
 
-  <div class="calPanel" id="calPanel">
-    <div class="calHd">
-      <div class="calTitle" id="calTitle">—</div>
-      <div class="calMini">
-        <button class="calBtn" id="calPrev" type="button">‹</button>
-        <button class="calBtn" id="calToday" type="button">TODAY</button>
-        <button class="calBtn" id="calNext" type="button">›</button>
-      </div>
-    </div>
-
-    <div class="calDow">
-      <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
-    </div>
-
-    <div class="calGrid" id="calGrid" role="grid" aria-label="Four-week calendar"></div>
-
-    <div class="calHint">
-      Click a day to change “View date” (and the center schedule).
-    </div>
-  </div>
-</div>
   <div class="cockBody">
     <!-- CHECKLIST MODULE -->
     <div class="module">

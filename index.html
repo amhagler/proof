@@ -1481,6 +1481,191 @@
       z-index:3;
       position:relative;
     }
+    /* ===== Calendar Drawer (right console) ===== */
+.cockpit{ position:relative; } /* ensure drawer can anchor */
+
+.calDrawer{
+  position:absolute;
+  top: 68px;               /* sits below the cockpit header */
+  left: 0;
+  height: calc(100% - 68px);
+  width: 360px;
+  max-width: min(360px, 86vw);
+  z-index: 5;
+
+  /* hidden by default: slide left */
+  transform: translateX(calc(-100% + 22px));
+  transition: transform .22s ease;
+  pointer-events:none; /* only enable when open (so it doesn't block clicks) */
+}
+
+.calDrawer.open{
+  transform: translateX(0);
+  pointer-events:auto;
+}
+
+.calTab{
+  position:absolute;
+  top: 18px;
+  right: -42px;
+  width: 42px;
+  height: 108px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: linear-gradient(180deg, rgba(12,22,56,.92), rgba(10,18,48,.84));
+  box-shadow: 0 0 0 1px rgba(0,0,0,.18) inset, 0 12px 26px rgba(0,0,0,.28);
+  color: rgba(234,240,255,.85);
+  font-family: var(--mono);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.calTab span{
+  transform: rotate(-90deg);
+  letter-spacing:.16em;
+  font-weight: 900;
+  font-size: 12px;
+  opacity:.95;
+}
+.calTab:hover{ filter: brightness(1.05); }
+.calTab:active{ transform: translateY(1px); }
+
+.calPanel{
+  height: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(12,22,56,.92), rgba(10,18,48,.86));
+  box-shadow: 0 0 0 1px rgba(45,125,255,.08) inset, 0 16px 36px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+
+.calHd{
+  padding: 12px 12px 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 10px;
+  background: linear-gradient(to bottom, rgba(255,255,255,.06), transparent);
+}
+.calTitle b{
+  display:block;
+  font-family: var(--mono);
+  letter-spacing:.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: rgba(123,231,255,.88);
+}
+.calSub{
+  display:block;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(234,240,255,.65);
+}
+.calHdBtns{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.calMiniBtn{ padding: 7px 10px; border-radius: 12px; font-size: 12px; }
+
+.calDow{
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 10px 12px 6px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(234,240,255,.62);
+  letter-spacing:.08em;
+  text-transform: uppercase;
+}
+.calDow > div{ text-align:center; opacity:.9; }
+
+.calGrid{
+  padding: 8px 12px 12px 12px;
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calDay{
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.14) inset;
+  height: 44px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap: 4px;
+  cursor:pointer;
+  user-select:none;
+  transition: transform .08s ease, filter .18s ease, border-color .18s ease;
+  position:relative;
+  overflow:hidden;
+}
+
+.calDay:hover{ filter: brightness(1.06); }
+.calDay:active{ transform: translateY(1px); }
+
+.calDay .num{
+  font-family: var(--mono);
+  font-size: 12px;
+  color: rgba(234,240,255,.88);
+  font-weight: 900;
+}
+
+.calDay.muted{
+  opacity:.45;
+  background: rgba(255,255,255,.03);
+}
+
+.calDay.today{
+  border-color: rgba(75,255,211,.26);
+  box-shadow: 0 0 0 1px rgba(75,255,211,.10) inset, 0 0 18px rgba(75,255,211,.10);
+}
+
+.calDay.selected{
+  border-color: rgba(123,231,255,.28);
+  box-shadow: 0 0 0 1px rgba(45,125,255,.12) inset, 0 0 18px rgba(45,125,255,.12);
+  background: radial-gradient(120px 40px at 50% 0%, rgba(45,125,255,.14), transparent 70%), rgba(255,255,255,.04);
+}
+
+.calDay .wkDot{
+  width: 8px; height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 0 10px rgba(0,0,0,.25);
+  opacity:.95;
+}
+.calDay .wkDot.blue{ background: rgba(123,231,255,.85); box-shadow: 0 0 12px rgba(45,125,255,.35); }
+.calDay .wkDot.gold{ background: rgba(255,224,102,.88); box-shadow: 0 0 12px rgba(215,181,109,.30); }
+.calDay .wkDot.none{ background: rgba(183,194,230,.40); }
+
+.calLegend{
+  padding: 0 12px 10px 12px;
+  display:flex;
+  gap: 12px;
+  flex-wrap:wrap;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(234,240,255,.62);
+}
+.calLegend .dot{
+  width: 8px; height: 8px; border-radius:999px; display:inline-block; margin-right: 6px;
+  border: 1px solid rgba(255,255,255,.14);
+}
+.calLegend .dot.blue{ background: rgba(123,231,255,.85); }
+.calLegend .dot.gold{ background: rgba(255,224,102,.88); }
+.calLegend .dot.none{ background: rgba(183,194,230,.40); }
+
+.calHint{
+  padding: 0 12px 12px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(234,240,255,.62);
+  line-height:1.25;
+}
   </style>
 </head>
 
@@ -1574,136 +1759,172 @@
       </div>
     </section>
 
-    <!-- RIGHT: Cockpit (Checklist + schedule setup only) -->
-    <aside class="cockpit" id="cockpit">
-      <div class="cockHeader">
-        <div class="left">
-          <b>Control Console</b>
-          <span>Checklist + schedule entry.</span>
+<!-- RIGHT: Cockpit (Checklist + schedule setup + calendar drawer) -->
+<aside class="cockpit" id="cockpit">
+
+  <!-- Calendar drawer (slides out from the left edge of this console) -->
+  <div class="calDrawer" id="calDrawer" aria-label="Calendar drawer">
+    <button class="calTab" id="calTab" type="button" aria-label="Toggle calendar">
+      <span>CAL</span>
+    </button>
+
+    <div class="calPanel">
+      <div class="calHd">
+        <div class="calTitle">
+          <b>Calendar</b>
+          <span class="calSub" id="calRange">—</span>
         </div>
-        <div class="pill"><span class="spark"></span><span id="dayModePill">—</span></div>
-      </div>
-
-      <div class="cockBody">
-        <!-- CHECKLIST MODULE -->
-        <div class="module">
-          <div class="moduleHd">
-            <div style="display:flex;gap:10px;align-items:center;">
-              <b>Checklist</b>
-              <span class="pill" style="padding:6px 10px;border-radius:999px;font-size:11px;">
-                <span class="spark" style="width:7px;height:7px;"></span>
-                <span id="checkProgress">0/0</span>
-              </span>
-            </div>
-            <div class="mini">
-              <button class="btn btnGhost" id="collapseDoneBtn" type="button">Hide Done</button>
-              <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear</button>
-              <button class="btn btnGhost" id="exportChecklistBtn" type="button">Export</button>
-            </div>
-          </div>
-          <div class="moduleBd">
-            <div class="checkTop">
-              <input id="newItemText" type="text" placeholder="Add an agenda item… (use #tags, add @YYYY-MM-DD or @2:30 for due)" />
-              <button class="btn btnPrimary" id="addItemBtn" type="button">Add Item</button>
-            </div>
-
-            <div class="checkMetaRow">
-              <div class="left">
-                <input class="checkFilter" id="checkFilter" type="text" placeholder="Filter… (text or #tag)" />
-                <div class="tinyHint" id="filterHint" style="margin-top:2px;">Tip: double-click to edit. ★ marks priority (orange).</div>
-              </div>
-              <div class="right">
-                <div class="tinyHint" id="dueHint" style="text-align:right;">Overdue items glow red (when due is set).</div>
-              </div>
-            </div>
-
-            <div class="checkList" id="checkList"></div>
-            <div class="tinyHint">Tip: press Enter to add. Drag using the handle. Export/import lives below.</div>
-          </div>
-        </div>
-
-        <!-- Portability (schedule + checklist) -->
-        <div class="module">
-          <div class="moduleHd">
-            <b>Portability</b>
-            <div class="mini">
-              <button class="btn btnGhost" id="exportBtn" type="button">Export</button>
-              <button class="btn btnGhost" id="importBtn" type="button">Import</button>
-            </div>
-          </div>
-          <div class="moduleBd">
-            <div class="tinyHint">Export gives you JSON for schedule settings + checklist. Import restores it.</div>
-          </div>
-        </div>
-
-        <!-- Schedule setup (collapsed by default) -->
-        <div class="module" id="setupModule">
-          <div class="moduleHd">
-            <b>Schedule Setup</b>
-            <div class="mini">
-              <button class="btn btnGhost" id="toggleSetup" type="button">Expand</button>
-              <button class="btn btnPrimary" id="saveScheduleBtn" type="button">Save</button>
-            </div>
-          </div>
-          <div class="moduleBd" id="setupBody" style="display:none;">
-            <div style="display:grid;gap:10px;">
-              <div>
-                <label>Blue anchor date</label>
-                <input id="blueAnchor" type="text" placeholder="YYYY-MM-DD (a Monday you know is Blue)" />
-                <div class="tinyHint">Used for Auto week mode when rendering the schedule in the center of the ring.</div>
-              </div>
-              <div>
-                <label>Office hours on H block</label>
-                <select id="officeHoursMode">
-                  <option value="none">None</option>
-                  <option value="blue">Blue week only</option>
-                  <option value="gold">Gold week only</option>
-                  <option value="both">Both weeks</option>
-                </select>
-              </div>
-
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div><label>A block name</label><input id="A" type="text" placeholder="e.g., Global History 10" /></div>
-                <div><label>B block name</label><input id="B" type="text" placeholder="e.g., Advanced ME History" /></div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div><label>C block name</label><input id="C" type="text" /></div>
-                <div><label>D block name</label><input id="D" type="text" /></div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div><label>E block name</label><input id="E" type="text" /></div>
-                <div><label>F block name</label><input id="F" type="text" /></div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div><label>G block name</label><input id="G" type="text" /></div>
-                <div><label>H block name</label><input id="H" type="text" /></div>
-              </div>
-
-              <div class="tinyHint" style="margin-top:4px;">Optional: set per-block links (e.g., Google Drive folders). Named class periods become clickable.</div>
-
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div><label>A block link</label><input id="linkA" type="text" placeholder="https://..." /></div>
-                <div><label>B block link</label><input id="linkB" type="text" placeholder="https://..." /></div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div><label>C block link</label><input id="linkC" type="text" placeholder="https://..." /></div>
-                <div><label>D block link</label><input id="linkD" type="text" placeholder="https://..." /></div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div><label>E block link</label><input id="linkE" type="text" placeholder="https://..." /></div>
-                <div><label>F block link</label><input id="linkF" type="text" placeholder="https://..." /></div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div><label>G block link</label><input id="linkG" type="text" placeholder="https://..." /></div>
-                <div><label>H block link</label><input id="linkH" type="text" placeholder="https://..." /></div>
-              </div>
-
-              <div class="tinyHint">Once saved, the center holo shows the schedule for the selected date. The current period is highlighted automatically.</div>
-            </div>
-          </div>
+        <div class="calHdBtns">
+          <button class="btn btnGhost calMiniBtn" id="calPrev" type="button" aria-label="Previous 4 weeks">◀</button>
+          <button class="btn btnGhost calMiniBtn" id="calToday" type="button" aria-label="Jump to today">Today</button>
+          <button class="btn btnGhost calMiniBtn" id="calNext" type="button" aria-label="Next 4 weeks">▶</button>
         </div>
       </div>
-    </aside>
+
+      <div class="calDow">
+        <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+      </div>
+
+      <div class="calGrid" id="calGrid" aria-label="4-week calendar grid"></div>
+
+      <div class="calLegend">
+        <span><i class="dot blue"></i>Blue</span>
+        <span><i class="dot gold"></i>Gold</span>
+        <span><i class="dot none"></i>No anchor</span>
+      </div>
+
+      <div class="calHint">Click a date to set <b>View date</b> (and update the center schedule).</div>
+    </div>
+  </div>
+
+  <div class="cockHeader">
+    <div class="left">
+      <b>Control Console</b>
+      <span>Checklist + schedule entry.</span>
+    </div>
+    <div class="pill"><span class="spark"></span><span id="dayModePill">—</span></div>
+  </div>
+
+  <div class="cockBody">
+    <!-- CHECKLIST MODULE -->
+    <div class="module">
+      <div class="moduleHd">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <b>Checklist</b>
+          <span class="pill" style="padding:6px 10px;border-radius:999px;font-size:11px;">
+            <span class="spark" style="width:7px;height:7px;"></span>
+            <span id="checkProgress">0/0</span>
+          </span>
+        </div>
+        <div class="mini">
+          <button class="btn btnGhost" id="collapseDoneBtn" type="button">Hide Done</button>
+          <button class="btn btnGhost" id="clearCheckedBtn" type="button">Clear</button>
+          <button class="btn btnGhost" id="exportChecklistBtn" type="button">Export</button>
+        </div>
+      </div>
+      <div class="moduleBd">
+        <div class="checkTop">
+          <input id="newItemText" type="text" placeholder="Add an agenda item… (use #tags, add @YYYY-MM-DD or @2:30 for due)" />
+          <button class="btn btnPrimary" id="addItemBtn" type="button">Add Item</button>
+        </div>
+
+        <div class="checkMetaRow">
+          <div class="left">
+            <input class="checkFilter" id="checkFilter" type="text" placeholder="Filter… (text or #tag)" />
+            <div class="tinyHint" id="filterHint" style="margin-top:2px;">Tip: double-click to edit. ★ marks priority (orange).</div>
+          </div>
+          <div class="right">
+            <div class="tinyHint" id="dueHint" style="text-align:right;">Overdue items glow red (when due is set).</div>
+          </div>
+        </div>
+
+        <div class="checkList" id="checkList"></div>
+        <div class="tinyHint">Tip: press Enter to add. Drag using the handle. Export/import lives below.</div>
+      </div>
+    </div>
+
+    <!-- Portability (schedule + checklist) -->
+    <div class="module">
+      <div class="moduleHd">
+        <b>Portability</b>
+        <div class="mini">
+          <button class="btn btnGhost" id="exportBtn" type="button">Export</button>
+          <button class="btn btnGhost" id="importBtn" type="button">Import</button>
+        </div>
+      </div>
+      <div class="moduleBd">
+        <div class="tinyHint">Export gives you JSON for schedule settings + checklist. Import restores it.</div>
+      </div>
+    </div>
+
+    <!-- Schedule setup (collapsed by default) -->
+    <div class="module" id="setupModule">
+      <div class="moduleHd">
+        <b>Schedule Setup</b>
+        <div class="mini">
+          <button class="btn btnGhost" id="toggleSetup" type="button">Expand</button>
+          <button class="btn btnPrimary" id="saveScheduleBtn" type="button">Save</button>
+        </div>
+      </div>
+      <div class="moduleBd" id="setupBody" style="display:none;">
+        <div style="display:grid;gap:10px;">
+          <div>
+            <label>Blue anchor date</label>
+            <input id="blueAnchor" type="text" placeholder="YYYY-MM-DD (a Monday you know is Blue)" />
+            <div class="tinyHint">Used for Auto week mode when rendering the schedule in the center of the ring.</div>
+          </div>
+          <div>
+            <label>Office hours on H block</label>
+            <select id="officeHoursMode">
+              <option value="none">None</option>
+              <option value="blue">Blue week only</option>
+              <option value="gold">Gold week only</option>
+              <option value="both">Both weeks</option>
+            </select>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label>A block name</label><input id="A" type="text" placeholder="e.g., Global History 10" /></div>
+            <div><label>B block name</label><input id="B" type="text" placeholder="e.g., Advanced ME History" /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label>C block name</label><input id="C" type="text" /></div>
+            <div><label>D block name</label><input id="D" type="text" /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label>E block name</label><input id="E" type="text" /></div>
+            <div><label>F block name</label><input id="F" type="text" /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label>G block name</label><input id="G" type="text" /></div>
+            <div><label>H block name</label><input id="H" type="text" /></div>
+          </div>
+
+          <div class="tinyHint" style="margin-top:4px;">Optional: set per-block links (e.g., Google Drive folders). Named class periods become clickable.</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label>A block link</label><input id="linkA" type="text" placeholder="https://..." /></div>
+            <div><label>B block link</label><input id="linkB" type="text" placeholder="https://..." /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label>C block link</label><input id="linkC" type="text" placeholder="https://..." /></div>
+            <div><label>D block link</label><input id="linkD" type="text" placeholder="https://..." /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label>E block link</label><input id="linkE" type="text" placeholder="https://..." /></div>
+            <div><label>F block link</label><input id="linkF" type="text" placeholder="https://..." /></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label>G block link</label><input id="linkG" type="text" placeholder="https://..." /></div>
+            <div><label>H block link</label><input id="linkH" type="text" placeholder="https://..." /></div>
+          </div>
+
+          <div class="tinyHint">Once saved, the center holo shows the schedule for the selected date. The current period is highlighted automatically.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
   </main>
 
   <!-- Export/Import Modal -->
@@ -1975,6 +2196,8 @@
       blocks: { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
       links:  { A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:"" },
       viewDate: "",
+      calendarOpen: false,
+calendarBase: "",  // ISO date for the first day shown (we’ll store the Monday that starts the 4-week view)
       checklist: [], // {id, text, done, createdAt, completedAt, dueAt, priority, tags, order}
       checklistUI: { hideDone:false, filter:"" }
     };
@@ -2236,6 +2459,135 @@
       hydrateSetupUI();
       viewDateEl.value = state.viewDate;
       renderChecklist();
+      /************************************************************
+ * CALENDAR DRAWER (4-week view)
+ * - Drawer lives inside the right console
+ * - Click date => setViewDate(dateISO)
+ ************************************************************/
+const calDrawer = document.getElementById("calDrawer");
+const calTab = document.getElementById("calTab");
+const calGrid = document.getElementById("calGrid");
+const calRange = document.getElementById("calRange");
+const calPrev = document.getElementById("calPrev");
+const calNext = document.getElementById("calNext");
+const calTodayBtn = document.getElementById("calToday");
+
+function dateFromISO(iso){
+  const d = new Date(iso + "T00:00:00");
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function addDays(d, n){
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() + n);
+  return x;
+}
+function startOfMonday(d){
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dow = x.getDay(); // 0 Sun ... 6 Sat
+  const diff = (dow + 6) % 7; // Monday=0
+  x.setDate(x.getDate() - diff);
+  return x;
+}
+function fmtRange(d0, d1){
+  const m0 = d0.toLocaleString(undefined, { month:"short" });
+  const m1 = d1.toLocaleString(undefined, { month:"short" });
+  const y0 = d0.getFullYear();
+  const y1 = d1.getFullYear();
+  const s0 = `${m0} ${d0.getDate()}, ${y0}`;
+  const s1 = `${m1} ${d1.getDate()}, ${y1}`;
+  return `${s0} – ${s1}`;
+}
+
+function ensureCalendarBase(){
+  // If user never opened calendar before, base it on viewDate’s Monday
+  if (!isValidISODate(state.calendarBase)){
+    const base = startOfMonday(dateFromISO(state.viewDate));
+    state.calendarBase = isoDate(base);
+    saveState();
+  }
+}
+
+function setCalendarOpen(open){
+  state.calendarOpen = !!open;
+  saveState();
+  if (state.calendarOpen) calDrawer.classList.add("open");
+  else calDrawer.classList.remove("open");
+}
+
+function shiftCalendarWeeks(dir){
+  // dir: -1 or +1 (move by 4 weeks)
+  ensureCalendarBase();
+  const base = dateFromISO(state.calendarBase);
+  const next = addDays(base, dir * 28);
+  state.calendarBase = isoDate(next);
+  saveState();
+  renderCalendar();
+}
+
+function renderCalendar(){
+  ensureCalendarBase();
+
+  const base = dateFromISO(state.calendarBase);   // Monday that starts the grid
+  const end = addDays(base, 27);                  // 28 days total
+  calRange.textContent = fmtRange(base, end);
+
+  const today = isoDate(new Date());
+  const selected = state.viewDate;
+
+  calGrid.innerHTML = "";
+
+  for (let i = 0; i < 28; i++){
+    const d = addDays(base, i);
+    const dISO = isoDate(d);
+
+    // “Muted” if not in the same month as the base’s mid-point (keeps 4-week view readable)
+    const mid = addDays(base, 14);
+    const muted = d.getMonth() !== mid.getMonth();
+
+    const wk = getWeekModeForDate(d); // "blue" | "gold" | null
+    const dotClass = wk ? wk : "none";
+
+    const cell = document.createElement("div");
+    cell.className =
+      "calDay"
+      + (muted ? " muted" : "")
+      + (dISO === today ? " today" : "")
+      + (dISO === selected ? " selected" : "");
+
+    cell.innerHTML = `
+      <div class="num">${d.getDate()}</div>
+      <div class="wkDot ${dotClass}" title="${wk ? wk.toUpperCase() : "No anchor"}"></div>
+    `;
+
+    cell.addEventListener("click", () => {
+      setViewDate(dISO);
+      renderCalendar(); // refresh selection highlight
+    });
+
+    calGrid.appendChild(cell);
+  }
+}
+
+// Toggle with tab
+calTab.addEventListener("click", () => {
+  setCalendarOpen(!state.calendarOpen);
+});
+
+// Prev/Next/Today controls
+calPrev.addEventListener("click", () => shiftCalendarWeeks(-1));
+calNext.addEventListener("click", () => shiftCalendarWeeks(1));
+calTodayBtn.addEventListener("click", () => {
+  const t = isoDate(new Date());
+  setViewDate(t);
+  const b = startOfMonday(dateFromISO(t));
+  state.calendarBase = isoDate(b);
+  saveState();
+  renderCalendar();
+});
+
+// On load: apply open state + render
+if (state.calendarOpen) calDrawer.classList.add("open");
+renderCalendar();
       renderCenterScheduleAndTimers();
       toast.classList.remove("on");
       undoSnapshot = null;

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1769,13 +1768,13 @@
         const node = document.createElement("div");
         node.className = "node";
         node.dataset.idx = String(idx);
-        node.innerHTML = 
+        node.innerHTML = `
           <a class="cardLink" href="${l.href}" target="_blank" rel="noopener" aria-label="${escapeHtml(l.label)}">
             <div class="glyph">${escapeHtml(l.glyph)}</div>
             <div class="cardTitle">${escapeHtml(l.label)}</div>
             <div class="cardSub">${escapeHtml(l.sub)}</div>
           </a>
-        ;
+        `;
         ring.appendChild(node);
       });
     }
@@ -1798,7 +1797,7 @@
         const theta = (Math.PI * 2) * (i / n) + rotation;
         const x = Math.cos(theta) * r;
         const y = Math.sin(theta) * r;
-        nodes[i].style.transform = translate(calc(-50% + ${x}px), calc(-50% + ${y}px));
+        nodes[i].style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
       }
     }
 
@@ -1828,14 +1827,14 @@
       const y = d.getFullYear();
       const m = pad2(d.getMonth()+1);
       const da = pad2(d.getDate());
-      return ${y}-${m}-${da};
+      return `${y}-${m}-${da}`;
     }
 
     function tickClock(){
       const now = new Date();
       dateStr.textContent = isoDate(now);
-      timeStr.textContent = ${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())};
-      ticksStr.textContent = .${pad2(Math.floor(now.getMilliseconds()/10))};
+      timeStr.textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+      ticksStr.textContent = `.${pad2(Math.floor(now.getMilliseconds()/10))}`;
       requestAnimationFrame(tickClock);
     }
     tickClock();
@@ -2211,8 +2210,8 @@
       const dd = pad2(d.getDate());
       const hh = pad2(d.getHours());
       const mi = pad2(d.getMinutes());
-      if (sameDay) return Due ${hh}:${mi};
-      return Due ${mm}/${dd} ${hh}:${mi};
+      if (sameDay) return `Due ${hh}:${mi}`;
+      return `Due ${mm}/${dd} ${hh}:${mi}`;
     }
 
     // Undo snapshot
@@ -2303,7 +2302,7 @@ function sortChecklistStable(items){
     // Inline editor
     function startEdit(itemId){
       // If already editing, bail
-      const row = checkListEl.querySelector(.checkItem[data-id="${CSS.escape(itemId)}"]);
+      const row = checkListEl.querySelector(`.checkItem[data-id="${CSS.escape(itemId)}"]`);
       if (!row) return;
       if (row.dataset.editing === "1") return;
 
@@ -2377,11 +2376,11 @@ function setDue(itemId){
 
   const cur = item.dueAt ? new Date(item.dueAt) : null;
   const curStr = cur
-    ? ${isoDate(cur)} ${pad2(cur.getHours())}:${pad2(cur.getMinutes())}
+    ? `${isoDate(cur)} ${pad2(cur.getHours())}:${pad2(cur.getMinutes())}`
     : "";
 
   const val = prompt(
-Set due date/time (easier formats):
+`Set due date/time (easier formats):
 
 Examples:
   tom
@@ -2394,7 +2393,7 @@ Examples:
   2026-03-01
   2026-03-01 14:30
 
-Leave blank to clear.,
+Leave blank to clear.`,
     curStr
   );
 
@@ -2557,7 +2556,7 @@ function parseDueInput(raw){
       state.checklist.splice(idx,1);
       saveState();
       renderChecklist();
-      showUndo(Deleted: ${label}, snap);
+      showUndo(`Deleted: ${label}`, snap);
     }
 
     // drag reorder
@@ -2576,7 +2575,7 @@ function parseDueInput(raw){
       // progress
       const total = state.checklist.length;
       const doneCount = state.checklist.filter(i => i.done).length;
-      checkProgressEl.textContent = ${doneCount}/${total};
+      checkProgressEl.textContent = `${doneCount}/${total}`;
 
       // button text
       collapseDoneBtn.textContent = hideDone ? "Show Done" : "Hide Done";
@@ -2637,12 +2636,12 @@ function parseDueInput(raw){
         // actions
         const actions = document.createElement("div");
         actions.className = "checkActions";
-        actions.innerHTML = 
+        actions.innerHTML = `
           <button class="iconBtn ${item.priority ? "priOn" : ""}" type="button" title="Toggle priority">★</button>
           <button class="iconBtn" type="button" title="Set/clear due">DUE</button>
           <button class="iconBtn" type="button" title="Edit">✎</button>
           <button class="iconBtn danger" type="button" title="Delete">🗑</button>
-        ;
+        `;
 
         const priBtn = actions.children[0];
         const dueBtn = actions.children[1];
@@ -2843,7 +2842,7 @@ if (fromHasDue && toHasDue && fromItem.dueAt !== toItem.dueAt) return;
       saveState();
       renderChecklist();
       const removed = before - state.checklist.length;
-      if (removed > 0) showUndo(Cleared ${removed} completed item${removed===1?"":"s"}, snap);
+      if (removed > 0) showUndo(`Cleared ${removed} completed item${removed===1?"":"s"}`, snap);
     });
 
     exportChecklistBtn.addEventListener("click", () => {
@@ -2944,7 +2943,7 @@ function isListedClassPeriod(p, weekForDate){
         }
       }
       const hasName = !!(state.blocks[block] && state.blocks[block].trim());
-      return { label: hasName ? ${state.blocks[block]} (${block}) : block, named: hasName, blockKey:block };
+      return { label: hasName ? `${state.blocks[block]} (${block})` : block, named: hasName, blockKey:block };
     }
 
     function buildPeriodsForDate(dateObj){
@@ -3006,7 +3005,7 @@ function findNextListedClass(periods, minutesNow, weekForDate){
     function formatCountdown(totalSec){
       const m = Math.floor(totalSec / 60);
       const s = totalSec % 60;
-      return ${m}:${pad2(s)};
+      return `${m}:${pad2(s)}`;
     }
 
     function updateCountdown(textOrNull, warn){
@@ -3032,27 +3031,27 @@ function findNextListedClass(periods, minutesNow, weekForDate){
       const weekName = week ? week.toUpperCase() : "—";
 
       if (!week && (day === "saturday" || day === "sunday")){
-        dayModePill.textContent = Weekend • ${dayName};
+        dayModePill.textContent = `Weekend • ${dayName}`;
       } else if (!week){
-        dayModePill.textContent = Auto needs anchor;
+        dayModePill.textContent = `Auto needs anchor`;
       } else {
-        dayModePill.textContent = ${weekName} • ${dayName};
+        dayModePill.textContent = `${weekName} • ${dayName}`;
       }
 
       const minutesNow = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
 
-      holoTag.textContent = Daily Schedule • ${state.viewDate};
-      holoStatus.textContent = week ? ${weekName} • ${dayName} : (dayName);
+      holoTag.textContent = `Daily Schedule • ${state.viewDate}`;
+      holoStatus.textContent = week ? `${weekName} • ${dayName}` : (dayName);
 
       // Default: hide time marker unless today & schedule present
 
       if (!periods.length){
-        holoList.innerHTML = 
+        holoList.innerHTML = `
           <div class="periodCard misc">
             <div class="t">—</div>
             <div class="lbl">${(day==="saturday"||day==="sunday") ? "Weekend." : "Set Blue anchor date + save block names (and links, if you want)."} </div>
           </div>
-        ;
+        `;
         energyFill.style.width = "0%";
         energyPct.textContent = "0%";
         energyNote.textContent = (day==="saturday"||day==="sunday") ? "Standby" : "Awaiting schedule…";
@@ -3083,18 +3082,18 @@ card.className = "periodCard"
 
         if (!isMisc && named && link){
           // clickable named class period
-          labelHTML = 
+          labelHTML = `
             <a class="periodLink" href="${escapeHtml(link)}" target="_blank" rel="noopener">
               <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeLabel}</span>
               <span class="linkBadge">OPEN</span>
             </a>
-          ;
+          `;
         }
 
-        card.innerHTML = 
+        card.innerHTML = `
           <div class="t">${safeTime}</div>
           <div class="lbl">${labelHTML}</div>
-        ;
+        `;
 
         holoList.appendChild(card);
       }
@@ -3114,10 +3113,10 @@ card.className = "periodCard"
       const prog = (clamped - firstStart) / (lastEnd - firstStart);
       const pct = Math.round(prog * 100);
 
-      energyFill.style.width = ${pct}%;
+      energyFill.style.width = `${pct}%`;
 // Pulse speed: constant 3 seconds, regardless of fill %
-energyFill.style.setProperty("--pulseDur", 3s);
-      energyPct.textContent = ${pct}%;
+energyFill.style.setProperty("--pulseDur", `3s`);
+      energyPct.textContent = `${pct}%`;
 
       if (minutesNow < firstStart) energyNote.textContent = "Pre-start";
       else if (minutesNow >= lastEnd) energyNote.textContent = "Complete";
@@ -3337,7 +3336,7 @@ window.addEventListener("keydown", (e) => {
         density: 0.08 + Math.random() * 0.22,
         glow: 0.08 + Math.random() * 0.20
       }));
-      mtx.font = ${matrixFontPx}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      mtx.font = `${matrixFontPx}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
     }
 
     function stepMatrix(){
@@ -3357,13 +3356,13 @@ window.addEventListener("keydown", (e) => {
 
         // glow layer
         mtx.shadowBlur = 14;
-        mtx.shadowColor = rgba(45,125,255,${0.22 + col.glow});
-        mtx.fillStyle = rgba(123,231,255,${0.18 + col.glow});
+        mtx.shadowColor = `rgba(45,125,255,${0.22 + col.glow})`;
+        mtx.fillStyle = `rgba(123,231,255,${0.18 + col.glow})`;
         mtx.fillText(ch, x, y);
 
         // bright core
         mtx.shadowBlur = 0;
-        mtx.fillStyle = rgba(75,255,211,${0.07 + col.glow * 0.7});
+        mtx.fillStyle = `rgba(75,255,211,${0.07 + col.glow * 0.7})`;
         mtx.fillText(ch, x, y);
 
         col.y += col.speed * matrixStep * 0.22;
@@ -3654,3 +3653,4 @@ window.addEventListener("keydown", (e) => {
     });
   </script>
 </body>
+</html>

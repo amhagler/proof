@@ -1,53 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Geffen Cockpit Dashboard</title>
-  <style>
-    :root{
-      --bg0:#070B1A;--bg1:#0B1230;--panel:#0C1638;--ink:#EAF0FF;--muted:#B7C2E6;
-      --cyan:#7BE7FF;--blue:#2D7DFF;--mako:#4BFFD3;--gold:#FFE066;--orange:#FF9A3D;
-      --red:#FF3B3B;--purple:#B66BFF;--line:rgba(255,255,255,.12);
-      --shadow:0 18px 60px rgba(0,0,0,.55);
-      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-      --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      --serif:ui-serif,Georgia,"Times New Roman",serif;
-      --ringSize:700px;--nodeSize:126px;--holoInset:205px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;min-height:100vh;color:var(--ink);font-family:var(--sans);overflow-x:hidden;
-      background:
-        radial-gradient(1100px 650px at 20% 0%,rgba(45,125,255,.18),transparent 58%),
-        radial-gradient(900px 520px at 80% 16%,rgba(123,231,255,.10),transparent 62%),
-        radial-gradient(760px 420px at 60% 100%,rgba(215,181,109,.09),transparent 58%),
-        linear-gradient(180deg,var(--bg0),var(--bg1));
-    }
-    #matrix,#lightning{position:fixed;inset:0;pointer-events:none}
-    #matrix{z-index:0;opacity:.45;mix-blend-mode:screen}
-    #lightning{z-index:30}
-    .fog,.scan{position:fixed;inset:0;pointer-events:none;z-index:1}
-    .fog{background:radial-gradient(900px 520px at 24% 60%,rgba(123,231,255,.10),transparent 62%),radial-gradient(720px 420px at 74% 44%,rgba(45,125,255,.08),transparent 62%);filter:blur(12px);animation:fog 16s ease-in-out infinite alternate}
-    .scan{background:repeating-linear-gradient(to bottom,rgba(255,255,255,.03),rgba(255,255,255,.03) 1px,transparent 1px,transparent 3px);opacity:.14}
-    @keyframes fog{to{transform:translate(14px,-9px) scale(1.03)}}
-    .topbar{position:sticky;top:0;z-index:20;padding:14px 16px;background:linear-gradient(to bottom,rgba(7,11,26,.86),rgba(7,11,26,.48));backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.10)}
-    .topInner{max-width:1320px;margin:auto;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .brand{display:grid;gap:3px;min-width:220px}.title{font-family:var(--serif);font-size:18px;font-weight:900;letter-spacing:.7px}.subtle{font-family:var(--mono);font-size:11px;color:rgba(234,240,255,.70)}
-    .search{flex:1;min-width:260px;max-width:460px;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:999px;background:linear-gradient(180deg,rgba(12,22,56,.86),rgba(10,18,48,.72));border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 28px rgba(0,0,0,.35)}
-    .search input{flex:1;min-width:110px;border:0;outline:0;background:transparent;color:var(--ink);font:13px var(--mono)}
-    .lens{width:18px;height:18px;border:2px solid rgba(123,231,255,.75);border-radius:50%;position:relative;flex:0 0 auto}.lens:after{content:"";position:absolute;width:10px;height:2px;right:-8px;bottom:-3px;background:rgba(123,231,255,.75);transform:rotate(45deg);border-radius:3px}
-    .topActions{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{border:0;cursor:pointer;border-radius:14px;padding:9px 11px;font:900 12px var(--mono);white-space:nowrap}
-    .primary{color:#07101f;background:linear-gradient(180deg,rgba(123,231,255,.96),rgba(45,125,255,.92));box-shadow:0 0 0 1px rgba(255,255,255,.16) inset,0 12px 22px rgba(0,0,0,.34)}
-    .ghost{color:rgba(234,240,255,.90);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
-    .summerBtn{color:#07101f;background:linear-gradient(180deg,rgba(123,231,255,.96),rgba(45,125,255,.92));box-shadow:0 0 0 1px rgba(255,255,255,.16) inset,0 12px 22px rgba(0,0,0,.34)}
-    .btn.on{filter:brightness(1.08);box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 0 30px rgba(255,224,102,.32)}
-    .clock{min-width:250px;display:grid;gap:6px;justify-items:center;padding:10px 12px;border-radius:14px;background:linear-gradient(180deg,rgba(12,22,56,.86),rgba(10,18,48,.72));border:1px solid rgba(255,255,255,.14);font-family:var(--mono)}
-    .clockTop{display:flex;gap:10px;align-items:baseline}.date{font-size:12px;color:rgba(234,240,255,.75)}.time{font-size:15px;font-weight:900}.ticks{font-size:12px;color:rgba(123,231,255,.85)}
-    .countdown{display:flex;gap:8px;font-size:11px;color:rgba(234,240,255,.74);padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05)}
-    .shell{position:relative;z-index:3;max-width:1320px;margin:18px auto 40px;padding:0 16px;display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:start}
-    .bay,.cockpit{position:relative;border-radius:26px;background:linear-gradient(180deg,rgba(12,22,56,.78),rgba(10,18,48,.64));border:1px solid rgba(255,255,255,.12);box-shadow:var(--shadow);overflow:hidden}
     .bay{min-height:calc(var(--ringSize) + 120px);overflow:visible}
     .bay:before,.cockpit:before{content:"";position:absolute;inset:-2px;background:radial-gradient(820px 420px at 25% 30%,rgba(45,125,255,.20),transparent 60%),radial-gradient(680px 360px at 70% 60%,rgba(123,231,255,.12),transparent 58%);filter:blur(10px);pointer-events:none}
     .hd{position:relative;z-index:2;padding:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid rgba(255,255,255,.10);background:linear-gradient(to bottom,rgba(255,255,255,.06),transparent)}
@@ -119,7 +69,50 @@
     $("viewDate").value=today;$("summerBtn").classList.toggle("on",state.summer);$("scheduleMode").value=state.scheduleMode;$("customAnchor").value=state.customSchedule.anchorDate||"";$("blueAnchor").value=state.blueAnchor;$("officeMode").value=state.officeMode;blocks.forEach(k=>$(k).value=state.blocks[k]||"");
     function linkNorm(l,i){let f=defaults[i]||{label:"Link",sub:"Custom",href:"#",glyph:"LN"};return{label:String(l?.label||f.label).trim(),sub:String(l?.sub||f.sub).trim(),href:String(l?.href||f.href).trim(),glyph:String(l?.glyph||f.glyph).trim().slice(0,3).toUpperCase()}} function links(){return(Array.isArray(state.links)&&state.links.length?state.links:defaults).map(linkNorm)}
     function renderLinkEditor(){$("linkEditor").innerHTML=links().map((l,i)=>`<div class="linkRow"><div><label>Label</label><input data-f="label" value="${html(l.label)}"></div><div><label>Subtitle</label><input data-f="sub" value="${html(l.sub)}"></div><div><label>Glyph</label><input data-f="glyph" maxlength="3" value="${html(l.glyph)}"></div><div><label>URL</label><input data-f="href" value="${html(l.href)}"></div></div>`).join("")} function readLinks(){return[...document.querySelectorAll(".linkRow")].map((r,i)=>linkNorm({label:r.querySelector('[data-f="label"]').value,sub:r.querySelector('[data-f="sub"]').value,glyph:r.querySelector('[data-f="glyph"]').value,href:r.querySelector('[data-f="href"]').value},i))}
-    function titleDay(d){return d.charAt(0).toUpperCase()+d.slice(1)} function renderSetupMode(){let mode=$("scheduleMode").value;$("geffenSetup").style.display=mode==="geffen"?"":"none";$("customSetup").style.display=mode==="geffen"?"none":"";$("customAnchorWrap").style.display=mode==="customBiweekly"?"":"none";$("customWeekB").style.display=mode==="customBiweekly"?"":"none";if(mode==="customWeekly")customWeekView="A";$("customWeekA").classList.toggle("on",customWeekView==="A");$("customWeekB").classList.toggle("on",customWeekView==="B")} function renderCustomScheduleEditor(){renderSetupMode();let week=customWeekView;$("customScheduleEditor").innerHTML=schoolDays.map(day=>`<div class="customDay" data-day="${day}"><div class="customDayHd"><span>${titleDay(day)}</span><button class="btn ghost" type="button" data-add-day="${day}">Add Event</button></div><div class="eventRows">${(state.customSchedule.weeks[week][day]||[]).sort((a,b)=>(a.order||0)-(b.order||0)).map((e,i)=>`<div class="eventRow" data-day="${day}" data-event-id="${html(e.id)}"><div><label>Title</label><input data-e="title" value="${html(e.title)}" placeholder="Chemistry lecture"></div><div><label>Start</label><input data-e="start" type="time" value="${html(e.start)}"></div><div><label>End</label><input data-e="end" type="time" value="${html(e.end)}"></div><div><label>Category</label><select data-e="category"><option value="class" ${e.category==="class"?"selected":""}>Class</option><option value="lab" ${e.category==="lab"?"selected":""}>Lab</option><option value="work" ${e.category==="work"?"selected":""}>Work</option><option value="study" ${e.category==="study"?"selected":""}>Study</option><option value="meal" ${e.category==="meal"?"selected":""}>Meal</option><option value="personal" ${e.category==="personal"?"selected":""}>Personal</option></select></div><div><label>Link</label><input data-e="link" value="${html(e.link)}" placeholder="https://..."></div><button class="icon danger" type="button" data-del-event="${html(e.id)}">DEL</button></div>`).join("")}</div></div>`).join("");document.querySelectorAll("[data-add-day]").forEach(btn=>btn.onclick=()=>{readCustomScheduleEditor();let day=btn.dataset.addDay;state.customSchedule.weeks[week][day].push(normEvent({title:"New event",start:"09:00",end:"10:00",category:"class",link:""},state.customSchedule.weeks[week][day].length,day));save();renderCustomScheduleEditor();renderSchedule()});document.querySelectorAll("[data-del-event]").forEach(btn=>btn.onclick=()=>{let row=btn.closest(".eventRow"),day=row.dataset.day,id=row.dataset.eventId,s=snap();readCustomScheduleEditor();state.customSchedule.weeks[week][day]=(state.customSchedule.weeks[week][day]||[]).filter(e=>String(e.id)!==String(id));save();renderCustomScheduleEditor();renderSchedule();showUndo("Deleted schedule event",s)})} function readCustomScheduleEditor(){if(!$("customScheduleEditor"))return;let week=customWeekView;schoolDays.forEach(day=>{let rows=[...document.querySelectorAll(`.eventRow[data-day="${day}"]`)];if(!rows.length&&!(state.customSchedule.weeks[week][day]||[]).length)return;state.customSchedule.weeks[week][day]=rows.map((r,i)=>normEvent({id:r.dataset.eventId,title:r.querySelector('[data-e="title"]').value,start:r.querySelector('[data-e="start"]').value,end:r.querySelector('[data-e="end"]').value,category:r.querySelector('[data-e="category"]').value,link:r.querySelector('[data-e="link"]').value,order:i},i,day)).filter(e=>e.title)})}
+    function titleDay(d){return d.charAt(0).toUpperCase()+d.slice(1)}
+    function renderSetupMode(){
+      let mode=$("scheduleMode").value;
+      $("geffenSetup").style.display=mode==="geffen"?"":"none";
+      $("customSetup").style.display=mode==="geffen"?"none":"";
+      $("customAnchorWrap").style.display=mode==="customBiweekly"?"":"none";
+      $("customWeekB").style.display=mode==="customBiweekly"?"":"none";
+      if(mode==="customWeekly")customWeekView="A";
+      $("customWeekA").classList.toggle("on",customWeekView==="A");
+      $("customWeekB").classList.toggle("on",customWeekView==="B");
+    }
+    function renderCustomScheduleEditor(){
+      renderSetupMode();
+      let week=customWeekView;
+      schoolDays.forEach(day=>{
+        state.customSchedule.weeks[week][day]=(state.customSchedule.weeks[week][day]||[]).map((e,i)=>normEvent(e,i,day));
+      });
+      $("customScheduleEditor").innerHTML=schoolDays.map(day=>`<div class="customDay" data-day="${day}"><div class="customDayHd"><span>${titleDay(day)}</span><button class="btn ghost" type="button" data-add-day="${day}">Add Event</button></div><div class="eventRows">${(state.customSchedule.weeks[week][day]||[]).sort((a,b)=>(a.order||0)-(b.order||0)).map((e,i)=>`<div class="eventRow" data-day="${day}" data-event-id="${html(e.id||uid())}"><div><label>Title</label><input data-e="title" value="${html(e.title)}" placeholder="Chemistry lecture"></div><div><label>Start</label><input data-e="start" type="time" value="${html(e.start)}"></div><div><label>End</label><input data-e="end" type="time" value="${html(e.end)}"></div><div><label>Category</label><select data-e="category"><option value="class" ${e.category==="class"?"selected":""}>Class</option><option value="lab" ${e.category==="lab"?"selected":""}>Lab</option><option value="work" ${e.category==="work"?"selected":""}>Work</option><option value="study" ${e.category==="study"?"selected":""}>Study</option><option value="meal" ${e.category==="meal"?"selected":""}>Meal</option><option value="personal" ${e.category==="personal"?"selected":""}>Personal</option></select></div><div><label>Link</label><input data-e="link" value="${html(e.link)}" placeholder="https://..."></div><button class="icon danger" type="button" data-del-event="${html(e.id)}">DEL</button></div>`).join("")}</div></div>`).join("");
+      document.querySelectorAll("[data-add-day]").forEach(btn=>btn.onclick=()=>{
+        readCustomScheduleEditor();
+        let day=btn.dataset.addDay;
+        state.customSchedule.weeks[week][day].push(normEvent({title:"New event",start:"09:00",end:"10:00",category:"class",link:""},state.customSchedule.weeks[week][day].length,day));
+        save();renderCustomScheduleEditor();renderSchedule();
+      });
+      document.querySelectorAll("[data-del-event]").forEach(btn=>btn.onclick=()=>{
+        let row=btn.closest(".eventRow"),s=snap();
+        if(row)row.remove();
+        readCustomScheduleEditor();
+        save();renderCustomScheduleEditor();renderSchedule();showUndo("Deleted schedule event",s);
+      });
+      document.querySelectorAll(".eventRow input,.eventRow select").forEach(el=>{
+        el.onchange=()=>{readCustomScheduleEditor();save();renderSchedule()};
+        el.oninput=()=>{readCustomScheduleEditor();save();renderSchedule()};
+      });
+    }
+    function readCustomScheduleEditor(){
+      if(!$("customScheduleEditor"))return;
+      let week=customWeekView;
+      schoolDays.forEach(day=>{
+        let rows=[...document.querySelectorAll(`.eventRow[data-day="${day}"]`)];
+        if(!rows.length&&!(state.customSchedule.weeks[week][day]||[]).length)return;
+        state.customSchedule.weeks[week][day]=rows.map((r,i)=>normEvent({id:r.dataset.eventId||uid(),title:r.querySelector('[data-e="title"]').value,start:r.querySelector('[data-e="start"]').value,end:r.querySelector('[data-e="end"]').value,category:r.querySelector('[data-e="category"]').value,link:r.querySelector('[data-e="link"]').value,order:i},i,day)).filter(e=>e.title);
+      });
+    }
     function buildNodes(){$("ring").querySelectorAll(".node").forEach(n=>n.remove());links().forEach(l=>{let n=document.createElement("div");n.className="node";n.innerHTML=`<a class="cardLink" href="${html(l.href)}" target="_blank" rel="noopener"><div class="glyph">${html(l.glyph)}</div><div class="cardTitle">${html(l.label)}</div><div class="cardSub">${html(l.sub)}</div></a>`;$("ring").appendChild(n)})}
     let rot=0,target=0; function radius(){let size=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nodeSize"))||126;return Math.max(145,$("ring").clientWidth/2-size/2-40)} function layout(){let ns=[...document.querySelectorAll(".node")],r=radius();ns.forEach((n,i)=>{let t=Math.PI*2*(i/ns.length)+rot;n.style.transform=`translate(calc(-50% + ${Math.cos(t)*r}px), calc(-50% + ${Math.sin(t)*r}px))`})} $("ring").addEventListener("wheel",e=>{e.preventDefault();target+=(e.deltaY||0)*.0022},{passive:false}); function anim(){rot+=(target-rot)*.1;layout();requestAnimationFrame(anim)} renderLinkEditor();renderCustomScheduleEditor();buildNodes();anim();
     function min(t){let[hh,mm]=t.split(":").map(Number),h=hh;if(h>=1&&h<=6)h+=12;return h*60+(mm||0)} function customMin(t){let[hh,mm]=String(t||"0:00").split(":").map(Number);return(hh||0)*60+(mm||0)} function range(r){let p=r.split("-");return p.length===2?{start:min(p[0].trim()),end:min(p[1].trim())}:null} function weekFor(d){if(!/^\d{4}-\d{2}-\d{2}$/.test(state.blueAnchor))return null;let a=new Date(state.blueAnchor+"T00:00:00"),mon=x=>{let y=new Date(x.getFullYear(),x.getMonth(),x.getDate());y.setDate(y.getDate()-((y.getDay()+6)%7));return y};return Math.round((mon(d)-mon(a))/(7*86400000))%2===0?"blue":"gold"} function customWeekFor(d){if(state.scheduleMode!=="customBiweekly")return"A";if(!/^\d{4}-\d{2}-\d{2}$/.test(state.customSchedule.anchorDate))return"A";let a=new Date(state.customSchedule.anchorDate+"T00:00:00"),base=new Date(d.getFullYear(),d.getMonth(),d.getDate());let diff=Math.floor((base-a)/86400000);return Math.floor(diff/7)%2===0?"A":"B"} function label(block,week){if(block==="H"){let m=state.officeMode;if(m==="both"||(m==="blue"&&week==="blue")||(m==="gold"&&week==="gold"))return{label:"Office Hours",named:true}}let named=blocks.includes(block)&&!!(state.blocks[block]||"").trim();return{label:named?`${state.blocks[block]} (${block})`:block,named}} function periodsFor(date){let day=days[date.getDay()];if(state.scheduleMode!=="geffen"){let wk=customWeekFor(date),events=(state.customSchedule.weeks[wk]?.[day]||[]).map((e,i)=>({time:`${e.start}-${e.end}`,block:e.category,label:e.title,named:true,range:{start:customMin(e.start),end:customMin(e.end)},link:e.link,category:e.category,order:e.order??i})).filter(p=>p.label&&p.range.end>p.range.start).sort((a,b)=>a.range.start-b.range.start);return{periods:events,week:wk,day}}if(day==="saturday"||day==="sunday")return{periods:[],week:null,day};let week=weekFor(date);if(!week)return{periods:[],week:null,day};return{periods:(weeks[week][day]||[]).map(([time,block])=>{let m=label(block,week);return{time,block,label:m.label,named:m.named,range:range(time)}}).filter(p=>p.range),week,day}}

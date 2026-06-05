@@ -94,7 +94,7 @@
     @keyframes emitterPulse{50%{transform:scale(1.18);filter:brightness(1.25)}}
     .laserOverlay{position:fixed;inset:0;z-index:119;pointer-events:none}
     .laserOverlay line,.laserOverlay path{stroke:rgba(123,231,255,.95);stroke-width:1.35;fill:none;filter:drop-shadow(0 0 6px rgba(45,125,255,.85));stroke-linecap:round;stroke-linejoin:round}
-    .laserBeam{stroke-dasharray:1;stroke-dashoffset:1;animation:laserDraw .12s ease-out forwards}.laserTrace{stroke-dasharray:1;stroke-dashoffset:1;animation:laserDraw .18s .12s linear forwards}
+    .laserBeam{stroke-dasharray:1;stroke-dashoffset:1;animation:laserDraw .14s ease-out forwards}.laserTrace{stroke-dasharray:1;stroke-dashoffset:1;animation:laserDraw .24s .06s cubic-bezier(.2,.8,.2,1) forwards}
     @keyframes laserDraw{to{stroke-dashoffset:0}}
     .projectable{opacity:1}
     .projecting{opacity:0!important;filter:brightness(1.4)}
@@ -104,6 +104,11 @@
     @keyframes holoPowerDown{0%{opacity:1;filter:brightness(1.25) saturate(1.1)}22%{opacity:.36;filter:brightness(2.2) saturate(1.35)}38%{opacity:.86;filter:brightness(1.65)}58%{opacity:.22;transform:scaleY(.985)}78%{opacity:.48;filter:brightness(1.8)}100%{opacity:0;filter:brightness(.55);transform:scaleY(.96)}}
     .projectorOverlay{top:var(--topbarH,74px);height:calc(100vh - var(--topbarH,74px))}
     .projector{top:0;max-height:calc(100vh - var(--topbarH,74px) - 10px)}
+    .projectorOverlay .projector{transform:translate(-50%,0) scale(.992);transition:opacity .22s ease,filter .22s ease,visibility 0s linear .28s}
+    .projectorOverlay.open .projector{transform:translate(-50%,0) scale(1);transition:opacity .22s ease,filter .22s ease}
+    .projector.projecting{transform:translate(-50%,0) scale(.995)!important;transition:none!important}
+    .projector.poweringDown{animation:projectorPowerDown .26s steps(2,end) both!important;pointer-events:none!important}
+    @keyframes projectorPowerDown{0%{opacity:1;filter:brightness(1.25) saturate(1.1);transform:translate(-50%,0) scale(1)}22%{opacity:.36;filter:brightness(2.2) saturate(1.35);transform:translate(-50%,0) scale(1)}38%{opacity:.86;filter:brightness(1.65);transform:translate(-50%,0) scale(1)}58%{opacity:.22;transform:translate(-50%,0) scaleY(.985)}78%{opacity:.48;filter:brightness(1.8);transform:translate(-50%,0) scaleY(.99)}100%{opacity:0;filter:brightness(.55);transform:translate(-50%,0) scaleY(.96)}}
     .noteOverlay{background:radial-gradient(720px 420px at 50% 42%,rgba(45,125,255,.09),transparent 72%),rgba(0,0,0,.46)}
     .noteHolo{background:linear-gradient(180deg,rgba(12,22,56,.94),rgba(10,18,48,.90));border-color:rgba(123,231,255,.28);box-shadow:0 0 0 1px rgba(123,231,255,.10) inset,0 0 28px rgba(45,125,255,.20),0 24px 90px rgba(0,0,0,.70)}
     .dueOverlay{position:fixed;inset:0;z-index:75;display:grid;place-items:center;padding:18px;pointer-events:none;opacity:0;background:radial-gradient(720px 420px at 50% 42%,rgba(45,125,255,.09),transparent 72%),rgba(0,0,0,.42);transition:opacity .2s ease}.dueOverlay.on{opacity:1;pointer-events:auto}.dueHolo{width:min(520px,94vw);border-radius:22px;border:1px solid rgba(123,231,255,.28);background:linear-gradient(180deg,rgba(12,22,56,.94),rgba(10,18,48,.90));box-shadow:0 0 0 1px rgba(123,231,255,.10) inset,0 0 28px rgba(45,125,255,.20),0 24px 90px rgba(0,0,0,.70);overflow:hidden}.dueBd{display:grid;gap:10px;padding:14px}.dueExamples{font:11px var(--mono);line-height:1.45;color:rgba(234,240,255,.66);padding:10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09)}
@@ -342,7 +347,7 @@
     $("repairData").onclick=()=>{let s=snap();repairStoredIds();save();renderAll();showUndo("Data repaired",s)};
     $("drawerClose").onclick=closeDayDrawer;
     $("closeDayDrawer").onclick=closeDayDrawer;
-    function openCalendarPanel(){calendarMonthOffset=0;renderCalendar();topbarHeight();$("projector").classList.add("open");animatePanel($("projector").querySelector(".projector"))}
+    function openCalendarPanel(){calendarMonthOffset=0;renderCalendar();topbarHeight();let overlay=$("projector"),panel=overlay.querySelector(".projector");panel.classList.remove("projected","poweringDown");panel.classList.add("projectable","projecting");overlay.classList.add("open");requestAnimationFrame(()=>requestAnimationFrame(()=>{drawProjection(panel);setTimeout(()=>{panel.classList.remove("projecting");panel.classList.add("projected")},300)}))}
     function closeCalendarPanel(){let overlay=$("projector");if(!overlay.classList.contains("open"))return;closeDayDrawer();powerDown(overlay.querySelector(".projector"),()=>overlay.classList.remove("open"))}
     $("calendarBtn").onclick=openCalendarPanel;
     $("closeCalendar").onclick=closeCalendarPanel;

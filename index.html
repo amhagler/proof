@@ -599,7 +599,7 @@ $("weeklyEnergyBlock").onclick=openWeekly;$("addTask").onclick=add;$("newTask").
     }
     function playCloudFx(mode){
       let fx=document.createElement("div");
-      let cls=mode==="load"?"load":(mode==="weekly"?"weekly":(mode==="allweek"?"allweek":(mode==="clear"?"clear":"save"))),label=mode==="load"?"LOAD":(mode==="weekly"?"WEEKLY LIST COMPLETE!":(mode==="allweek"?"ALL WEEK TASKS COMPLETE!":(mode==="clear"?"PRIORITIES CLEARED!":"SAVE")));
+      let cls=mode==="load"?"load":(mode==="weekly"?"weekly":(mode==="allweek"?"allweek":(mode==="clear"?"clear":"save"))),label=mode==="load"?"LOAD":(mode==="weekly"?"PRIORITY LIST COMPLETE!":(mode==="allweek"?"ALL WEEK TASKS COMPLETE!":(mode==="clear"?"PRIORITIES CLEARED!":"SAVE")));
       fx.className="cloudFx "+cls;
       fx.innerHTML=`<div class="cloudFxBeam"></div><div class="cloudFxBits"></div><span class="cloudFxCorner c1"></span><span class="cloudFxCorner c2"></span><span class="cloudFxCorner c3"></span><span class="cloudFxCorner c4"></span><div class="cloudFxCore"><span class="cloudFxOrb"></span>${label}</div>`;
       document.body.appendChild(fx);

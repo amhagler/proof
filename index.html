@@ -105,8 +105,9 @@
       .brand .title{padding-top:8px}
       .projHd{padding:16px 14px 12px}
       .calendar{max-height:none;height:100%;padding:12px;gap:8px;align-content:start;align-items:stretch;grid-auto-rows:auto}
-      .calendar .day{height:auto;min-height:150px}
-      .calendar .calTask{align-items:start;white-space:normal}
+      .calendar .day{height:auto;min-height:150px;display:flex;flex-direction:column;align-items:stretch;gap:7px;overflow:visible}
+      .calendar .calTask{align-items:start;white-space:normal;min-height:34px;height:auto;overflow:visible}
+      .calendar .calTask.starred{overflow:visible}
       .calendar .calTask span{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.25}
       .dayDrawer{top:94px;bottom:10px}
     }

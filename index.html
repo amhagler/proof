@@ -259,6 +259,11 @@
     .laserOverlay line,.laserOverlay path{stroke:var(--fxCore);filter:drop-shadow(0 0 6px var(--fxGlow))}.cloudFx{background:radial-gradient(760px 460px at 50% 45%,var(--fxGlow),transparent 72%),rgba(7,11,26,.18)}.cloudFxCore{color:var(--fxText);text-shadow:var(--fxTextShadow)}.cloudFxCore:before{border-color:var(--fxCore);box-shadow:0 0 34px var(--fxGlow),0 0 0 1px color-mix(in srgb,var(--fxCore) 20%,transparent) inset}.cloudFxCore:after{border-color:var(--fxAccent);box-shadow:0 0 42px color-mix(in srgb,var(--fxAccent) 34%,transparent)}.cloudFxOrb{background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.98),var(--fxCore) 28%,var(--fxGlow) 62%,rgba(45,125,255,0) 76%);box-shadow:0 0 30px var(--fxCore),0 0 72px var(--fxGlow),0 0 120px color-mix(in srgb,var(--fxAccent) 35%,transparent)}.cloudFxCorner{background:linear-gradient(90deg,transparent,var(--fxCore),var(--fxAccent));box-shadow:0 0 18px var(--fxGlow)}.cloudFxBeam{background:linear-gradient(to bottom,transparent,var(--fxCore),transparent);box-shadow:0 0 16px var(--fxGlow)}.cloudFxBits{background:radial-gradient(circle at 46% 52%,var(--fxCore) 0 2px,transparent 3px),radial-gradient(circle at 58% 44%,var(--fxAccent) 0 2px,transparent 3px),radial-gradient(circle at 38% 38%,color-mix(in srgb,var(--fxCore) 62%,transparent) 0 1px,transparent 2px),radial-gradient(circle at 62% 62%,var(--fxGlow) 0 2px,transparent 3px);filter:drop-shadow(0 0 8px var(--fxGlow))}
     .dueInputWrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.dueInputClear{width:36px;height:36px;display:grid;place-items:center;border-radius:999px;border:1px solid rgba(123,231,255,.20);background:rgba(255,255,255,.055);color:rgba(234,240,255,.86);font:900 15px var(--mono);cursor:pointer;box-shadow:0 0 0 1px rgba(45,125,255,.06) inset}.dueInputClear:hover,.dueInputClear:focus-visible{border-color:rgba(123,231,255,.38);box-shadow:0 0 16px rgba(45,125,255,.18);outline:none}
 
+  
+    .cloudFxLabel{position:relative;z-index:3;display:inline-grid;place-items:center;max-width:min(260px,74vw);padding:10px 16px;border-radius:999px;border:1px solid color-mix(in srgb,var(--fxCore) 42%,rgba(255,255,255,.18));background:linear-gradient(180deg,rgba(2,6,14,.84),rgba(2,6,14,.66));color:rgba(248,252,255,.96);box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 0 18px color-mix(in srgb,var(--fxGlow) 42%,transparent),0 14px 34px rgba(0,0,0,.45);text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 10px color-mix(in srgb,var(--fxCore) 42%,transparent);line-height:1.22;text-align:center;backdrop-filter:blur(8px)}
+    .cloudFx.weekly .cloudFxLabel,.cloudFx.clear .cloudFxLabel,.cloudFx.allweek .cloudFxLabel{border-radius:18px;padding:12px 16px;max-width:min(330px,80vw);white-space:normal}
+    @media(max-width:720px){.cloudFxLabel{max-width:210px;padding:9px 13px}.cloudFx.weekly .cloudFxLabel,.cloudFx.clear .cloudFxLabel,.cloudFx.allweek .cloudFxLabel{max-width:230px}}
+
   </style>
 </head>
 <body>
@@ -766,7 +771,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
       let fx=document.createElement("div");
       let cls=mode==="load"?"load":(mode==="weekly"?"weekly":(mode==="allweek"?"allweek":(mode==="clear"?"clear":"save"))),label=mode==="load"?"LOAD":(mode==="weekly"?"PRIORITY LIST COMPLETE!":(mode==="allweek"?"WEEK COMPLETED":(mode==="clear"?"PRIORITIES CLEARED!":"SAVE")));
       fx.className="cloudFx "+cls;
-      fx.innerHTML=`<div class="cloudFxBeam"></div><div class="cloudFxBits"></div><span class="cloudFxCorner c1"></span><span class="cloudFxCorner c2"></span><span class="cloudFxCorner c3"></span><span class="cloudFxCorner c4"></span><div class="cloudFxCore"><span class="cloudFxOrb"></span>${label}</div>`;
+      fx.innerHTML=`<div class="cloudFxBeam"></div><div class="cloudFxBits"></div><span class="cloudFxCorner c1"></span><span class="cloudFxCorner c2"></span><span class="cloudFxCorner c3"></span><span class="cloudFxCorner c4"></span><div class="cloudFxCore"><span class="cloudFxOrb"></span><span class="cloudFxLabel">${label}</span></div>`;
       document.body.appendChild(fx);
       setTimeout(()=>fx.remove(),2600);
     }

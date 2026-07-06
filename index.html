@@ -1466,7 +1466,7 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       g.fillStyle=bg;
       g.fillRect(0,0,w,h);
 
-      let cx=w*.50, cy=h*.52, span=Math.min(w,h)*.56;
+      let cx=w*.50, cy=h*.52, span=Math.min(w,h)*.74;
       let brass="rgba(216,180,93,.78)", brassSoft="rgba(216,180,93,.24)";
       let teal="rgba(91,220,210,.62)", ivory="rgba(247,235,200,.82)";
 
@@ -1495,15 +1495,15 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
 
       if(!standbySigArtDecoStarMap.constellations){
         standbySigArtDecoStarMap.constellations=[
-          {n:"ORION",x:-.12,y:.05,s:.155,r:.03,p:[[-.38,-.62],[.36,-.56],[-.15,-.10],[.02,-.05],[.19,0],[-.36,.58],[.38,.53],[.02,.20],[.02,.39]],l:[[0,2],[2,3],[3,4],[4,1],[2,5],[4,6],[3,7],[7,8]]},
-          {n:"URSA MAJOR",x:-.48,y:-.30,s:.150,r:-.20,p:[[-.58,.08],[-.32,-.06],[-.03,-.03],[.20,.11],[.43,-.02],[.54,-.30],[.30,-.43]],l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},
-          {n:"CASSIOPEIA",x:.35,y:-.38,s:.142,r:.10,p:[[-.58,.08],[-.30,-.26],[-.05,.03],[.20,-.26],[.56,.08]],l:[[0,1],[1,2],[2,3],[3,4]]},
-          {n:"CYGNUS",x:.45,y:.09,s:.156,r:.08,p:[[0,-.62],[0,-.20],[0,.18],[0,.58],[-.47,.03],[.48,.01]],l:[[0,1],[1,2],[2,3],[4,2],[2,5]]},
-          {n:"SCORPIUS",x:-.43,y:.36,s:.150,r:-.18,p:[[-.55,-.28],[-.34,-.16],[-.16,-.02],[.03,.09],[.24,.18],[.42,.10],[.53,-.10],[.42,-.30],[.20,-.38]],l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8]]},
-          {n:"LEO",x:.20,y:.35,s:.146,r:.16,p:[[-.58,.04],[-.34,-.17],[-.11,-.26],[.10,-.13],[.28,.05],[.52,.01],[.28,.30],[-.20,.31]],l:[[0,1],[1,2],[2,3],[3,4],[4,5],[4,6],[6,7],[7,0]]},
-          {n:"TAURUS",x:-.12,y:-.40,s:.140,r:-.02,p:[[-.52,-.34],[-.20,-.05],[0,.06],[.22,-.04],[.55,-.34],[0,.06],[-.18,.40],[.18,.42]],l:[[0,1],[1,2],[2,3],[3,4],[2,6],[2,7]]},
-          {n:"PEGASUS",x:.58,y:-.10,s:.142,r:.04,p:[[-.42,-.38],[.18,-.36],[.48,.10],[-.14,.22],[-.42,-.38],[-.62,.02],[-.74,.28]],l:[[0,1],[1,2],[2,3],[3,0],[0,5],[5,6]]},
-          {n:"LYRA",x:.00,y:.47,s:.100,r:-.08,p:[[0,-.58],[-.34,-.08],[-.10,.36],[.28,.28],[.42,-.12]],l:[[0,1],[1,2],[2,3],[3,4],[4,0]]}
+          {n:"ORION",x:-.10,y:.04,s:.230,r:.03,p:[[-.38,-.62],[.36,-.56],[-.15,-.10],[.02,-.05],[.19,0],[-.36,.58],[.38,.53],[.02,.20],[.02,.39]],l:[[0,2],[2,3],[3,4],[4,1],[2,5],[4,6],[3,7],[7,8]]},
+          {n:"URSA MAJOR",x:-.43,y:-.30,s:.218,r:-.20,p:[[-.58,.08],[-.32,-.06],[-.03,-.03],[.20,.11],[.43,-.02],[.54,-.30],[.30,-.43]],l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]},
+          {n:"CASSIOPEIA",x:.32,y:-.36,s:.205,r:.10,p:[[-.58,.08],[-.30,-.26],[-.05,.03],[.20,-.26],[.56,.08]],l:[[0,1],[1,2],[2,3],[3,4]]},
+          {n:"CYGNUS",x:.38,y:.10,s:.215,r:.08,p:[[0,-.62],[0,-.20],[0,.18],[0,.58],[-.47,.03],[.48,.01]],l:[[0,1],[1,2],[2,3],[4,2],[2,5]]},
+          {n:"SCORPIUS",x:-.38,y:.36,s:.210,r:-.18,p:[[-.55,-.28],[-.34,-.16],[-.16,-.02],[.03,.09],[.24,.18],[.42,.10],[.53,-.10],[.42,-.30],[.20,-.38]],l:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8]]},
+          {n:"LEO",x:.17,y:.34,s:.205,r:.16,p:[[-.58,.04],[-.34,-.17],[-.11,-.26],[.10,-.13],[.28,.05],[.52,.01],[.28,.30],[-.20,.31]],l:[[0,1],[1,2],[2,3],[3,4],[4,5],[4,6],[6,7],[7,0]]},
+          {n:"TAURUS",x:-.08,y:-.40,s:.196,r:-.02,p:[[-.52,-.34],[-.20,-.05],[0,.06],[.22,-.04],[.55,-.34],[0,.06],[-.18,.40],[.18,.42]],l:[[0,1],[1,2],[2,3],[3,4],[2,6],[2,7]]},
+          {n:"PEGASUS",x:.48,y:-.10,s:.198,r:.04,p:[[-.42,-.38],[.18,-.36],[.48,.10],[-.14,.22],[-.42,-.38],[-.62,.02],[-.74,.28]],l:[[0,1],[1,2],[2,3],[3,0],[0,5],[5,6]]},
+          {n:"LYRA",x:.00,y:.46,s:.152,r:-.08,p:[[0,-.58],[-.34,-.08],[-.10,.36],[.28,.28],[.42,-.12]],l:[[0,1],[1,2],[2,3],[3,4],[4,0]]}
         ];
       }
 
@@ -1511,26 +1511,14 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       g.translate(cx,cy);
       g.rotate(rot);
 
-      for(let r=span*.30;r<span*1.12;r+=span*.22){
-        for(let s=0;s<4;s++){
-          let a0=s*Math.PI*.5+t*.006+r*.001;
-          g.globalAlpha=(.012+.004*Math.sin(t*.18+r*.01+s))*ramp*boost;
-          g.strokeStyle=brassSoft;
-          g.lineWidth=.85;
-          g.beginPath();
-          g.arc(0,0,r,a0,a0+.22);
-          g.stroke();
-        }
-      }
-      for(let i=0;i<24;i++){
-        if(i%3!==0)continue;
-        let a=i*Math.PI/12;
-        g.globalAlpha=.010*ramp*boost;
-        g.strokeStyle=i%3===0?brass:"rgba(91,220,210,.22)";
-        g.lineWidth=.75;
+      for(let i=0;i<18;i++){
+        let a=i*Math.PI/9;
+        g.globalAlpha=.006*ramp*boost;
+        g.strokeStyle=i%3===0?brass:"rgba(91,220,210,.18)";
+        g.lineWidth=.65;
         g.beginPath();
-        g.moveTo(Math.cos(a)*span*.92,Math.sin(a)*span*.92);
-        g.lineTo(Math.cos(a)*span*1.18,Math.sin(a)*span*1.18);
+        g.moveTo(Math.cos(a)*span*1.04,Math.sin(a)*span*1.04);
+        g.lineTo(Math.cos(a)*span*1.22,Math.sin(a)*span*1.22);
         g.stroke();
       }
 
@@ -1546,9 +1534,9 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
         let pts=def.p.map(p=>starPoint(p,def));
         g.shadowBlur=10;
         g.shadowColor="rgba(216,180,93,.22)";
-        g.globalAlpha=(.30+.08*pulse)*ramp*boost;
-        g.strokeStyle=idx%3===1?"rgba(91,220,210,.48)":brass;
-        g.lineWidth=1.30+(idx%2)*.42;
+        g.globalAlpha=(.62+.12*pulse)*ramp*boost;
+        g.strokeStyle=idx%3===1?"rgba(125,242,232,.82)":"rgba(230,194,102,.88)";
+        g.lineWidth=2.15+(idx%2)*.70;
         g.beginPath();
         def.l.forEach((line,j)=>{
           let a=pts[line[0]], b=pts[line[1]];
@@ -1559,8 +1547,8 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
         g.stroke();
         pts.forEach((p,j)=>{
           let bright=.72+.28*Math.sin(t*(.32+j*.025)+idx+j);
-          let rr=(j===0||j===1?2.6:1.9)+(j%3)*.35;
-          g.globalAlpha=(.48+.20*bright)*ramp*boost;
+          let rr=(j===0||j===1?4.0:3.0)+(j%3)*.45;
+          g.globalAlpha=(.76+.22*bright)*ramp*boost;
           g.fillStyle=(j+idx)%5===0?teal:ivory;
           g.shadowBlur=11;
           g.shadowColor=(j+idx)%5===0?"rgba(91,220,210,.32)":"rgba(216,180,93,.32)";
@@ -1572,7 +1560,7 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
         g.save();
         g.translate(label[0],label[1]);
         g.rotate(-(def.r||0));
-        g.globalAlpha=.14*ramp*boost;
+        g.globalAlpha=.28*ramp*boost;
         g.shadowBlur=0;
         g.fillStyle="rgba(247,235,200,.74)";
         g.font=`${Math.max(9,Math.min(15,w/110))}px ${getComputedStyle(document.body).getPropertyValue("--mono")||"monospace"}`;

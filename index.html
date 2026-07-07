@@ -2189,47 +2189,61 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       g.fillStyle=haze;
       g.fillRect(0,h*.30,w,h*.70);
 
-      let cx=w*.50, templeY=h*.87, light=(sunX-cx)/w;
+      let cx=w*.50, templeY=h*.88, light=(sunX-cx)/w;
       g.save();
-      for(let i=0;i<9;i++){
-        let bw=w*(.74-i*.060), bh=h*.036, y=templeY-i*h*.043, x=cx-bw/2;
-        let face=g.createLinearGradient(x,y,x+bw,y+bh);
-        face.addColorStop(0,"rgba(64,34,13,.98)");
-        face.addColorStop(.38,"rgba(142,88,34,.99)");
-        face.addColorStop(.70,"rgba(96,52,19,.99)");
-        face.addColorStop(1,"rgba(32,15,6,.99)");
-        g.fillStyle=face;
-        g.fillRect(x,y,bw,bh);
-        g.globalAlpha=.28+breath*.15;
-        g.strokeStyle="rgba(100,255,235,.28)";
-        g.lineWidth=1.2;
+      g.globalCompositeOperation="screen";
+      let backlight=g.createRadialGradient(cx,h*.58,0,cx,h*.64,Math.max(w,h)*.58);
+      backlight.addColorStop(0,`rgba(85,244,225,${.105+breath*.045})`);
+      backlight.addColorStop(.34,`rgba(218,151,58,${.055+breath*.025})`);
+      backlight.addColorStop(1,"rgba(0,0,0,0)");
+      g.fillStyle=backlight;
+      g.globalAlpha=ramp*boost;
+      g.fillRect(0,h*.28,w,h*.72);
+      g.restore();
+
+      function drawTempleSilhouette(alpha, blurPx, scale, yShift){
+        g.save();
+        g.filter=`blur(${blurPx}px)`;
+        g.shadowColor=`rgba(77,238,222,${.20+breath*.12})`;
+        g.shadowBlur=38+breath*18;
+        g.fillStyle=`rgba(11,5,2,${alpha*ramp})`;
+        let baseY=templeY+yShift;
+        for(let i=0;i<8;i++){
+          let bw=w*(.72-i*.063)*scale;
+          let bh=h*(.030+i*.0015)*scale;
+          let y=baseY-i*h*.041*scale;
+          let x=cx-bw/2+Math.sin(i*1.73)*w*.004;
+          g.beginPath();
+          g.moveTo(x+w*.010,y+bh);
+          g.lineTo(x+bw-w*.012,y+bh);
+          g.lineTo(x+bw-w*(.020+i*.002)-light*w*.012,y);
+          g.lineTo(x+w*(.020+i*.002)-light*w*.012,y);
+          g.closePath();
+          g.fill();
+        }
+        g.fillRect(cx-w*.060*scale,baseY-h*.334*scale,w*.120*scale,h*.060*scale);
         g.beginPath();
-        g.moveTo(x,y);
-        g.lineTo(x+bw,y);
-        g.stroke();
-        g.globalAlpha=.34;
-        g.fillStyle="rgba(10,4,2,.56)";
-        g.beginPath();
-        g.moveTo(x,y+bh);
-        g.lineTo(x+bw,y+bh);
-        g.lineTo(x+bw-light*w*(.055+i*.006),y+bh+h*(.030+i*.004));
-        g.lineTo(x-light*w*(.055+i*.006),y+bh+h*(.030+i*.004));
+        g.moveTo(cx-w*.090*scale,baseY-h*.274*scale);
+        g.lineTo(cx+w*.090*scale,baseY-h*.274*scale);
+        g.lineTo(cx+w*.066*scale,baseY-h*.306*scale);
+        g.lineTo(cx-w*.066*scale,baseY-h*.306*scale);
         g.closePath();
         g.fill();
-        g.globalAlpha=1;
+        g.restore();
       }
-      let stairW=w*.105;
-      g.fillStyle="rgba(25,12,5,.88)";
-      g.fillRect(cx-stairW*.5,templeY-h*.330,stairW,h*.365);
-      g.strokeStyle="rgba(225,158,70,.38)";
-      g.lineWidth=1;
-      for(let i=0;i<12;i++){
-        let y=templeY-h*.306+i*h*.029;
-        g.beginPath();
-        g.moveTo(cx-stairW*.5,y);
-        g.lineTo(cx+stairW*.5,y);
-        g.stroke();
-      }
+
+      drawTempleSilhouette(.40,5.2,1.02,h*.010);
+      drawTempleSilhouette(.70,1.6,1,0);
+
+      g.save();
+      g.globalCompositeOperation="screen";
+      let veil=g.createLinearGradient(0,h*.50,0,h);
+      veil.addColorStop(0,"rgba(91,242,225,.075)");
+      veil.addColorStop(.48,"rgba(226,151,58,.060)");
+      veil.addColorStop(1,"rgba(0,0,0,0)");
+      g.fillStyle=veil;
+      g.globalAlpha=(.70+breath*.18)*ramp;
+      g.fillRect(0,h*.46,w,h*.42);
       g.restore();
 
       g.save();

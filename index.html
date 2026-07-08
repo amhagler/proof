@@ -630,6 +630,12 @@
     body.mobileGameEco .resetGameChamber{box-shadow:0 0 0 1px rgba(0,0,0,.22) inset,0 12px 32px rgba(0,0,0,.32)}
     body.mobileGameEco .calTarget,body.mobileGameEco .clearOrb,body.mobileGameEco .sortOrb,body.mobileGameEco .catchOrb,body.mobileGameEco .seqOrb{filter:none}
     @media(max-width:720px){#setupOverlay{top:24px!important;bottom:0!important;place-items:start center!important;padding:8px!important}#setupOverlay .setupHolo,#setupOverlay .noteHolo.setupHolo{width:min(96vw,720px);max-height:calc(100dvh - 36px)!important;margin:0 auto!important}}
+    .taskFragment{position:absolute;border-radius:2px;background:color-mix(in srgb,var(--vanishColor) 72%,white);box-shadow:0 0 9px color-mix(in srgb,var(--vanishColor) 58%,transparent);opacity:0;transform:translate(-50%,-50%) scale(.45);animation:taskFragmentDissolve .78s ease-out var(--fragDelay,220ms) both;mix-blend-mode:screen}
+    .taskVanishFx.urgencyYellow .taskFragment{background:color-mix(in srgb,var(--vanishColor) 64%,white);box-shadow:0 0 12px rgba(255,224,102,.68)}
+    .taskVanishFx.urgencyOrange .taskFragment,.taskVanishFx.urgencyRed .taskFragment{border-radius:999px}
+    .taskVanishFx.urgencyOrange .taskFragment{box-shadow:0 0 13px rgba(255,154,61,.72)}
+    .taskVanishFx.urgencyRed .taskFragment{box-shadow:0 0 16px rgba(255,59,59,.82)}
+    @keyframes taskFragmentDissolve{0%{opacity:0;transform:translate(-50%,-50%) scale(.45);filter:brightness(1)}16%{opacity:.98;transform:translate(-50%,-50%) scale(1.12);filter:brightness(1.78)}54%{opacity:.82;transform:translate(calc(-50% + var(--dx)*.42),calc(-50% + var(--dy)*.42)) scale(.84);filter:brightness(1.25)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.12);filter:brightness(.58)}}
   </style>
   <style>
     .standbyCard{display:grid;gap:10px;align-content:start}
@@ -1183,13 +1189,17 @@
       svg.classList.remove("calendarProjection");
       svg.setAttribute("viewBox",`0 0 ${vw} ${vh}`);
       svg.setAttribute("preserveAspectRatio","none");
-      let glow=fxClass?Math.round(16+beam*4):12,opacity=fxClass?.98:.88,contactR=Math.max(5,beam*2.2),token=String(Date.now()+Math.random());
-      let markup=`<line class="laserBeam taskBeam" pathLength="1" x1="${sx}" y1="${sy}" x2="${hitLeft}" y2="${hitY}" style="stroke:${stroke};stroke-width:${beam};opacity:${opacity};filter:drop-shadow(0 0 ${glow}px ${stroke})"></line><line class="laserBeam taskBeam" pathLength="1" x1="${sx}" y1="${sy}" x2="${hitRight}" y2="${hitY}" style="stroke:${stroke};stroke-width:${beam};opacity:${opacity};filter:drop-shadow(0 0 ${glow}px ${stroke})"></line><circle class="zapContact taskZapContact" cx="${hitLeft}" cy="${hitY}" r="${contactR}" style="stroke:${stroke};filter:drop-shadow(0 0 ${glow}px ${stroke})"></circle><circle class="zapContact taskZapContact" cx="${hitRight}" cy="${hitY}" r="${contactR}" style="stroke:${stroke};filter:drop-shadow(0 0 ${glow}px ${stroke})"></circle>`;
+      let glow=fxClass?Math.round(16+beam*4):12,opacity=fxClass?.98:.88,token=String(Date.now()+Math.random());
+      let markup=`<line class="laserBeam taskBeam" pathLength="1" x1="${sx}" y1="${sy}" x2="${hitLeft}" y2="${hitY}" style="stroke:${stroke};stroke-width:${beam};opacity:${opacity};filter:drop-shadow(0 0 ${glow}px ${stroke})"></line><line class="laserBeam taskBeam" pathLength="1" x1="${sx}" y1="${sy}" x2="${hitRight}" y2="${hitY}" style="stroke:${stroke};stroke-width:${beam};opacity:${opacity};filter:drop-shadow(0 0 ${glow}px ${stroke})"></line>`;
       svg.dataset.zapToken=token;
       svg.innerHTML=markup;
-      let el=document.createElement("div"),base='<span class="taskPhoton p1"></span><span class="taskPhoton p2"></span><span class="taskPhoton p3"></span><span class="taskPhoton p4"></span><span class="taskPhoton p5"></span><span class="taskPhoton p6"></span><span class="taskPhoton p7"></span><span class="taskPhoton p8"></span>',extra=fxClass?'<span class="taskPhoton p9"></span><span class="taskPhoton p10"></span><span class="taskPhoton p11"></span><span class="taskPhoton p12"></span>':'';
+      let el=document.createElement("div"),fragments="",fragmentCount=fxClass?28:18;
+      for(let i=0;i<fragmentCount;i++){
+        let x=10+Math.random()*80,y=14+Math.random()*72,dx=(Math.random()-.5)*(fxClass?96:62),dy=(Math.random()-.5)*(fxClass?72:46),size=2+Math.random()*(fxClass?4.8:3.2),delay=170+Math.random()*280;
+        fragments+=`<span class="taskFragment" style="left:${x.toFixed(2)}%;top:${y.toFixed(2)}%;width:${size.toFixed(1)}px;height:${size.toFixed(1)}px;--dx:${dx.toFixed(1)}px;--dy:${dy.toFixed(1)}px;--fragDelay:${delay.toFixed(0)}ms"></span>`;
+      }
       el.className="taskVanishFx"+(fxClass?" "+fxClass:"");
-      el.innerHTML='<span class="taskInfuseContact left"></span><span class="taskInfuseContact right"></span>'+base+extra;
+      el.innerHTML='<span class="taskInfuseContact left"></span><span class="taskInfuseContact right"></span>'+fragments;
       el.style.setProperty("--vanishColor",stroke);
       el.style.left=left+"px";el.style.top=top+"px";el.style.width=width+"px";el.style.height=height+"px";
       document.body.appendChild(el);

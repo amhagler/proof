@@ -2901,23 +2901,54 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
     }
 
     function standbyRenderHolographicTelemetry(g,w,h,t,boost,ramp){
-      let d=standbyTelemetrySnapshot(),cyan="rgba(123,231,255,.88)",mako="rgba(75,255,211,.78)",white="rgba(234,240,255,.88)",muted="rgba(183,194,230,.68)";
+      let d=standbyTelemetrySnapshot(),cyan="rgba(123,231,255,.88)",mako="rgba(75,255,211,.78)",white="rgba(234,240,255,.88)",muted="rgba(183,194,230,.68)",red="rgba(255,90,90,.88)";
+      let lastDone=d.completedSeries[d.completedSeries.length-1]?.value||0;
       let bg=g.createLinearGradient(0,0,w,h);
       bg.addColorStop(0,"#050B1B");bg.addColorStop(.50,"#0B1535");bg.addColorStop(1,"#030712");
       g.fillStyle=bg;g.fillRect(0,0,w,h);
       g.save();g.globalCompositeOperation="screen";
       standbySigGlow(g,w*.44,h*.42,Math.max(w,h)*.58,"rgba(123,231,255,.17)","rgba(45,125,255,.055)","rgba(0,0,0,0)",ramp);
-      for(let i=0;i<18;i++){let seed=i*17.2,x=w*((standbyU(seed,4)+Math.sin(t*.018+seed)*.018)%1),y=h*((standbyU(seed,8)+Math.cos(t*.022+seed)*.020)%1),rx=w*(.08+standbyU(seed,12)*.16),ry=h*(.012+standbyU(seed,16)*.035);standbySoftBlob(g,x,y,rx,ry,Math.sin(t*.018+seed)*.42,[[0,i%2?"rgba(123,231,255,.060)":"rgba(75,255,211,.052)"],[.55,"rgba(45,125,255,.020)"],[1,"rgba(0,0,0,0)"]],ramp*boost,8,.42)}
-      let cx=w*.50,cy=h*.48,r=Math.min(w,h)*.24,signals=[d.overdue,d.todayDue,d.weeklyPct/20,d.activeCount/3,d.current?3:0,d.cloud?2:0,d.autosave?2:0];
-      g.strokeStyle="rgba(123,231,255,.22)";g.lineWidth=1.1;
-      for(let ring=1;ring<=3;ring++){g.globalAlpha=(.20+ring*.045)*ramp;g.beginPath();g.arc(cx,cy,r*ring/3,0,Math.PI*2);g.stroke()}
-      let pts=signals.map((v,i)=>{let a=-Math.PI/2+i*Math.PI*2/signals.length+t*.035,rr=r*(.48+Math.min(1,v/5)*.45);return {x:cx+Math.cos(a)*rr,y:cy+Math.sin(a)*rr,v}});
-      g.globalAlpha=.32*ramp;g.strokeStyle=mako;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();g.stroke();
-      pts.forEach((p,i)=>{let hot=i<2&&p.v>0, pulse=.55+.45*Math.sin(t*(.9+i*.07)+i);standbySigOrb(g,p.x,p.y,4+Math.min(7,p.v)*.7,hot?"rgba(255,90,90,.92)":(i%2?cyan:mako),"rgba(0,0,0,0)",(.62+pulse*.28)*ramp*boost)});
+      let colW=Math.max(28,Math.min(42,w*.020)),cols=Math.ceil(w/colW)+2,fontPx=Math.max(10,Math.min(14,w*.007));
+      g.font=`700 ${fontPx}px ui-monospace, Consolas, monospace`;
+      g.textAlign="center";
+      g.textBaseline="top";
+      for(let c=0;c<cols;c++){
+        let seed=c*11.37,x=c*colW+(standbyU(seed,3)-.5)*10,head=((standbyU(seed,5)+t*(.0038+standbyU(seed,9)*.0065))%1.18)-.10;
+        for(let j=0;j<7;j++){
+          let y=(head-j*.052)*h;
+          if(y<-20||y>h+20)continue;
+          let fade=Math.max(0,1-j/7),ch=(c+j)%3===0?"0":"1";
+          g.globalAlpha=(.028+.045*fade)*ramp*boost;
+          g.fillStyle=j===0?"rgba(75,255,211,.54)":"rgba(123,231,255,.32)";
+          g.fillText(ch,x,y);
+        }
+      }
+      for(let i=0;i<12;i++){let seed=i*17.2,x=w*((standbyU(seed,4)+Math.sin(t*.014+seed)*.012)%1),y=h*((standbyU(seed,8)+Math.cos(t*.018+seed)*.016)%1),rx=w*(.06+standbyU(seed,12)*.12),ry=h*(.010+standbyU(seed,16)*.026);standbySoftBlob(g,x,y,rx,ry,Math.sin(t*.014+seed)*.34,[[0,i%2?"rgba(123,231,255,.045)":"rgba(75,255,211,.040)"],[.55,"rgba(45,125,255,.016)"],[1,"rgba(0,0,0,0)"]],ramp*boost,10,.42)}
+      let cx=w*.50,cy=h*.42,r=Math.min(w,h)*.225;
+      let signals=[
+        {label:"URGENCY",v:Math.min(1,(d.overdue*1.25+d.due24*.42)/4),hot:d.overdue>0},
+        {label:"TODAY",v:Math.min(1,d.todayDue/5),hot:d.todayDue>0},
+        {label:"PRIORITY",v:d.weeklyTotal?d.weeklyPct/100:.12,hot:false},
+        {label:"COMPLETE",v:Math.min(1,lastDone/5),hot:false},
+        {label:"LOAD",v:Math.min(1,d.activeCount/18),hot:d.activeCount>16},
+        {label:"SCHEDULE",v:d.current?.label?.trim()? .72:.18,hot:false},
+        {label:"SYNC",v:d.cloud?(d.autosave?.68:.48):.16,hot:false}
+      ];
+      g.strokeStyle="rgba(123,231,255,.20)";g.lineWidth=1.0;
+      for(let ring=1;ring<=4;ring++){g.globalAlpha=(.12+ring*.030)*ramp;g.beginPath();g.arc(cx,cy,r*ring/4,0,Math.PI*2);g.stroke()}
+      let pts=signals.map((s,i)=>{let a=-Math.PI/2+i*Math.PI*2/signals.length+t*.020,rr=r*(.34+s.v*.56);return {x:cx+Math.cos(a)*rr,y:cy+Math.sin(a)*rr,a,v:s.v,hot:s.hot,label:s.label}});
+      g.globalAlpha=.12*ramp;g.fillStyle="rgba(75,255,211,.18)";g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();g.fill();
+      g.globalAlpha=.38*ramp;g.strokeStyle=mako;g.lineWidth=1.6;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.closePath();g.stroke();
+      pts.forEach((p,i)=>{g.globalAlpha=.18*ramp;g.strokeStyle=i%2?cyan:mako;g.beginPath();g.moveTo(cx,cy);g.lineTo(p.x,p.y);g.stroke();let pulse=.55+.45*Math.sin(t*(.72+i*.05)+i);standbySigOrb(g,p.x,p.y,3.2+p.v*4.8,p.hot?red:(i%2?cyan:mako),"rgba(0,0,0,0)",(.55+pulse*.22)*ramp*boost)});
       g.restore();
-      g.fillStyle=cyan;g.font=`900 ${Math.max(26,Math.min(44,w*.030))}px ui-monospace, Consolas, monospace`;g.textAlign="left";g.textBaseline="top";g.fillText("SYSTEM BALANCE",w*.07,h*.10);
-      g.fillStyle=muted;g.font="800 12px ui-monospace, Consolas, monospace";g.fillText("ROTATING STATUS PROJECTION",w*.07,h*.10+46);
-      let lastDone=d.completedSeries[d.completedSeries.length-1]?.value||0;
+      g.save();
+      g.globalAlpha=.42*ramp;
+      g.fillStyle=muted;
+      g.font="900 10px ui-monospace, Consolas, monospace";
+      g.textAlign="center";
+      g.textBaseline="top";
+      g.fillText("DAY BALANCE LATTICE",cx,cy+r+22);
+      g.restore();
       let stats=[
         ["TODAY'S TASKS",d.todayDue],
         ["COMPLETED TODAY",lastDone],
@@ -2927,42 +2958,26 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
         ["CURRENT EVENT",d.current?"ACTIVE":"STANDBY"],
         ["CLOUD STATE",d.cloud?"LINKED":"LOCAL"]
       ];
-      let cycle=4.8,idx=Math.floor(t/cycle)%stats.length,phase=(t%cycle)/cycle,stat=stats[idx],flicker=.86+.14*Math.sin(t*42+idx);
+      let cycle=8.6,idx=Math.floor(t/cycle)%stats.length,phase=(t%cycle)/cycle,stat=stats[idx],flicker=.88+.12*Math.sin(t*30+idx);
       let hold=phase<.16?phase/.16:(phase>.80?(1-phase)/.20:1),alpha=Math.max(0,Math.min(1,hold))*flicker*ramp;
-      let fw=Math.min(w*.52,680),fh=Math.min(h*.26,230),fx=w*.50-fw/2+Math.sin(idx*1.47)*w*.035,fy=h*.62-fh/2+Math.cos(idx*.93)*h*.030;
+      let text=`${stat[0]}: ${stat[1]}`,noticeSize=Math.max(13,Math.min(19,w*.0135)),noticeX=w*.50,noticeY=h*.765+Math.sin(idx*.83)*h*.010;
       g.save();
       g.globalCompositeOperation="screen";
-      g.globalAlpha=alpha*.58;
-      g.strokeStyle=cyan;
-      g.lineWidth=1.2;
-      let ex=w*.50,ey=24;
-      g.beginPath();g.moveTo(ex,ey);g.lineTo(fx+fw*.18,fy);g.moveTo(ex,ey);g.lineTo(fx+fw*.82,fy);g.stroke();
-      g.globalAlpha=alpha*.42;
-      g.fillStyle="rgba(12,22,56,.42)";
-      g.fillRect(fx,fy,fw,fh);
-      g.globalAlpha=alpha*.90;
-      g.strokeStyle=mako;
-      g.lineWidth=1.5;
-      g.strokeRect(fx,fy,fw,fh);
-      g.beginPath();
-      g.moveTo(fx,fy+fh*.22);g.lineTo(fx+fw*.10,fy+fh*.22);
-      g.moveTo(fx+fw*.90,fy+fh*.22);g.lineTo(fx+fw,fy+fh*.22);
-      g.moveTo(fx+fw*.50,fy);g.lineTo(fx+fw*.50,fy+fh*.14);
-      g.stroke();
-      standbySigGlow(g,fx+fw*.50,fy+fh*.52,Math.max(fw,fh)*.34,"rgba(123,231,255,.105)","rgba(75,255,211,.040)","rgba(0,0,0,0)",alpha*.80);
-      g.globalAlpha=alpha*.72;
-      g.fillStyle=muted;
-      g.font="900 12px ui-monospace, Consolas, monospace";
-      g.textAlign="center";
+      g.font=`900 ${noticeSize}px ui-monospace, Consolas, monospace`;
       g.textBaseline="top";
-      g.fillText("PROJECTED STATUS",fx+fw*.50,fy+22);
+      g.textAlign="center";
+      let textW=g.measureText(text).width,firstX=noticeX-textW/2,lastX=noticeX+textW/2,letterY=noticeY+noticeSize*.43,ex=w*.50,ey=24;
+      g.globalAlpha=alpha*.38;
+      g.strokeStyle=cyan;
+      g.lineWidth=1.0;
+      g.beginPath();g.moveTo(ex,ey);g.lineTo(firstX+2,letterY);g.moveTo(ex,ey);g.lineTo(lastX-2,letterY);g.stroke();
+      standbySigOrb(g,firstX+2,letterY,2.4,cyan,"rgba(0,0,0,0)",alpha*.58);
+      standbySigOrb(g,lastX-2,letterY,2.4,mako,"rgba(0,0,0,0)",alpha*.58);
       g.globalAlpha=alpha;
       g.fillStyle=white;
-      g.font=`900 ${Math.max(22,Math.min(42,fw*.060))}px ui-monospace, Consolas, monospace`;
-      g.fillText(String(stat[0]),fx+fw*.50,fy+fh*.40);
-      g.fillStyle=mako;
-      g.font=`900 ${Math.max(28,Math.min(64,fw*.092))}px ui-monospace, Consolas, monospace`;
-      g.fillText(String(stat[1]),fx+fw*.50,fy+fh*.60);
+      g.shadowBlur=10;
+      g.shadowColor="rgba(123,231,255,.28)";
+      g.fillText(text,noticeX,noticeY);
       g.restore();
       g.globalAlpha=1;g.shadowBlur=0;
     }
@@ -2971,7 +2986,7 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       let d=standbyTelemetrySnapshot(),green="rgba(183,255,79,.86)",glass="rgba(233,242,238,.82)",muted="rgba(158,168,164,.66)",dim="rgba(80,118,92,.34)";
       let bg=g.createRadialGradient(w*.50,h*.44,0,w*.50,h*.44,Math.max(w,h)*.86);bg.addColorStop(0,"#091611");bg.addColorStop(.54,"#020504");bg.addColorStop(1,"#000101");g.fillStyle=bg;g.fillRect(0,0,w,h);
       g.save();g.globalCompositeOperation="screen";
-      for(let i=0;i<10;i++){let seed=i*25.1,x=w*((standbyU(seed,3)+t*.0012)%1.14-.07),y=h*(.13+standbyU(seed,7)*.72),rx=w*(.18+standbyU(seed,11)*.28),ry=h*(.010+standbyU(seed,15)*.030);standbySoftBlob(g,x,y,rx,ry,Math.sin(t*.016+seed)*.42,[[0,"rgba(183,255,79,.050)"],[.44,"rgba(169,179,176,.030)"],[1,"rgba(0,0,0,0)"]],ramp*boost,14,.24)}
+      for(let i=0;i<9;i++){let seed=i*25.1,x=w*(.08+standbyU(seed,3)*.84),y=h*(.13+standbyU(seed,7)*.72),rx=w*(.16+standbyU(seed,11)*.26),ry=h*(.008+standbyU(seed,15)*.025),breath=.78+.22*Math.sin(t*.18+seed);standbySoftBlob(g,x,y,rx,ry,(standbyU(seed,19)-.5)*.52,[[0,"rgba(183,255,79,.032)"],[.46,"rgba(169,179,176,.020)"],[1,"rgba(0,0,0,0)"]],ramp*boost*breath,16,.22)}
       g.restore();
       g.fillStyle=green;g.font=`900 ${Math.max(24,Math.min(40,w*.028))}px Courier New, Consolas, monospace`;g.textAlign="left";g.textBaseline="top";g.fillText("OBSIDIAN LAB ARRAY",w*.07,h*.10);
       g.fillStyle=muted;g.font="800 12px Courier New, Consolas, monospace";g.fillText("BEHAVIORAL TRACE / ACTIVE LOAD / STABILITY INDEX",w*.07,h*.10+42);

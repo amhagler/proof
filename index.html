@@ -4376,9 +4376,9 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
       );
     }
     async function writeCloudState(user,payload,updatedAt=new Date().toISOString()){
-      let {error}=await cloudClient.from(CLOUD_TABLE).upsert({user_id:user.id,state:payload,updated_at:updatedAt},{onConflict:"user_id"});
+      let {data,error}=await cloudClient.from(CLOUD_TABLE).upsert({user_id:user.id,state:payload,updated_at:updatedAt},{onConflict:"user_id"}).select("updated_at").single();
       if(error)throw error;
-      return updatedAt;
+      return data?.updated_at||updatedAt;
     }
     function setCloudAutosaveStatus(text){let el=$("cloudStatus");if(el&&state?.ui?.cloudAutosave)el.title=text}
     function updateCloudAutosaveUI(){if(!state?.ui)return;state.ui=normUi(state.ui);if(!state.ui.cloudAutosave)setCloudAutosaveStatus("Cloud autosave is off.");else if(cloudAutosavePaused)setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");else if(cloudAutosaveDirty)setCloudAutosaveStatus("Autosave armed: waiting for 10 quiet minutes.");else if(state.ui.cloudLastAutosaveAt)setCloudAutosaveStatus("Autosave on. Last cloud save: "+new Date(state.ui.cloudLastAutosaveAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+".");else setCloudAutosaveStatus("Autosave on. Changes save after 10 quiet minutes.")}

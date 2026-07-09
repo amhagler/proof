@@ -4346,7 +4346,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     function updateCloudAutosaveUI(){if(!state?.ui)return;state.ui=normUi(state.ui);if(!state.ui.cloudAutosave)setCloudAutosaveStatus("Cloud autosave is off.");else if(cloudAutosavePaused)setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");else if(cloudAutosaveDirty)setCloudAutosaveStatus("Autosave armed: waiting for 10 quiet minutes.");else if(state.ui.cloudLastAutosaveAt)setCloudAutosaveStatus("Autosave on. Last cloud save: "+new Date(state.ui.cloudLastAutosaveAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+".");else setCloudAutosaveStatus("Autosave on. Changes save after 10 quiet minutes.")}
     function setCloudAutosave(on){state.ui=normUi(state.ui);state.ui.cloudAutosave=!!on;cloudAutosavePaused=false;if(!on){cloudAutosaveDirty=false;if(cloudAutosaveTimer)clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}save();if(on)scheduleCloudAutosave(true);updateCloudAutosaveUI();if($("toolConsoleOverlay")?.classList.contains("on"))renderToolConsole()}
     function scheduleCloudAutosave(force=false){if(!cloudAutosaveReady||cloudAutosaveBusy)return;state.ui=normUi(state.ui);if(!state.ui.cloudAutosave)return;if(force||cloudAutosaveReady){cloudAutosaveDirty=true;cloudAutosavePaused=false}if(cloudAutosaveTimer)clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=setTimeout(runCloudAutosave,CLOUD_AUTOSAVE_DELAY);updateCloudAutosaveUI()}
-    async function runCloudAutosave(){if(cloudAutosaveTimer){clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}state.ui=normUi(state.ui);if(!state.ui.cloudAutosave||!cloudAutosaveDirty||cloudAutosaveBusy)return;cloudAutosaveBusy=true;try{let user=await requireCloudUser(),{data,error}=await cloudClient.from(CLOUD_TABLE).select("updated_at").eq("user_id",user.id).maybeSingle();if(error)throw error;let cloudMs=data?.updated_at?Date.parse(data.updated_at):0,knownMs=Number(state.ui.cloudKnownUpdatedMs)||0;if(cloudMs&&(!knownMs||cloudMs>knownMs+1500)){cloudAutosavePaused=true;setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");return}await saveToCloud({silent:true,autosave:true});cloudAutosaveDirty=false;cloudAutosavePaused=false;updateCloudAutosaveUI()}catch(err){setCloudAutosaveStatus("Autosave waiting: "+String(err?.message||err||"cloud unavailable"))}finally{cloudAutosaveBusy=false}}
+    async function runCloudAutosave(){if(cloudAutosaveTimer){clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}state.ui=normUi(state.ui);if(!state.ui.cloudAutosave||!cloudAutosaveDirty||cloudAutosaveBusy)return;cloudAutosaveBusy=true;try{await saveToCloud({silent:true,autosave:true});cloudAutosaveDirty=false;cloudAutosavePaused=false;updateCloudAutosaveUI()}catch(err){setCloudAutosaveStatus("Autosave waiting: "+String(err?.message||err||"cloud unavailable"))}finally{cloudAutosaveBusy=false}}
     function markCloudSynced(updatedAt,autosave=false){let ms=Date.parse(updatedAt)||Date.now();state.ui=normUi(state.ui);state.ui.cloudKnownUpdatedMs=ms;if(autosave)state.ui.cloudLastAutosaveAt=new Date(ms).toISOString();safeWriteState();updateCloudAutosaveUI()}
     function promptCloudSettings(message){
       return new Promise(resolve=>{
@@ -4368,23 +4368,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
       let silent=!!opts.silent,autosave=!!opts.autosave;
       try{
         let user=await requireCloudUser();
-        syncStateFromControls();
-        save();
-        let {data:cloudRow,error:cloudErr}=await cloudClient.from(CLOUD_TABLE).select("state,updated_at").eq("user_id",user.id).maybeSingle();
-        if(cloudErr)throw cloudErr;
-        let stale=cloudRowIsNewer(cloudRow),force=!!opts.force;
-        if(stale&&!force){
-          if(silent||autosave){cloudAutosavePaused=true;setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");return}
-          let choice=await askStaleCloudSave(staleCloudWhen(cloudRow));
-          if(choice==="load"){await loadFromCloud({skipPrompt:true});return}
-          if(choice!=="force")return;
-          force=true;
-        }
         let payload=exportPayload(),updatedAt=new Date().toISOString();
-        if(stale&&force){
-          payload=withStaleCloudBackup(payload,cloudRow);
-          state.cloudBackups=normCloudBackups(cloudPayloadState(payload).cloudBackups);
-        }
         await writeCloudState(user,payload,updatedAt);
         markCloudSynced(updatedAt,autosave);
         if(!silent){playCloudFx("save");showUndo("Saved dashboard to Supabase cloud.",snap())}
@@ -4393,13 +4377,17 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     async function loadFromCloud(opts={}){
       try{
         let user=await requireCloudUser();
+        let {data:meta,error:metaError}=await cloudClient.from(CLOUD_TABLE).select("updated_at").eq("user_id",user.id).maybeSingle();
+        if(metaError)throw metaError;
+        if(!meta){alert("No cloud save found for this sign-in yet.");return}
+        let when=meta.updated_at?new Date(meta.updated_at).toLocaleString():"unknown time";
+        let cloudMs=meta.updated_at?Date.parse(meta.updated_at):0,knownMs=Number(state?.ui?.cloudKnownUpdatedMs)||0,isCurrent=!!(cloudMs&&knownMs&&Math.abs(cloudMs-knownMs)<=1500);
+        if(!opts.skipPrompt&&!await askLoadCloud(when,isCurrent))return;
         let {data,error}=await cloudClient.from(CLOUD_TABLE).select("state,updated_at").eq("user_id",user.id).maybeSingle();
         if(error)throw error;
         if(!data||!data.state){alert("No cloud save found for this sign-in yet.");return}
-        let when=data.updated_at?new Date(data.updated_at).toLocaleString():"unknown time";
         syncStateFromControls();
-        let localPayload=exportPayload(),isCurrent=JSON.stringify(localPayload)===JSON.stringify(data.state);
-        if(!opts.skipPrompt&&!await askLoadCloud(when,isCurrent))return;
+        let localPayload=exportPayload();
         let before=snap();
         let cloudState=importStateObject(data.state);
         let recovery=buildProtectedRecovery(localPayload.state,cloudState);

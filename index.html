@@ -755,7 +755,8 @@
     function normHBlocks(v){let src=v&&typeof v==="object"?v:{},out={blue:{},gold:{}};hRuleWeeks.forEach(w=>hRuleDays.forEach(d=>{out[w][d]=normHRule(src[w]?.[d])}));return out}
     const toolDefaults={ring:true,schedule:true,calendar:true,weekly:true,briefing:true,zenGames:true,shopping:true,book:true,ledger:true,weight:true,archive:true,trash:true,backup:true,themes:true,taskExtras:true,googleSearch:true};
     const toolConsoleGroups=[{label:"Core",tools:[["schedule","Schedule Bay","SC"],["calendar","Calendar","CA"],["weekly","Weekly Priorities","WP"],["zenGames","Zen Games","ZG"]]},{label:"Personal",tools:[["book","Book","BK"],["shopping","Shopping + Recipes","SR"],["ledger","Accounts","AC"],["weight","Weight","WT"]]},{label:"System",tools:[["autosave","Cloud Autosave","AS"],["backup","Export + Import","BI"],["archive","Archive","AR"],["trash","Trash Bin","TR"]]},{label:"Interface",tools:[["ring","Navigation Ring","NR"],["themes","Skin Chooser","SK"],["taskExtras","Task Search + Sort","TS"],["googleSearch","Google Search","GS"]]}];
-    const base={scheduleMode:"geffen",blueAnchor:"",officeMode:"none",hBlocks:{blue:{},gold:{}},blocks:{A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:""},customSchedule:defaultCustomSchedule(),links:null,exportPageHref:"",viewDate:"",summer:false,tasks:[],trash:[],weekly:{ids:[],done:{}},colorLabels:{},visualTheme:"holographic",themeFavorites:[],diary:{version:1,keys:null,entries:[],categoryLabels:{},savedTextColors:[],sort:"date"},ledger:{accounts:[]},weight:{unit:"lb",range:"month",goal:null,entries:[]},shopping:{items:[],recipes:[],recipeCategoryLabels:{},recipeCollapsed:{},recipeSort:"date",colorSort:false},games:{snakeEndlessHigh:0},ui:{hideDone:false,collapseFuture:false,filter:"",largeText:false,colorSort:false,lowPowerMode:false,backgroundIntensity:"moderate",screensaverOn:false,screensaverMinutes:10,screensaverIntensity:"moderate",screensaverThemeMode:"current",screensaverTheme:"holographic",screensaverFavorites:[],experienceMode:"full",visibleTools:toolDefaults,bookAccessMode:"two",ledgerNoCode:false,weightNoCode:false,cloudAutosave:false,cloudKnownUpdatedMs:0,cloudLastAutosaveAt:""}};
+    const CLOUD_BACKUP_LIMIT=3;
+    const base={scheduleMode:"geffen",blueAnchor:"",officeMode:"none",hBlocks:{blue:{},gold:{}},blocks:{A:"",B:"",C:"",D:"",E:"",F:"",G:"",H:""},customSchedule:defaultCustomSchedule(),links:null,exportPageHref:"",viewDate:"",summer:false,tasks:[],trash:[],weekly:{ids:[],done:{}},colorLabels:{},visualTheme:"holographic",themeFavorites:[],cloudBackups:[],diary:{version:1,keys:null,entries:[],categoryLabels:{},savedTextColors:[],sort:"date"},ledger:{accounts:[]},weight:{unit:"lb",range:"month",goal:null,entries:[]},shopping:{items:[],recipes:[],recipeCategoryLabels:{},recipeCollapsed:{},recipeSort:"date",colorSort:false},games:{snakeEndlessHigh:0},ui:{hideDone:false,collapseFuture:false,filter:"",largeText:false,colorSort:false,lowPowerMode:false,backgroundIntensity:"moderate",screensaverOn:false,screensaverMinutes:10,screensaverIntensity:"moderate",screensaverThemeMode:"current",screensaverTheme:"holographic",screensaverFavorites:[],experienceMode:"full",visibleTools:toolDefaults,bookAccessMode:"two",ledgerNoCode:false,weightNoCode:false,cloudAutosave:false,cloudKnownUpdatedMs:0,cloudLastAutosaveAt:""}};
     function normSubtask(st,i){let b=st&&typeof st==="object"?st:{text:String(st||"")},pc=starOrder.includes(b.starColor)?b.starColor:(b.star?"purple":"");return{id:String(b.id||uid()),text:String(b.text||""),done:!!b.done,star:!!pc,starColor:pc,order:typeof b.order==="number"?b.order:i}}
     function normLink(v){let b=v&&typeof v==="object"?v:{};return{title:String(b.title||"").trim(),url:String(b.url||"").trim()}} function normTaskLink(v){return normLink(v)} function normLinkList(arr,legacy=null,limit=Infinity){let raw=Array.isArray(arr)?[...arr]:[];if(legacy)raw.push(legacy);let seen=new Set(),list=raw.map(normLink).filter(l=>l.title||l.url).filter(l=>{let key=(l.title+"|"+l.url).toLowerCase();if(seen.has(key))return false;seen.add(key);return true});return Number.isFinite(limit)?list.slice(0,limit):list} function normTaskLinks(arr,legacy=null){return normLinkList(arr,legacy,3)} function normDiaryLinks(arr){return normLinkList(arr,null,Infinity)}
     function normWeekly(w){let b=w&&typeof w==="object"?w:{},done=b.done&&typeof b.done==="object"?b.done:{};return{ids:Array.isArray(b.ids)?b.ids.map(String).filter(Boolean):[],done:Object.fromEntries(Object.entries(done).map(([k,v])=>[String(k),!!v]))}}
@@ -787,6 +788,7 @@
     function normShopping(s){let b=s&&typeof s==="object"?s:{},sort=b.recipeSort==="category"?"category":"date";return{items:Array.isArray(b.items)?b.items.map(normShoppingItem).filter(x=>x.text):[],recipes:Array.isArray(b.recipes)?b.recipes.map(normRecipe):[],recipeCategoryLabels:{...(b.recipeCategoryLabels||{})},recipeCollapsed:{...(b.recipeCollapsed||{})},recipeSort:sort,colorSort:!!b.colorSort}}
     function normGames(g){let b=g&&typeof g==="object"?g:{};return{snakeEndlessHigh:Math.max(0,parseInt(b.snakeEndlessHigh||0,10)||0)}}
     function normVisibleTools(v,mode="full"){return{...toolDefaults,...(v&&typeof v==="object"?v:{})}}
+    function normCloudBackups(v){return(Array.isArray(v)?v:[]).filter(b=>b&&typeof b==="object"&&b.state&&typeof b.state==="object").map(b=>{let st=clone(b.state);delete st.cloudBackups;return{id:String(b.id||uid()),savedAt:String(b.savedAt||""),cloudUpdatedAt:String(b.cloudUpdatedAt||b.updatedAt||""),state:st}}).slice(0,CLOUD_BACKUP_LIMIT)}
     function normUi(u){let b={...base.ui,...(u||{})};b.experienceMode=["basic","standard","full"].includes(b.experienceMode)?b.experienceMode:"full";b.visibleTools=normVisibleTools(b.visibleTools,b.experienceMode);b.visibleTools.briefing=true;b.bookAccessMode=b.bookAccessMode==="one"?"one":"two";b.backgroundIntensity=["low","moderate","high","extreme"].includes(b.backgroundIntensity)?b.backgroundIntensity:"moderate";b.screensaverOn=!!b.screensaverOn;b.screensaverMinutes=Math.max(1,Math.min(60,parseInt(b.screensaverMinutes||10,10)||10));b.screensaverIntensity=["low","moderate","high","extreme"].includes(b.screensaverIntensity)?b.screensaverIntensity:"moderate";b.screensaverThemeMode=["current","specific","favorites","all"].includes(b.screensaverThemeMode)?b.screensaverThemeMode:"current";b.screensaverTheme=themeName(b.screensaverTheme||"holographic");b.screensaverFavorites=normStandbyFavorites(b.screensaverFavorites);b.ledgerNoCode=!!b.ledgerNoCode;b.weightNoCode=!!b.weightNoCode;b.cloudAutosave=!!b.cloudAutosave;b.cloudKnownUpdatedMs=Number(b.cloudKnownUpdatedMs)||0;b.cloudLastAutosaveAt=String(b.cloudLastAutosaveAt||"");return b}
     function diaryDateSort(a,b){let pa=a?.pinned?1:0,pb=b?.pinned?1:0;if(pa!==pb)return pb-pa;let sa=a?.star?1:0,sb=b?.star?1:0;if(sa!==sb)return sb-sa;let da=String(a?.date||""),db=String(b?.date||"");if(da!==db)return db.localeCompare(da);return(b?.updatedAt||0)-(a?.updatedAt||0)}
     function diaryCatColor(k){return starColors[k]||"#9AA7C1"}
@@ -962,7 +964,7 @@
     function holoConfirm(title,message,okLabel="Delete"){return holoDialog(title,message,[{label:"Cancel",value:false},{label:okLabel,value:true,primary:true}])}
     function holoNotice(title,message){return holoDialog(title,message,[{label:"OK",value:true,primary:true}])}
 
-    function load(){try{let o=JSON.parse(localStorage.getItem(KEY)||"null");if(o&&o.state&&typeof o.state==="object")o=o.state;if(!o)return clone(base);let mode=["geffen","customWeekly","customBiweekly"].includes(o.scheduleMode)?o.scheduleMode:"geffen",rawLinks=Array.isArray(o.links)?o.links:null,oldExport=extractExportHref(rawLinks);return{...clone(base),...o,exportPageHref:String(o.exportPageHref||oldExport||""),scheduleMode:mode,blocks:{...base.blocks,...(o.blocks||{})},hBlocks:normHBlocks(o.hBlocks),customSchedule:normCustomSchedule(o.customSchedule),links:rawLinks?rawLinks:null,tasks:Array.isArray(o.tasks)?o.tasks.map(normTask):[],trash:Array.isArray(o.trash)?o.trash.map(normTrashItem).filter(Boolean):[],weekly:normWeekly(o.weekly),diary:normDiary(o.diary),ledger:normLedger(o.ledger),weight:normWeight(o.weight),shopping:normShopping(o.shopping),games:normGames(o.games),themeFavorites:normThemeFavorites(o.themeFavorites),colorLabels:{...base.colorLabels,...(o.colorLabels||o.starLabels||{})},ui:normUi(o.ui)}}catch{return clone(base)}} let cloudAutosaveTimer=null,cloudAutosaveDirty=false,cloudAutosaveReady=false,cloudAutosaveBusy=false,cloudAutosavePaused=false;const CLOUD_AUTOSAVE_DELAY=10*60*1000;let state=load(), today=iso(new Date()), calendarMonthOffset=0, customWeekView="A"; repairStoredIds(); state.viewDate=today; save(); applyVisualTheme(); applyExperienceMode(); document.body.classList.toggle("largeText",!!state.ui.largeText); function snap(){return clone(state)}
+    function load(){try{let o=JSON.parse(localStorage.getItem(KEY)||"null");if(o&&o.state&&typeof o.state==="object")o=o.state;if(!o)return clone(base);let mode=["geffen","customWeekly","customBiweekly"].includes(o.scheduleMode)?o.scheduleMode:"geffen",rawLinks=Array.isArray(o.links)?o.links:null,oldExport=extractExportHref(rawLinks);return{...clone(base),...o,exportPageHref:String(o.exportPageHref||oldExport||""),scheduleMode:mode,blocks:{...base.blocks,...(o.blocks||{})},hBlocks:normHBlocks(o.hBlocks),customSchedule:normCustomSchedule(o.customSchedule),links:rawLinks?rawLinks:null,tasks:Array.isArray(o.tasks)?o.tasks.map(normTask):[],trash:Array.isArray(o.trash)?o.trash.map(normTrashItem).filter(Boolean):[],weekly:normWeekly(o.weekly),diary:normDiary(o.diary),ledger:normLedger(o.ledger),weight:normWeight(o.weight),shopping:normShopping(o.shopping),games:normGames(o.games),themeFavorites:normThemeFavorites(o.themeFavorites),cloudBackups:normCloudBackups(o.cloudBackups),colorLabels:{...base.colorLabels,...(o.colorLabels||o.starLabels||{})},ui:normUi(o.ui)}}catch{return clone(base)}} let cloudAutosaveTimer=null,cloudAutosaveDirty=false,cloudAutosaveReady=false,cloudAutosaveBusy=false,cloudAutosavePaused=false;const CLOUD_AUTOSAVE_DELAY=10*60*1000;let state=load(), today=iso(new Date()), calendarMonthOffset=0, customWeekView="A"; repairStoredIds(); state.viewDate=today; save(); applyVisualTheme(); applyExperienceMode(); document.body.classList.toggle("largeText",!!state.ui.largeText); function snap(){return clone(state)}
     $("viewDate").value=today;$("summerBtn").classList.toggle("on",state.summer);$("scheduleMode").value=state.scheduleMode;$("customAnchor").value=state.customSchedule.anchorDate||"";$("blueAnchor").value=state.blueAnchor;if($("officeMode"))$("officeMode").value=state.officeMode||"none";$("exportTarget").value=state.exportPageHref||"";blocks.forEach(k=>$(k).value=state.blocks[k]||"");
     function linkNorm(l,i){let f=defaults[i]||{label:"Link",sub:"Custom",href:"#",glyph:"LN"};return{label:String(l?.label||f.label).trim(),sub:String(l?.sub||f.sub).trim(),href:String(l?.href||f.href).trim(),glyph:String(l?.glyph||f.glyph).trim().slice(0,3).toUpperCase()}} function links(){return (Array.isArray(state.links)&&state.links.length?state.links:defaults).map(linkNorm)}
     function renderLinkEditor(){$("linkEditor").innerHTML=links().map((l,i)=>`<div class="linkRow"><div><label>Label</label><input data-f="label" value="${html(l.label)}"></div><div><label>Subtitle</label><input data-f="sub" value="${html(l.sub)}"></div><div><label>Glyph</label><input data-f="glyph" maxlength="3" value="${html(l.glyph)}"></div><div><label>URL</label><input data-f="href" value="${html(l.href)}"></div></div>`).join("")} function readLinks(){return[...document.querySelectorAll(".linkRow")].map((r,i)=>linkNorm({label:r.querySelector('[data-f="label"]').value,sub:r.querySelector('[data-f="sub"]').value,glyph:r.querySelector('[data-f="glyph"]').value,href:r.querySelector('[data-f="href"]').value},i))}
@@ -1032,12 +1034,17 @@
     function addMonths(d,n){let x=new Date(d),day=x.getDate();x.setMonth(x.getMonth()+n);if(x.getDate()!==day)x.setDate(0);return x}
     function nextRepeatDue(t){let r=normRepeat(t.repeat,t.dueAt);if(r.type==="none"||!t.dueAt)return null;let cur=new Date(t.dueAt),next=null;if(r.type==="daily")next=new Date(cur.getTime()+86400000);else if(r.type==="weekdays"){next=new Date(cur.getTime()+86400000);while([0,6].includes(next.getDay()))next=new Date(next.getTime()+86400000)}else if(r.type==="monthly")next=addMonths(cur,1);else{let step=r.type==="biweekly"?14:7,allowed=(r.days.length?r.days:[cur.getDay()]).sort((a,b)=>a-b),probe=new Date(cur.getTime()+86400000),limit=new Date(cur.getTime()+step*86400000+7*86400000);while(probe<=limit){let daysAway=Math.round((new Date(probe.getFullYear(),probe.getMonth(),probe.getDate())-new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()))/86400000);if(allowed.includes(probe.getDay())&&(r.type==="weekly"||daysAway>=14)){next=probe;break}probe=new Date(probe.getTime()+86400000)}if(!next)next=new Date(cur.getTime()+step*86400000)}if(r.endDate&&next>new Date(r.endDate+"T23:59:59"))return null;let completed=(r.made||0)+1;if(r.endAfter&&completed>=r.endAfter)return null;return next.getTime()}
     function createNextRepeat(t){let r=normRepeat(t.repeat,t.dueAt);if(r.type==="none"||!t.dueAt||t.repeatGeneratedFor===t.dueAt)return false;let nextDue=nextRepeatDue(t);if(!nextDue)return false;let completed=(r.made||0)+1,source=t.repeatSourceId||t.id,newTask=normTask({...t,id:uid(),done:false,completedAt:null,archivedAt:null,dueAt:nextDue,repeatGeneratedFor:null,repeatSourceId:source,createdAt:Date.now(),order:Date.now(),repeat:{...r,made:completed},subtasks:(t.subtasks||[]).map((st,i)=>normSubtask({...st,id:uid(),done:false},i))},0);t.repeatSourceId=source;t.repeatGeneratedFor=t.dueAt;state.tasks.push(newTask);return true}
+    function repeatSignature(t){
+      let r=normRepeat(t?.repeat,t?.dueAt),d=t?.dueAt?new Date(t.dueAt):new Date(0);
+      return [String(t?.text||""),r.type,r.days.join(","),d.getHours(),d.getMinutes(),d.getSeconds(),r.endDate,r.endAfter].join("@@");
+    }
     function cleanFutureRepeatSiblings(t){
       if(!t)return 0;
       let now=Date.now(),source=t.repeatSourceId||t.id,text=String(t.text||""),removed=0;
       state.tasks=state.tasks.filter(x=>{
         if(x.id===t.id||x.done||x.archivedAt||!x.dueAt||x.dueAt<=now)return true;
-        let sameSeries=(source&&(x.repeatSourceId===source||x.id===source))||(String(x.text||"")===text&&normRepeat(x.repeat,x.dueAt).type!=="none");
+        let sameSeries=source&&(x.repeatSourceId===source||x.id===source);
+        if(!sameSeries&&!t.repeatSourceId&&!x.repeatSourceId&&normRepeat(x.repeat,x.dueAt).type!=="none")sameSeries=repeatSignature(x)===repeatSignature(t);
         if(sameSeries){removed++;return false}
         return true;
       });
@@ -1045,14 +1052,15 @@
     }
     function stoppedRepeatGhost(t){
       if(!t||t.done||t.archivedAt||!t.dueAt||normRepeat(t.repeat,t.dueAt).type==="none")return false;
-      return state.tasks.some(x=>x.id!==t.id&&!x.archivedAt&&String(x.text||"")===String(t.text||"")&&normRepeat(x.repeat,x.dueAt).type==="none"&&(!x.dueAt||x.dueAt<=t.dueAt));
+      let source=t.repeatSourceId||t.id;
+      return state.tasks.some(x=>x.id!==t.id&&!x.archivedAt&&normRepeat(x.repeat,x.dueAt).type==="none"&&(x.id===source||x.repeatSourceId===source)&&(!x.dueAt||x.dueAt<=t.dueAt));
     }
     function dayStartMs(ts){let d=new Date(ts);return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()}
     function withRepeatClock(dayTs,baseTs){let d=new Date(dayTs),b=new Date(baseTs);return new Date(d.getFullYear(),d.getMonth(),d.getDate(),b.getHours(),b.getMinutes(),b.getSeconds(),b.getMilliseconds()).getTime()}
-    function repeatBaseKey(t){let r=normRepeat(t.repeat,t.dueAt),d=t.dueAt?new Date(t.dueAt):new Date(0),clock=`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;return t.repeatSourceId||`${String(t.text||"")}@@${r.type}@@${r.days.join(",")}@@${clock}@@${r.endDate}@@${r.endAfter}`}
+    function repeatBaseKey(t){return t.repeatSourceId||t.id||repeatSignature(t)}
     function repeatPreviewBases(){let bySeries=new Map();state.tasks.filter(t=>!t.archivedAt&&!t.done&&!stoppedRepeatGhost(t)&&t.dueAt&&normRepeat(t.repeat,t.dueAt).type!=="none").forEach(t=>{let key=repeatBaseKey(t),cur=bySeries.get(key);if(!cur||t.dueAt<cur.dueAt)bySeries.set(key,t)});return[...bySeries.values()]}
     function repeatMatchesDay(dayTs,baseTs,r){let day=new Date(dayTs),base=new Date(baseTs),dow=day.getDay(),allowed=r.days.length?r.days:[base.getDay()];if(dayTs<dayStartMs(baseTs))return false;if(r.type==="daily")return true;if(r.type==="weekdays")return ![0,6].includes(dow);if(r.type==="weekly")return allowed.includes(dow);if(r.type==="biweekly"){if(!allowed.includes(dow))return false;let baseWeek=schoolWeekBounds(baseTs).start.getTime(),weekDiff=Math.floor((dayStartMs(dayTs)-baseWeek)/(7*86400000));return weekDiff>=0&&weekDiff%2===0}if(r.type==="monthly")return day.getDate()===base.getDate();return false}
-    function repeatPreviewItems(startTs,endTs){let realKeys=new Set(state.tasks.filter(t=>t.dueAt&&!t.archivedAt).map(t=>`${t.text}@@${t.dueAt}`)),out=[],startDay=dayStartMs(startTs),endDay=dayStartMs(endTs);repeatPreviewBases().forEach(t=>{let r=normRepeat(t.repeat,t.dueAt),baseDay=dayStartMs(t.dueAt),cursor=r.endAfter?baseDay:Math.max(baseDay,startDay),seen=0,guard=0;for(let dayTs=baseDay;dayTs<cursor&&guard++<2200;dayTs+=86400000)if(repeatMatchesDay(dayTs,t.dueAt,r))seen++;guard=0;for(let dayTs=cursor;dayTs<=endDay&&guard++<2200;dayTs+=86400000){if(!repeatMatchesDay(dayTs,t.dueAt,r))continue;let occurrence=(r.made||0)+seen++,dueAt=withRepeatClock(dayTs,t.dueAt);if(r.endDate&&dueAt>new Date(r.endDate+"T23:59:59").getTime())break;if(r.endAfter&&occurrence>=r.endAfter)break;if(dueAt<startTs||dueAt>endTs||realKeys.has(`${t.text}@@${dueAt}`))continue;out.push({preview:true,sourceId:t.repeatSourceId||t.id,text:t.text,dueAt,priority:t.priority,priorityColor:t.priorityColor,tags:t.tags||[],repeat:{...r,made:occurrence},calendarOnly:true})}});return out}
+    function repeatPreviewItems(startTs,endTs){let realKeys=new Set(state.tasks.filter(t=>t.dueAt&&!t.archivedAt).map(t=>`${t.repeatSourceId||t.id}@@${t.dueAt}`)),out=[],startDay=dayStartMs(startTs),endDay=dayStartMs(endTs);repeatPreviewBases().forEach(t=>{let r=normRepeat(t.repeat,t.dueAt),source=t.repeatSourceId||t.id,baseDay=dayStartMs(t.dueAt),cursor=r.endAfter?baseDay:Math.max(baseDay,startDay),seen=0,guard=0;for(let dayTs=baseDay;dayTs<cursor&&guard++<2200;dayTs+=86400000)if(repeatMatchesDay(dayTs,t.dueAt,r))seen++;guard=0;for(let dayTs=cursor;dayTs<=endDay&&guard++<2200;dayTs+=86400000){if(!repeatMatchesDay(dayTs,t.dueAt,r))continue;let occurrence=(r.made||0)+seen++,dueAt=withRepeatClock(dayTs,t.dueAt);if(r.endDate&&dueAt>new Date(r.endDate+"T23:59:59").getTime())break;if(r.endAfter&&occurrence>=r.endAfter)break;if(dueAt<startTs||dueAt>endTs||realKeys.has(`${source}@@${dueAt}`))continue;out.push({preview:true,sourceId:source,text:t.text,dueAt,priority:t.priority,priorityColor:t.priorityColor,tags:t.tags||[],repeat:{...r,made:occurrence},calendarOnly:true})}});return out}
     function sortTasks(a){return[...a].sort((x,y)=>{let xd=typeof x.dueAt==="number",yd=typeof y.dueAt==="number";if(xd!==yd)return xd?-1:1;if(xd&&x.dueAt!==y.dueAt)return x.dueAt-y.dueAt;if(!!x.priority!==!!y.priority)return y.priority-x.priority;return(x.order||x.createdAt||0)-(y.order||y.createdAt||0)})} function okFilter(t){let f=(state.ui.filter||"").trim().toLowerCase();if(!f)return true;if(f.startsWith("#"))return t.tags.includes(f.slice(1));return f.split(/\s+/).every(x=>(t.text.toLowerCase()+" "+t.tags.join(" ")).includes(x))}
     let undoState=null,undoTimer=null; function showUndo(msg,s){undoState=s;$("toastMsg").textContent=msg;$("toast").classList.add("on");clearTimeout(undoTimer);undoTimer=setTimeout(()=>{$("toast").classList.remove("on");undoState=null},10000)} $("undo").onclick=()=>{if(!undoState)return;state=undoState;save();renderAll();$("toast").classList.remove("on");undoState=null}
     function bucket(t){if(!t.dueAt)return"nodue";let now=Date.now(),n=new Date(now),d=new Date(t.dueAt);if(!t.done&&t.dueAt<=now)return"overdue";if(iso(d)===iso(n)||t.dueAt-now<=3600000)return"today";let tom=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);if(iso(d)===iso(tom))return"tomorrow";let d4=new Date(n.getFullYear(),n.getMonth(),n.getDate()+4).getTime();if(t.dueAt<d4)return"next3";let sun=new Date(n.getFullYear(),n.getMonth(),n.getDate()+((7-n.getDay())%7),23,59,59,999);return t.dueAt<=sun?"thisweek":"later"}
@@ -1336,6 +1344,7 @@
         shopping:normShopping(incoming.shopping),
         games:normGames(incoming.games),
         themeFavorites:normThemeFavorites(incoming.themeFavorites),
+        cloudBackups:normCloudBackups(incoming.cloudBackups),
         colorLabels:{...base.colorLabels,...(incoming.colorLabels||incoming.starLabels||{})},
         ui:normUi({...((incoming.ui)||{}),...((incoming.checklistUI)||{})})
       };
@@ -4298,6 +4307,36 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
       if(counts.shoppingItems||counts.recipes)lines.push("Shopping: "+counts.shoppingItems+" item"+(counts.shoppingItems===1?"":"s")+" and "+counts.recipes+" recipe"+(counts.recipes===1?"":"s"));
       return{hasRecoverable:lines.length>0,merged,summary:lines.join("\n")};
     }
+    function cloudPayloadState(payload){return(payload&&payload.state&&typeof payload.state==="object")?payload.state:payload}
+    function comparableCloudState(s){let c=clone(s||{});delete c.cloudBackups;if(c.ui){delete c.ui.cloudKnownUpdatedMs;delete c.ui.cloudLastAutosaveAt}return c}
+    function cloudRowIsNewer(row){let cloudMs=row?.updated_at?Date.parse(row.updated_at):0,knownMs=Number(state?.ui?.cloudKnownUpdatedMs)||0;return !!(cloudMs&&(!knownMs||cloudMs>knownMs+1500))}
+    function cloudBackupFromRow(row){
+      let src=cloudPayloadState(row?.state);
+      if(!src||typeof src!=="object")return null;
+      let st=clone(src);
+      delete st.cloudBackups;
+      return{id:uid(),savedAt:new Date().toISOString(),cloudUpdatedAt:String(row.updated_at||""),state:st};
+    }
+    function withStaleCloudBackup(payload,row){
+      let next=clone(payload),target=cloudPayloadState(next),backup=cloudBackupFromRow(row);
+      if(!target||typeof target!=="object")return next;
+      let existing=normCloudBackups(target.cloudBackups);
+      if(backup){
+        let localComparable=JSON.stringify(comparableCloudState(target));
+        let cloudComparable=JSON.stringify(comparableCloudState(backup.state));
+        if(localComparable!==cloudComparable)existing=[backup,...existing];
+      }
+      target.cloudBackups=normCloudBackups(existing);
+      return next;
+    }
+    function staleCloudWhen(row){return row?.updated_at?new Date(row.updated_at).toLocaleString():"an unknown time"}
+    async function askStaleCloudSave(when){
+      return holoDialog(
+        "Cloud Save Check",
+        "This browser has not loaded the latest cloud save. The cloud copy was updated "+when+". Load Latest is safest. Save Anyway will replace the cloud copy, but the overwritten cloud copy will be kept in stale-save backups.",
+        [{label:"Cancel",value:"cancel"},{label:"Load Latest",value:"load",primary:true},{label:"Save Anyway",value:"force"}]
+      );
+    }
     async function writeCloudState(user,payload,updatedAt=new Date().toISOString()){
       let {error}=await cloudClient.from(CLOUD_TABLE).upsert({user_id:user.id,state:payload,updated_at:updatedAt},{onConflict:"user_id"});
       if(error)throw error;
@@ -4331,13 +4370,27 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
         let user=await requireCloudUser();
         syncStateFromControls();
         save();
+        let {data:cloudRow,error:cloudErr}=await cloudClient.from(CLOUD_TABLE).select("state,updated_at").eq("user_id",user.id).maybeSingle();
+        if(cloudErr)throw cloudErr;
+        let stale=cloudRowIsNewer(cloudRow),force=!!opts.force;
+        if(stale&&!force){
+          if(silent||autosave){cloudAutosavePaused=true;setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");return}
+          let choice=await askStaleCloudSave(staleCloudWhen(cloudRow));
+          if(choice==="load"){await loadFromCloud({skipPrompt:true});return}
+          if(choice!=="force")return;
+          force=true;
+        }
         let payload=exportPayload(),updatedAt=new Date().toISOString();
+        if(stale&&force){
+          payload=withStaleCloudBackup(payload,cloudRow);
+          state.cloudBackups=normCloudBackups(cloudPayloadState(payload).cloudBackups);
+        }
         await writeCloudState(user,payload,updatedAt);
         markCloudSynced(updatedAt,autosave);
         if(!silent){playCloudFx("save");showUndo("Saved dashboard to Supabase cloud.",snap())}
       }catch(err){let msg=String(err?.message||err||"");if(silent){setCloudAutosaveStatus("Autosave waiting: "+msg);return}if(/sign in|supabase/i.test(msg))promptCloudSettings("Save to cloud failed. Sign in from Settings, then try Save again.");else alert("Save to cloud failed: "+msg)}
     }
-    async function loadFromCloud(){
+    async function loadFromCloud(opts={}){
       try{
         let user=await requireCloudUser();
         let {data,error}=await cloudClient.from(CLOUD_TABLE).select("state,updated_at").eq("user_id",user.id).maybeSingle();
@@ -4346,7 +4399,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
         let when=data.updated_at?new Date(data.updated_at).toLocaleString():"unknown time";
         syncStateFromControls();
         let localPayload=exportPayload(),isCurrent=JSON.stringify(localPayload)===JSON.stringify(data.state);
-        if(!await askLoadCloud(when,isCurrent))return;
+        if(!opts.skipPrompt&&!await askLoadCloud(when,isCurrent))return;
         let before=snap();
         let cloudState=importStateObject(data.state);
         let recovery=buildProtectedRecovery(localPayload.state,cloudState);

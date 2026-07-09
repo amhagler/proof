@@ -4348,6 +4348,10 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     function cloudPayloadState(payload){return(payload&&payload.state&&typeof payload.state==="object")?payload.state:payload}
     function comparableCloudState(s){let c=clone(s||{});delete c.cloudBackups;if(c.ui){delete c.ui.cloudKnownUpdatedMs;delete c.ui.cloudLastAutosaveAt}return c}
     function cloudRowIsNewer(row){let cloudMs=row?.updated_at?Date.parse(row.updated_at):0,knownMs=Number(state?.ui?.cloudKnownUpdatedMs)||0;return !!(cloudMs&&(!knownMs||cloudMs>knownMs+1500))}
+    function hasCloudSaveRiskSignal(){
+      let cutoff=Date.now()-86400000;
+      return(state.tasks||[]).some(t=>t&&!t.done&&!t.archivedAt&&typeof t.dueAt==="number"&&t.dueAt<cutoff&&!(typeof stoppedRepeatGhost==="function"&&stoppedRepeatGhost(t)));
+    }
     function cloudBackupFromRow(row){
       let src=cloudPayloadState(row?.state);
       if(!src||typeof src!=="object")return null;
@@ -4371,7 +4375,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     async function askStaleCloudSave(when){
       return holoDialog(
         "Cloud Save Check",
-        "This browser has not loaded the latest cloud save. The cloud copy was updated "+when+". Merge + Save loads the cloud copy first, then keeps local records changed after the last cloud load. Save Anyway replaces the cloud copy, but the overwritten cloud copy will be kept in stale-save backups.",
+        "This browser has an active task more than 24 hours overdue, and it has not loaded the latest cloud save. The cloud copy was updated "+when+". Merge + Save loads the cloud copy first, then keeps local records changed after the last cloud load. Save Anyway replaces the cloud copy, but the overwritten cloud copy will be kept in stale-save backups.",
         [{label:"Cancel",value:"cancel"},{label:"Load Latest",value:"load"},{label:"Merge + Save",value:"merge",primary:true},{label:"Save Anyway",value:"force"}]
       );
     }
@@ -4389,7 +4393,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     function updateCloudAutosaveUI(){if(!state?.ui)return;state.ui=normUi(state.ui);if(!state.ui.cloudAutosave)setCloudAutosaveStatus("Cloud autosave is off.");else if(cloudAutosavePaused)setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");else if(cloudAutosaveDirty)setCloudAutosaveStatus("Autosave armed: waiting for 10 quiet minutes.");else if(state.ui.cloudLastAutosaveAt)setCloudAutosaveStatus("Autosave on. Last cloud save: "+new Date(state.ui.cloudLastAutosaveAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+".");else setCloudAutosaveStatus("Autosave on. Changes save after 10 quiet minutes.")}
     function setCloudAutosave(on){state.ui=normUi(state.ui);state.ui.cloudAutosave=!!on;cloudAutosavePaused=false;if(!on){cloudAutosaveDirty=false;if(cloudAutosaveTimer)clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}save();if(on)scheduleCloudAutosave(true);updateCloudAutosaveUI();if($("toolConsoleOverlay")?.classList.contains("on"))renderToolConsole()}
     function scheduleCloudAutosave(force=false){if(!cloudAutosaveReady||cloudAutosaveBusy)return;state.ui=normUi(state.ui);if(!state.ui.cloudAutosave)return;if(force||cloudAutosaveReady){cloudAutosaveDirty=true;cloudAutosavePaused=false}if(cloudAutosaveTimer)clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=setTimeout(runCloudAutosave,CLOUD_AUTOSAVE_DELAY);updateCloudAutosaveUI()}
-    async function runCloudAutosave(){if(cloudAutosaveTimer){clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}state.ui=normUi(state.ui);if(!state.ui.cloudAutosave||!cloudAutosaveDirty||cloudAutosaveBusy)return;cloudAutosaveBusy=true;try{let user=await requireCloudUser(),{data,error}=await cloudClient.from(CLOUD_TABLE).select("updated_at").eq("user_id",user.id).maybeSingle();if(error)throw error;let cloudMs=data?.updated_at?Date.parse(data.updated_at):0,knownMs=Number(state.ui.cloudKnownUpdatedMs)||0;if(cloudMs&&(!knownMs||cloudMs>knownMs+1500)){cloudAutosavePaused=true;setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");return}await saveToCloud({silent:true,autosave:true});cloudAutosaveDirty=false;cloudAutosavePaused=false;updateCloudAutosaveUI()}catch(err){setCloudAutosaveStatus("Autosave waiting: "+String(err?.message||err||"cloud unavailable"))}finally{cloudAutosaveBusy=false}}
+    async function runCloudAutosave(){if(cloudAutosaveTimer){clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}state.ui=normUi(state.ui);if(!state.ui.cloudAutosave||!cloudAutosaveDirty||cloudAutosaveBusy)return;cloudAutosaveBusy=true;try{if(hasCloudSaveRiskSignal()){let user=await requireCloudUser(),{data,error}=await cloudClient.from(CLOUD_TABLE).select("updated_at").eq("user_id",user.id).maybeSingle();if(error)throw error;let cloudMs=data?.updated_at?Date.parse(data.updated_at):0,knownMs=Number(state.ui.cloudKnownUpdatedMs)||0;if(cloudMs&&(!knownMs||cloudMs>knownMs+1500)){cloudAutosavePaused=true;setCloudAutosaveStatus("Autosave paused: an overdue task suggests this browser may be stale. Load before saving.");return}}await saveToCloud({silent:true,autosave:true});cloudAutosaveDirty=false;cloudAutosavePaused=false;updateCloudAutosaveUI()}catch(err){setCloudAutosaveStatus("Autosave waiting: "+String(err?.message||err||"cloud unavailable"))}finally{cloudAutosaveBusy=false}}
     function markCloudSynced(updatedAt,autosave=false){let ms=Date.parse(updatedAt)||Date.now();state.ui=normUi(state.ui);state.ui.cloudKnownUpdatedMs=ms;if(autosave)state.ui.cloudLastAutosaveAt=new Date(ms).toISOString();safeWriteState();updateCloudAutosaveUI()}
     function promptCloudSettings(message){
       return new Promise(resolve=>{
@@ -4413,10 +4417,14 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
         let user=await requireCloudUser();
         syncStateFromControls();
         save();
-        let {data:cloudRow,error:cloudErr}=await cloudClient.from(CLOUD_TABLE).select("updated_at").eq("user_id",user.id).maybeSingle();
-        if(cloudErr)throw cloudErr;
+        let cloudRow=null,stale=false,force=!!opts.force,guarded=hasCloudSaveRiskSignal();
+        if(guarded){
+          let {data,error}=await cloudClient.from(CLOUD_TABLE).select("updated_at").eq("user_id",user.id).maybeSingle();
+          if(error)throw error;
+          cloudRow=data;
+          stale=cloudRowIsNewer(cloudRow);
+        }
         let payload=exportPayload();
-        let stale=cloudRowIsNewer(cloudRow),force=!!opts.force;
         if(stale&&!force){
           if(silent||autosave){cloudAutosavePaused=true;setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");return}
           let choice=await askStaleCloudSave(staleCloudWhen(cloudRow));

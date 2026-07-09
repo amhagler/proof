@@ -4380,6 +4380,11 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
       if(error)throw error;
       return data?.updated_at||updatedAt;
     }
+    async function readCloudStateRow(user){
+      let {data,error}=await cloudClient.from(CLOUD_TABLE).select("state,updated_at").eq("user_id",user.id).maybeSingle();
+      if(error)throw error;
+      return data;
+    }
     function setCloudAutosaveStatus(text){let el=$("cloudStatus");if(el&&state?.ui?.cloudAutosave)el.title=text}
     function updateCloudAutosaveUI(){if(!state?.ui)return;state.ui=normUi(state.ui);if(!state.ui.cloudAutosave)setCloudAutosaveStatus("Cloud autosave is off.");else if(cloudAutosavePaused)setCloudAutosaveStatus("Autosave paused: cloud has newer data. Load before saving.");else if(cloudAutosaveDirty)setCloudAutosaveStatus("Autosave armed: waiting for 10 quiet minutes.");else if(state.ui.cloudLastAutosaveAt)setCloudAutosaveStatus("Autosave on. Last cloud save: "+new Date(state.ui.cloudLastAutosaveAt).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+".");else setCloudAutosaveStatus("Autosave on. Changes save after 10 quiet minutes.")}
     function setCloudAutosave(on){state.ui=normUi(state.ui);state.ui.cloudAutosave=!!on;cloudAutosavePaused=false;if(!on){cloudAutosaveDirty=false;if(cloudAutosaveTimer)clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}save();if(on)scheduleCloudAutosave(true);updateCloudAutosaveUI();if($("toolConsoleOverlay")?.classList.contains("on"))renderToolConsole()}
@@ -4408,7 +4413,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
         let user=await requireCloudUser();
         syncStateFromControls();
         save();
-        let {data:cloudRow,error:cloudErr}=await cloudClient.from(CLOUD_TABLE).select("state,updated_at").eq("user_id",user.id).maybeSingle();
+        let {data:cloudRow,error:cloudErr}=await cloudClient.from(CLOUD_TABLE).select("updated_at").eq("user_id",user.id).maybeSingle();
         if(cloudErr)throw cloudErr;
         let payload=exportPayload();
         let stale=cloudRowIsNewer(cloudRow),force=!!opts.force;
@@ -4417,25 +4422,32 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
           let choice=await askStaleCloudSave(staleCloudWhen(cloudRow));
           if(choice==="load"){await loadFromCloud({skipPrompt:true});return}
           if(choice==="merge"){
-            let before=snap(),knownMs=Number(state.ui.cloudKnownUpdatedMs)||Date.parse(cloudRow.updated_at||"")||0,cloudState=importStateObject(cloudRow.state),merged=mergeLocalAfterCloud(payload.state,cloudState,knownMs);
-            state=merged.merged;
-            save();
-            hydrateControls();
-            renderAll();
-            payload=withStaleCloudBackup(exportPayload(),cloudRow);
-            state.cloudBackups=normCloudBackups(cloudPayloadState(payload).cloudBackups);
-            let mergedAt=new Date().toISOString();
-            await writeCloudState(user,payload,mergedAt);
-            markCloudSynced(mergedAt,autosave);
-            playCloudFx(merged.changed?"save":"load");
-            showUndo(merged.changed?"Merged local newer records into the cloud save.":"No timestamped local changes were newer; loaded and refreshed the cloud save.",before);
+            cloudRow=await readCloudStateRow(user);
+            if(!cloudRow?.state){force=true}
+            else{
+              let before=snap(),knownMs=Number(state.ui.cloudKnownUpdatedMs)||Date.parse(cloudRow.updated_at||"")||0,cloudState=importStateObject(cloudRow.state),merged=mergeLocalAfterCloud(payload.state,cloudState,knownMs);
+              state=merged.merged;
+              save();
+              hydrateControls();
+              renderAll();
+              payload=withStaleCloudBackup(exportPayload(),cloudRow);
+              state.cloudBackups=normCloudBackups(cloudPayloadState(payload).cloudBackups);
+              let mergedAt=new Date().toISOString();
+              await writeCloudState(user,payload,mergedAt);
+              markCloudSynced(mergedAt,autosave);
+              playCloudFx(merged.changed?"save":"load");
+              showUndo(merged.changed?"Merged local newer records into the cloud save.":"No timestamped local changes were newer; loaded and refreshed the cloud save.",before);
+              return;
+            }
+          } else if(choice!=="force"){
             return;
+          } else {
+            force=true;
           }
-          if(choice!=="force")return;
-          force=true;
         }
         let updatedAt=new Date().toISOString();
         if(stale&&force){
+          cloudRow=cloudRow?.state?cloudRow:await readCloudStateRow(user);
           payload=withStaleCloudBackup(payload,cloudRow);
           state.cloudBackups=normCloudBackups(cloudPayloadState(payload).cloudBackups);
         }

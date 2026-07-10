@@ -740,7 +740,7 @@
   
   <div class="noteOverlay" id="archiveNoteOverlay"><section class="noteHolo"><div class="noteHd"><b>Archived Note</b><button class="btn ghost" id="archiveNoteClose" type="button">Close</button></div><div class="noteBd"><div class="noteTaskName" id="archiveNoteTitle">-</div><div class="archiveNoteBody" id="archiveNoteBody"></div></div></section></div>
   <div class="noteOverlay" id="cloudEmailOverlay"><section class="noteHolo"><div class="noteHd"><b>Cloud Sign In</b><button class="btn ghost" id="cloudEmailClose" type="button">Close</button></div><div class="noteBd"><div class="noteTaskName">Enter the email address for Supabase.</div><div><label>Email</label><input id="cloudEmailInput" type="text" inputmode="email" autocomplete="email" placeholder="you@example.com"></div><div class="hint">This sends the same magic link as before. Open that link in the browser you want signed in.</div><div class="mini" style="justify-content:flex-end"><button class="btn ghost" id="cloudEmailCancel" type="button">Cancel</button><button class="btn primary" id="cloudEmailSend" type="button">Send Link</button></div></div></section></div>
-  <div class="noteOverlay" id="cloudPrompt"><section class="noteHolo"><div class="noteHd"><b>Load Cloud Save</b></div><div class="noteBd"><div class="noteTaskName" id="cloudPromptText">Load the cloud save?</div><div class="hint">This replaces the dashboard currently stored in this browser. Save this browser to cloud first if it has newer work.</div><div class="mini" style="justify-content:flex-end"><button class="btn ghost" id="cloudPromptCancel" type="button">Cancel</button><button class="btn primary" id="cloudPromptLoad" type="button">Load Cloud</button></div></div></section></div><div class="noteOverlay" id="cloudRestoreOverlay"><section class="noteHolo cloudRestoreHolo"><div class="noteHd"><b>Restore Save Point</b><button class="btn ghost" id="cloudRestoreClose" type="button">Close</button></div><div class="noteBd"><div class="hint">These are recent cloud states kept as a safety net. Restoring applies locally first; click Save when you want that restored state to become the cloud copy.</div><div class="cloudRestoreList" id="cloudRestoreList"></div></div></section></div>
+  <div class="noteOverlay" id="cloudPrompt"><section class="noteHolo"><div class="noteHd"><b>Load Cloud Save</b></div><div class="noteBd"><div class="noteTaskName" id="cloudPromptText">Load the cloud save?</div><div class="hint">This replaces the dashboard currently stored in this browser. Save this browser to cloud first if it has newer work.</div><div class="mini" style="justify-content:flex-end"><button class="btn ghost" id="cloudPromptCancel" type="button">Cancel</button><button class="btn primary" id="cloudPromptLoad" type="button">Load Cloud</button></div></div></section></div><div class="noteOverlay" id="cloudRestoreOverlay"><section class="noteHolo cloudRestoreHolo"><div class="noteHd"><b>Restore Save Point</b><button class="btn ghost" id="cloudRestoreClose" type="button">Close</button></div><div class="noteBd"><div class="hint">Restore points are saved only in this browser on this device. To recover from an accidental cloud save, open Restore on the device that captured the save point. Restoring applies locally first; click Save afterward to make it the cloud copy.</div><div class="cloudRestoreList" id="cloudRestoreList"></div></div></section></div>
   <div class="noteOverlay" id="priorityClearPrompt"><section class="noteHolo"><div class="noteHd"><b>Clear Priorities?</b></div><div class="noteBd"><div class="noteTaskName">Weekly priorities are complete.</div><div class="hint">Clear the priority lane now, or leave it visible for review.</div><div class="mini" style="justify-content:flex-end"><button class="btn ghost" id="priorityClearNo" type="button">No</button><button class="btn primary" id="priorityClearYes" type="button">Yes</button></div></div></section></div>
   <div class="noteOverlay" id="trashOverlay"><section class="noteHolo"><div class="noteHd"><b>Trash Bin</b><div class="mini"><button class="btn ghost" id="emptyTrash" type="button">Empty Trash</button><button class="btn ghost" id="trashClose" type="button">Close</button></div></div><div class="noteBd"><div class="hint">Cleared or deleted tasks stay here for 30 days, then disappear automatically.</div><div class="trashList" id="trashList"></div></div></section></div>
   <div class="footer">Schedule and checklist are saved in your browser. Calendar View rolls down from the top.<br><button class="trashBtn" id="trashBtn" type="button">TRASH BIN</button></div>
@@ -753,7 +753,7 @@
     const defaults=[{label:"Discussion",sub:"Tracker",href:"https://amhagler.github.io/class-discussion/",glyph:"DT"},{label:"Rubric",sub:"Generator",href:"https://amhagler.github.io/rubric/",glyph:"RB"},{label:"Unit Calendar",sub:"Generator",href:"https://amhagler.github.io/uc/",glyph:"UC"},{label:"Record",sub:"Students",href:"https://docs.google.com/spreadsheets/d/1na_7-0Ouzzb11gXltS9I9x6bXTwc_hoAbi1QBXNuyBU/edit?gid=0#gid=0",glyph:"SR"},{label:"Budget",sub:"Points",href:"https://docs.google.com/spreadsheets/d/1Ym9IjiEMEIGfVujTgz2qs8rBE8BEnIoC9LfJZzT0zig/edit?gid=1261703613#gid=1261703613",glyph:"BU"},{label:"Portal",sub:"Login",href:"https://geffenacademy.myschoolapp.com/app#login",glyph:"PT"},{label:"Gradebook",sub:"Direct",href:"https://geffenacademy.myschoolapp.com/sis-gradebook/gradebook/27966135?svcid=edu&addin=1",glyph:"GB"}];
     const blue={monday:[["9:00-9:15","Reading Period"],["9:15-10:10","A"],["10:15-11:10","B"],["11:20-12:15","C"],["12:15-1:05","Lunch"],["1:10-2:05","D"],["2:10-3:05","E"],["3:10-3:50","H"]],tuesday:[["9:00-9:15","Bulletin"],["9:15-10:10","F"],["10:15-11:10","G"],["11:20-12:15","A"],["12:15-1:05","Lunch"],["1:10-2:05","B"],["2:10-3:05","C"],["3:10-3:50","H"]],wednesday:[["9:00-9:15","Reading Period"],["9:15-10:10","D"],["10:15-11:10","E"],["11:20-12:15","F"],["12:15-1:05","Lunch"],["1:10-2:05","G"],["2:10-3:05","A"],["3:10-3:50","H"]],thursday:[["9:00-9:15","Reading Period"],["9:15-10:10","B"],["10:15-11:10","C"],["11:20-12:15","D"],["12:15-1:05","Lunch"],["1:10-2:05","E"],["2:10-3:05","F"],["3:10-3:50","H"]],friday:[["8:00-8:50","Educators' Mtg."],["9:00-9:55","G"],["10:00-10:55","A"],["11:05-12:00","B"],["12:00-1:05","Lunch"],["1:10-2:05","C"],["2:10-3:05","D"],["3:10-3:50","H/X1"]]};
     const gold={monday:[["9:00-9:15","Reading Period"],["9:15-10:10","E"],["10:15-11:10","F"],["11:20-12:15","G"],["12:15-1:05","Lunch"],["1:10-2:05","A"],["2:10-3:05","B"],["3:10-3:50","H"]],tuesday:[["9:00-9:15","Bulletin"],["9:15-10:10","C"],["10:15-11:10","D"],["11:20-12:15","E"],["12:15-1:05","Lunch"],["1:10-2:05","F"],["2:10-3:05","G"],["3:10-3:50","H"]],wednesday:[["9:00-9:15","Reading Period"],["9:15-10:10","A"],["10:15-11:10","B"],["11:20-12:15","C"],["12:15-1:05","Lunch"],["1:10-2:05","D"],["2:10-3:05","E"],["3:10-3:50","H"]],thursday:[["9:00-9:15","Reading Period"],["9:15-10:10","F"],["10:15-11:10","G"],["11:20-12:15","A"],["12:15-1:05","Lunch"],["1:10-2:05","B"],["2:10-3:05","C"],["3:10-3:50","H"]],friday:[["8:00-8:50","Educators' Mtg."],["9:00-9:55","D"],["10:00-10:55","E"],["11:00-11:45","H"],["11:45-12:35","Lunch"],["12:40-1:35","F"],["1:40-2:35","G"],["2:40-3:20","X3"]]};
-    const weeks={blue,gold}, days=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"], schoolDays=days, blocks=["A","B","C","D","E","F","G","H"], KEY="geffen_cockpit_raw_v1";
+    const weeks={blue,gold}, days=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"], schoolDays=days, blocks=["A","B","C","D","E","F","G","H"], KEY="geffen_cockpit_raw_v1", RESTORE_KEY=KEY+"_local_restore_points_v1";
     const starOrder=["purple","emerald","rose","platinum","aqua","copper"], starColors={purple:"#B66BFF",emerald:"#56D99A",rose:"#E879B9",platinum:"#D8E2F2",aqua:"#315CFF",copper:"#C9975C"};
     const $=id=>document.getElementById(id), pad=n=>String(n).padStart(2,"0"), iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`, longDate=d=>d.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"}), monthDay=d=>d.toLocaleDateString(undefined,{month:"long",day:"numeric"}), html=s=>String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"), uid=()=>Math.random().toString(16).slice(2)+Date.now().toString(16), clone=o=>JSON.parse(JSON.stringify(o));
     function emptyCustomWeek(){return Object.fromEntries(schoolDays.map(d=>[d,[]]))} function defaultCustomSchedule(){return{anchorDate:"",weeks:{A:emptyCustomWeek(),B:emptyCustomWeek()}}}
@@ -796,6 +796,10 @@
     function normGames(g){let b=g&&typeof g==="object"?g:{};return{snakeEndlessHigh:Math.max(0,parseInt(b.snakeEndlessHigh||0,10)||0)}}
     function normVisibleTools(v,mode="full"){return{...toolDefaults,...(v&&typeof v==="object"?v:{})}}
     function normCloudBackups(v){return(Array.isArray(v)?v:[]).filter(b=>b&&typeof b==="object"&&b.state&&typeof b.state==="object").map(b=>{let st=clone(b.state);delete st.cloudBackups;return{id:String(b.id||uid()),savedAt:String(b.savedAt||""),cloudUpdatedAt:String(b.cloudUpdatedAt||b.updatedAt||""),state:st}}).slice(0,CLOUD_BACKUP_LIMIT)}
+    function localRestorePoints(){try{return normCloudBackups(JSON.parse(localStorage.getItem(RESTORE_KEY)||"[]"))}catch{return[]}}
+    function saveLocalRestorePoints(list){try{localStorage.setItem(RESTORE_KEY,JSON.stringify(normCloudBackups(list)))}catch{}}
+    function addLocalRestorePoints(list){let incoming=normCloudBackups(list);if(!incoming.length)return;let existing=localRestorePoints(),seen=new Set(),out=[];[...incoming,...existing].forEach(b=>{let key=(b.cloudUpdatedAt||"")+"|"+JSON.stringify(comparableCloudState(b.state));if(seen.has(key))return;seen.add(key);out.push(b)});saveLocalRestorePoints(out)}
+    function addLocalRestorePoint(backup){if(backup)addLocalRestorePoints([backup])}
     function normUi(u){let b={...base.ui,...(u||{})};b.experienceMode=["basic","standard","full"].includes(b.experienceMode)?b.experienceMode:"full";b.visibleTools=normVisibleTools(b.visibleTools,b.experienceMode);b.visibleTools.briefing=true;b.bookAccessMode=b.bookAccessMode==="one"?"one":"two";b.backgroundIntensity=["low","moderate","high","extreme"].includes(b.backgroundIntensity)?b.backgroundIntensity:"moderate";b.screensaverOn=!!b.screensaverOn;b.screensaverMinutes=Math.max(1,Math.min(60,parseInt(b.screensaverMinutes||10,10)||10));b.screensaverIntensity=["low","moderate","high","extreme"].includes(b.screensaverIntensity)?b.screensaverIntensity:"moderate";b.screensaverThemeMode=["current","specific","favorites","all"].includes(b.screensaverThemeMode)?b.screensaverThemeMode:"current";b.screensaverTheme=themeName(b.screensaverTheme||"holographic");b.screensaverFavorites=normStandbyFavorites(b.screensaverFavorites);b.ledgerNoCode=!!b.ledgerNoCode;b.weightNoCode=!!b.weightNoCode;b.cloudAutosave=!!b.cloudAutosave;b.cloudKnownUpdatedMs=Number(b.cloudKnownUpdatedMs)||0;b.cloudLastAutosaveAt=String(b.cloudLastAutosaveAt||"");return b}
     function diaryDateSort(a,b){let pa=a?.pinned?1:0,pb=b?.pinned?1:0;if(pa!==pb)return pb-pa;let sa=a?.star?1:0,sb=b?.star?1:0;if(sa!==sb)return sb-sa;let da=String(a?.date||""),db=String(b?.date||"");if(da!==db)return db.localeCompare(da);return(b?.updatedAt||0)-(a?.updatedAt||0)}
     function diaryCatColor(k){return starColors[k]||"#9AA7C1"}
@@ -974,7 +978,7 @@
     function holoConfirm(title,message,okLabel="Delete"){return holoDialog(title,message,[{label:"Cancel",value:false},{label:okLabel,value:true,primary:true}])}
     function holoNotice(title,message){return holoDialog(title,message,[{label:"OK",value:true,primary:true}])}
 
-    function load(){try{let o=JSON.parse(localStorage.getItem(KEY)||"null");if(o&&o.state&&typeof o.state==="object")o=o.state;if(!o)return clone(base);let mode=["geffen","customWeekly","customBiweekly"].includes(o.scheduleMode)?o.scheduleMode:"geffen",rawLinks=Array.isArray(o.links)?o.links:null,oldExport=extractExportHref(rawLinks);return{...clone(base),...o,exportPageHref:String(o.exportPageHref||oldExport||""),scheduleMode:mode,blocks:{...base.blocks,...(o.blocks||{})},hBlocks:normHBlocks(o.hBlocks),customSchedule:normCustomSchedule(o.customSchedule),links:rawLinks?rawLinks:null,tasks:Array.isArray(o.tasks)?o.tasks.map(normTask):[],trash:Array.isArray(o.trash)?o.trash.map(normTrashItem).filter(Boolean):[],weekly:normWeekly(o.weekly),diary:normDiary(o.diary),ledger:normLedger(o.ledger),weight:normWeight(o.weight),shopping:normShopping(o.shopping),games:normGames(o.games),themeFavorites:normThemeFavorites(o.themeFavorites),cloudBackups:normCloudBackups(o.cloudBackups),colorLabels:{...base.colorLabels,...(o.colorLabels||o.starLabels||{})},ui:normUi(o.ui)}}catch{return clone(base)}} let cloudAutosaveTimer=null,cloudAutosaveDirty=false,cloudAutosaveReady=false,cloudAutosaveBusy=false,cloudAutosavePaused=false;const CLOUD_AUTOSAVE_DELAY=10*60*1000;let state=load(), today=iso(new Date()), calendarMonthOffset=0, customWeekView="A"; repairStoredIds(); state.viewDate=today; save(); applyVisualTheme(); applyExperienceMode(); document.body.classList.toggle("largeText",!!state.ui.largeText); function snap(){return clone(state)}
+    function load(){try{let o=JSON.parse(localStorage.getItem(KEY)||"null");if(o&&o.state&&typeof o.state==="object")o=o.state;if(!o)return clone(base);let embeddedBackups=normCloudBackups(o.cloudBackups);if(embeddedBackups.length)addLocalRestorePoints(embeddedBackups);let mode=["geffen","customWeekly","customBiweekly"].includes(o.scheduleMode)?o.scheduleMode:"geffen",rawLinks=Array.isArray(o.links)?o.links:null,oldExport=extractExportHref(rawLinks);return{...clone(base),...o,exportPageHref:String(o.exportPageHref||oldExport||""),scheduleMode:mode,blocks:{...base.blocks,...(o.blocks||{})},hBlocks:normHBlocks(o.hBlocks),customSchedule:normCustomSchedule(o.customSchedule),links:rawLinks?rawLinks:null,tasks:Array.isArray(o.tasks)?o.tasks.map(normTask):[],trash:Array.isArray(o.trash)?o.trash.map(normTrashItem).filter(Boolean):[],weekly:normWeekly(o.weekly),diary:normDiary(o.diary),ledger:normLedger(o.ledger),weight:normWeight(o.weight),shopping:normShopping(o.shopping),games:normGames(o.games),themeFavorites:normThemeFavorites(o.themeFavorites),cloudBackups:[],colorLabels:{...base.colorLabels,...(o.colorLabels||o.starLabels||{})},ui:normUi(o.ui)}}catch{return clone(base)}} let cloudAutosaveTimer=null,cloudAutosaveDirty=false,cloudAutosaveReady=false,cloudAutosaveBusy=false,cloudAutosavePaused=false;const CLOUD_AUTOSAVE_DELAY=10*60*1000;let state=load(), today=iso(new Date()), calendarMonthOffset=0, customWeekView="A"; repairStoredIds(); state.viewDate=today; save(); applyVisualTheme(); applyExperienceMode(); document.body.classList.toggle("largeText",!!state.ui.largeText); function snap(){return clone(state)}
     $("viewDate").value=today;$("summerBtn").classList.toggle("on",state.summer);$("scheduleMode").value=state.scheduleMode;$("customAnchor").value=state.customSchedule.anchorDate||"";$("blueAnchor").value=state.blueAnchor;if($("officeMode"))$("officeMode").value=state.officeMode||"none";$("exportTarget").value=state.exportPageHref||"";blocks.forEach(k=>$(k).value=state.blocks[k]||"");
     function linkNorm(l,i){let f=defaults[i]||{label:"Link",sub:"Custom",href:"#",glyph:"LN"};return{label:String(l?.label||f.label).trim(),sub:String(l?.sub||f.sub).trim(),href:String(l?.href||f.href).trim(),glyph:String(l?.glyph||f.glyph).trim().slice(0,3).toUpperCase()}} function links(){return (Array.isArray(state.links)&&state.links.length?state.links:defaults).map(linkNorm)}
     function renderLinkEditor(){$("linkEditor").innerHTML=links().map((l,i)=>`<div class="linkRow"><div><label>Label</label><input data-f="label" value="${html(l.label)}"></div><div><label>Subtitle</label><input data-f="sub" value="${html(l.sub)}"></div><div><label>Glyph</label><input data-f="glyph" maxlength="3" value="${html(l.glyph)}"></div><div><label>URL</label><input data-f="href" value="${html(l.href)}"></div></div>`).join("")} function readLinks(){return[...document.querySelectorAll(".linkRow")].map((r,i)=>linkNorm({label:r.querySelector('[data-f="label"]').value,sub:r.querySelector('[data-f="sub"]').value,glyph:r.querySelector('[data-f="glyph"]').value,href:r.querySelector('[data-f="href"]').value},i))}
@@ -1332,7 +1336,7 @@
     function exportPayload(opts={}){
       syncStateFromControls();
       let st=clone(state);
-      if(opts.includeBackups===false)st.cloudBackups=[];
+      if(opts.includeBackups!==true)st.cloudBackups=[];
       return{version:3,exportedAt:new Date().toISOString(),state:st};
     }
     function normalizeImportedState(obj){
@@ -1340,6 +1344,8 @@
       if(!incoming||typeof incoming!=="object")throw new Error("The pasted JSON is not a dashboard object.");
       let importedTasks=Array.isArray(incoming.tasks)?incoming.tasks:(Array.isArray(incoming.checklist)?incoming.checklist:[]);
       let importedLinks=Array.isArray(incoming.links)?incoming.links:null;
+      let embeddedBackups=normCloudBackups(incoming.cloudBackups);
+      if(embeddedBackups.length)addLocalRestorePoints(embeddedBackups);
       let oldExport=extractExportHref(importedLinks);
       let merged={...clone(base),...incoming,
         blocks:{...base.blocks,...(incoming.blocks||{})},
@@ -1356,7 +1362,7 @@
         shopping:normShopping(incoming.shopping),
         games:normGames(incoming.games),
         themeFavorites:normThemeFavorites(incoming.themeFavorites),
-        cloudBackups:normCloudBackups(incoming.cloudBackups),
+        cloudBackups:[],
         colorLabels:{...base.colorLabels,...(incoming.colorLabels||incoming.starLabels||{})},
         ui:normUi({...((incoming.ui)||{}),...((incoming.checklistUI)||{})})
       };
@@ -4400,12 +4406,8 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
       cloudRestorePointBusy=true;
       setTimeout(async()=>{
         try{
-          let payload=applyRestoreBackupToPayload(exportPayload(),backup),updatedAt=await writeCloudState(user,payload,new Date().toISOString()),target=cloudPayloadState(payload);
-          state.cloudBackups=normCloudBackups(target.cloudBackups);
-          safeWriteState();
-          markCloudSynced(updatedAt,true);
-          cloudRestoreCache=cloudBackupFromPayload(payload,updatedAt);
-          setCloudAutosaveStatus("Restore point saved.");
+          addLocalRestorePoint(backup);
+          setCloudAutosaveStatus("Local restore point saved on this device.");
         }catch(err){
           setCloudAutosaveStatus("Restore point skipped: "+String(err?.message||err||"cloud unavailable"));
         }finally{
@@ -4419,20 +4421,20 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     }
     function renderCloudRestoreList(){
       let list=$("cloudRestoreList");if(!list)return;
-      state.cloudBackups=normCloudBackups(state.cloudBackups);
-      if(!state.cloudBackups.length){list.innerHTML='<div class="cloudRestoreEmpty">No restore points yet. After a cloud Save, the previous cloud copy can be kept here when available.</div>';return}
-      list.innerHTML=state.cloudBackups.map((b,i)=>`<div class="cloudRestoreItem"><div><b>Save Point ${i+1}</b><span>${html(backupDisplayDate(b))}</span></div><button class="btn primary" type="button" data-restore-cloud="${html(b.id)}">Restore</button></div>`).join("");
+      let points=localRestorePoints();
+      if(!points.length){list.innerHTML='<div class="cloudRestoreEmpty">No restore points on this device yet. Restore points are local to the browser and device that captured them.</div>';return}
+      list.innerHTML=points.map((b,i)=>`<div class="cloudRestoreItem"><div><b>Device Save Point ${i+1}</b><span>${html(backupDisplayDate(b))}</span></div><button class="btn primary" type="button" data-restore-cloud="${html(b.id)}">Restore</button></div>`).join("");
       list.querySelectorAll("[data-restore-cloud]").forEach(btn=>btn.onclick=()=>restoreCloudBackup(btn.dataset.restoreCloud));
     }
     function openCloudRestore(){renderCloudRestoreList();let o=$("cloudRestoreOverlay");o.classList.add("on");animatePanel(o.querySelector(".noteHolo"))}
     function closeCloudRestore(){let o=$("cloudRestoreOverlay");if(!o||!o.classList.contains("on"))return;powerDown(o.querySelector(".noteHolo"),()=>o.classList.remove("on"))}
     async function restoreCloudBackup(id){
-      state.cloudBackups=normCloudBackups(state.cloudBackups);
-      let backup=state.cloudBackups.find(b=>b.id===id);
+      let points=localRestorePoints(),backup=points.find(b=>b.id===id);
       if(!backup)return;
       if(!await holoConfirm("Restore Save Point","Restore the dashboard from "+backupDisplayDate(backup)+"? This applies locally first. Click Save afterward to make it the cloud copy.","Restore"))return;
       let before=snap(),current=cloudBackupFromPayload(exportPayload(),new Date().toISOString()),next=importStateObject(backup.state);
-      next.cloudBackups=normCloudBackups([current,...state.cloudBackups.filter(b=>b.id!==id)]);
+      addLocalRestorePoint(current);
+      next.cloudBackups=[];
       state=next;
       save();
       hydrateControls();

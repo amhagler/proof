@@ -643,6 +643,19 @@
     .taskVanishFx.urgencyOrange .taskFragment{box-shadow:0 0 13px rgba(255,154,61,.72)}
     .taskVanishFx.urgencyRed .taskFragment{box-shadow:0 0 16px rgba(255,59,59,.82)}
     @keyframes taskFragmentDissolve{0%{opacity:0;transform:translate(-50%,-50%) scale(.45);filter:brightness(1)}16%{opacity:.98;transform:translate(-50%,-50%) scale(1.12);filter:brightness(1.78)}54%{opacity:.82;transform:translate(calc(-50% + var(--dx)*.42),calc(-50% + var(--dy)*.42)) scale(.84);filter:brightness(1.25)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.12);filter:brightness(.58)}}
+    @media(min-width:721px){
+      #trashOverlay{
+        top:calc(var(--topbarH,74px) + 8px);
+        bottom:8px;
+        min-height:0;
+        place-items:start center;
+        padding:8px 12px 12px;
+      }
+      #trashOverlay .noteHolo{
+        width:min(820px,94vw);
+        max-height:calc(100vh - var(--topbarH,74px) - 24px);
+      }
+    }
   </style>
   <style>
     .editTaskInput{width:100%;border-radius:12px;border:1px solid rgba(123,231,255,.28);background:rgba(7,11,26,.48);color:var(--ink);padding:9px 10px;outline:none;font:12px/1.35 var(--mono);box-shadow:0 0 0 1px rgba(45,125,255,.06) inset}

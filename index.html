@@ -3152,8 +3152,8 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
         {name:"venus",r:.305,size:.025,s:.038,phase:1.7,c1:"rgba(233,190,118,.94)",c2:"rgba(118,74,38,.10)"},
         {name:"earth",r:.395,size:.027,s:.030,phase:2.8,c1:"rgba(116,176,224,.92)",c2:"rgba(30,88,110,.10)",moon:true},
         {name:"mars",r:.485,size:.022,s:.025,phase:4.1,c1:"rgba(205,116,72,.88)",c2:"rgba(92,38,26,.10)"},
-        {name:"jupiter",r:.610,size:.047,s:.017,phase:5.0,c1:"rgba(228,185,126,.94)",c2:"rgba(116,70,40,.11)",bands:true},
-        {name:"saturn",r:.735,size:.039,s:.013,phase:.9,c1:"rgba(232,205,150,.92)",c2:"rgba(112,88,48,.10)",ring:true},
+        {name:"jupiter",r:.610,size:.060,s:.017,phase:5.0,c1:"rgba(228,185,126,.94)",c2:"rgba(116,70,40,.11)",bands:true},
+        {name:"saturn",r:.735,size:.051,s:.013,phase:.9,c1:"rgba(232,205,150,.92)",c2:"rgba(112,88,48,.10)",ring:true},
         {name:"uranus",r:.845,size:.030,s:.010,phase:3.5,c1:"rgba(144,209,213,.84)",c2:"rgba(40,96,108,.08)"},
         {name:"neptune",r:.935,size:.030,s:.008,phase:2.1,c1:"rgba(115,151,218,.82)",c2:"rgba(28,55,112,.08)"}
       ];
@@ -3167,7 +3167,7 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
           g.ellipse(cx,cy,rx,ry,tilt,0,TAU);
           g.stroke();
         }
-        let ox=cx+ca*rx*ct-sa*ry*st, oy=cy+ca*rx*st+sa*ry*ct, rr=clamp(radius*b.size,3.2,18);
+        let ox=cx+ca*rx*ct-sa*ry*st, oy=cy+ca*rx*st+sa*ry*ct, maxR=b.name==="jupiter"?24:(b.name==="saturn"?21:18), rr=clamp(radius*b.size,3.2,maxR);
         if(b.ring){
           g.save();
           g.globalAlpha=.58*ramp*boost;
@@ -3221,40 +3221,6 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
           g.beginPath();
           g.ellipse(ox+rr*.38,oy+rr*.20,rr*.18,rr*.105,-.12,0,TAU);
           g.fill();
-          g.restore();
-        }
-        if(b.name==="earth"){
-          g.save();
-          g.beginPath();
-          g.arc(ox,oy,rr*.98,0,TAU);
-          g.clip();
-          g.globalAlpha=.56*ramp*boost;
-          g.fillStyle="rgba(73,135,86,.74)";
-          g.beginPath();
-          g.moveTo(ox-rr*.58,oy-rr*.22);
-          g.bezierCurveTo(ox-rr*.44,oy-rr*.46,ox-rr*.20,oy-rr*.34,ox-rr*.26,oy-rr*.08);
-          g.bezierCurveTo(ox-rr*.34,oy+rr*.12,ox-rr*.10,oy+rr*.26,ox-rr*.24,oy+rr*.46);
-          g.bezierCurveTo(ox-rr*.48,oy+rr*.30,ox-rr*.64,oy+rr*.04,ox-rr*.58,oy-rr*.22);
-          g.moveTo(ox+rr*.02,oy-rr*.40);
-          g.bezierCurveTo(ox+rr*.30,oy-rr*.48,ox+rr*.62,oy-rr*.24,ox+rr*.44,oy-rr*.02);
-          g.bezierCurveTo(ox+rr*.30,oy+rr*.14,ox+rr*.48,oy+rr*.35,ox+rr*.18,oy+rr*.45);
-          g.bezierCurveTo(ox+rr*.02,oy+rr*.20,ox-rr*.08,oy-rr*.08,ox+rr*.02,oy-rr*.40);
-          g.fill();
-          g.globalAlpha=.24*ramp*boost;
-          g.fillStyle="rgba(137,101,62,.55)";
-          g.beginPath();
-          g.ellipse(ox+rr*.20,oy+rr*.18,rr*.21,rr*.11,.25,0,TAU);
-          g.fill();
-          g.globalAlpha=.42*ramp*boost;
-          g.strokeStyle="rgba(232,235,218,.70)";
-          g.lineWidth=Math.max(.8,rr*.105);
-          g.lineCap="round";
-          g.beginPath();
-          g.moveTo(ox-rr*.62,oy-rr*.34);
-          g.bezierCurveTo(ox-rr*.30,oy-rr*.46,ox+rr*.12,oy-rr*.34,ox+rr*.58,oy-rr*.42);
-          g.moveTo(ox-rr*.48,oy+rr*.26);
-          g.bezierCurveTo(ox-rr*.10,oy+rr*.14,ox+rr*.18,oy+rr*.24,ox+rr*.52,oy+rr*.12);
-          g.stroke();
           g.restore();
         }
         if(b.ring){
@@ -4655,7 +4621,7 @@ function drawOrrery(p,pal,boost){
   ctx.save();
   ctx.globalAlpha=p.a*boost;
   if(p.planet){
-    let rr=p.size,cols=orreryColors(p.body),grd=ctx.createRadialGradient(x-rr*.35,y-rr*.35,0,x,y,rr*1.65);
+    let rr=p.size*(p.body==="jupiter"?1.34:(p.body==="saturn"?1.30:1)),cols=orreryColors(p.body),grd=ctx.createRadialGradient(x-rr*.35,y-rr*.35,0,x,y,rr*1.65);
     if(p.body==="saturn"){
       ctx.save();
       ctx.globalAlpha*=.68;
@@ -4713,38 +4679,6 @@ function drawOrrery(p,pal,boost){
       ctx.restore();
     }
     if(p.body==="earth"){
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(x,y,rr*.98,0,Math.PI*2);
-      ctx.clip();
-      ctx.globalAlpha=.54*boost;
-      ctx.fillStyle="rgba(73,135,86,.70)";
-      ctx.beginPath();
-      ctx.moveTo(x-rr*.58,y-rr*.22);
-      ctx.bezierCurveTo(x-rr*.44,y-rr*.46,x-rr*.20,y-rr*.34,x-rr*.26,y-rr*.08);
-      ctx.bezierCurveTo(x-rr*.34,y+rr*.12,x-rr*.10,y+rr*.26,x-rr*.24,y+rr*.46);
-      ctx.bezierCurveTo(x-rr*.48,y+rr*.30,x-rr*.64,y+rr*.04,x-rr*.58,y-rr*.22);
-      ctx.moveTo(x+rr*.02,y-rr*.40);
-      ctx.bezierCurveTo(x+rr*.30,y-rr*.48,x+rr*.62,y-rr*.24,x+rr*.44,y-rr*.02);
-      ctx.bezierCurveTo(x+rr*.30,y+rr*.14,x+rr*.48,y+rr*.35,x+rr*.18,y+rr*.45);
-      ctx.bezierCurveTo(x+rr*.02,y+rr*.20,x-rr*.08,y-rr*.08,x+rr*.02,y-rr*.40);
-      ctx.fill();
-      ctx.globalAlpha=.22*boost;
-      ctx.fillStyle="rgba(137,101,62,.52)";
-      ctx.beginPath();
-      ctx.ellipse(x+rr*.20,y+rr*.18,rr*.21,rr*.11,.25,0,Math.PI*2);
-      ctx.fill();
-      ctx.globalAlpha=.38*boost;
-      ctx.strokeStyle="rgba(232,235,218,.66)";
-      ctx.lineWidth=Math.max(.7,rr*.10);
-      ctx.lineCap="round";
-      ctx.beginPath();
-      ctx.moveTo(x-rr*.62,y-rr*.34);
-      ctx.bezierCurveTo(x-rr*.30,y-rr*.46,x+rr*.12,y-rr*.34,x+rr*.58,y-rr*.42);
-      ctx.moveTo(x-rr*.48,y+rr*.26);
-      ctx.bezierCurveTo(x-rr*.10,y+rr*.14,x+rr*.18,y+rr*.24,x+rr*.52,y+rr*.12);
-      ctx.stroke();
-      ctx.restore();
       ctx.globalAlpha*=.55;
       ctx.fillStyle="rgba(216,226,234,.75)";
       ctx.beginPath();

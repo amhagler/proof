@@ -3168,16 +3168,6 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
           g.stroke();
         }
         let ox=cx+ca*rx*ct-sa*ry*st, oy=cy+ca*rx*st+sa*ry*ct, rr=clamp(radius*b.size,3.2,18);
-        if(b.ring){
-          g.save();
-          g.globalAlpha=.45*ramp*boost;
-          g.strokeStyle="rgba(236,214,164,.52)";
-          g.lineWidth=Math.max(1.1,rr*.15);
-          g.beginPath();
-          g.ellipse(ox,oy,rr*1.92,rr*.45,-.56,0,TAU);
-          g.stroke();
-          g.restore();
-        }
         let gr=g.createRadialGradient(ox-rr*.36,oy-rr*.34,0,ox,oy,rr*2.65);
         gr.addColorStop(0,"rgba(255,248,218,.98)");
         gr.addColorStop(.30,b.c1);
@@ -3219,9 +3209,28 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
           g.fill();
           g.restore();
         }
+        if(b.name==="earth"){
+          g.save();
+          g.beginPath();
+          g.arc(ox,oy,rr*.98,0,TAU);
+          g.clip();
+          g.globalAlpha=.50*ramp*boost;
+          g.fillStyle="rgba(78,142,93,.72)";
+          g.beginPath();
+          g.ellipse(ox-rr*.22,oy-rr*.10,rr*.30,rr*.18,-.55,0,TAU);
+          g.ellipse(ox+rr*.24,oy+rr*.18,rr*.24,rr*.15,.42,0,TAU);
+          g.fill();
+          g.globalAlpha=.34*ramp*boost;
+          g.fillStyle="rgba(214,219,204,.76)";
+          g.beginPath();
+          g.ellipse(ox+rr*.05,oy-rr*.38,rr*.62,rr*.10,.12,0,TAU);
+          g.ellipse(ox-rr*.08,oy+rr*.34,rr*.48,rr*.08,-.18,0,TAU);
+          g.fill();
+          g.restore();
+        }
         if(b.ring){
           g.save();
-          g.globalAlpha=.76*ramp*boost;
+          g.globalAlpha=.86*ramp*boost;
           g.strokeStyle="rgba(246,221,170,.74)";
           g.lineWidth=Math.max(1.2,rr*.16);
           g.beginPath();
@@ -4618,16 +4627,6 @@ function drawOrrery(p,pal,boost){
   ctx.globalAlpha=p.a*boost;
   if(p.planet){
     let rr=p.size,cols=orreryColors(p.body),grd=ctx.createRadialGradient(x-rr*.35,y-rr*.35,0,x,y,rr*1.65);
-    if(p.body==="saturn"){
-      ctx.save();
-      ctx.globalAlpha*=.66;
-      ctx.strokeStyle="rgba(232,204,150,.48)";
-      ctx.lineWidth=Math.max(1,rr*.15);
-      ctx.beginPath();
-      ctx.ellipse(x,y,rr*1.92,rr*.44,-.56,0,Math.PI*2);
-      ctx.stroke();
-      ctx.restore();
-    }
     grd.addColorStop(0,"rgba(255,245,210,.72)");
     grd.addColorStop(.45,cols[0]);
     grd.addColorStop(1,cols[1].replace(/\.[0-9]+\)/,"0)"));
@@ -4671,6 +4670,23 @@ function drawOrrery(p,pal,boost){
       ctx.restore();
     }
     if(p.body==="earth"){
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x,y,rr*.98,0,Math.PI*2);
+      ctx.clip();
+      ctx.globalAlpha=.46*boost;
+      ctx.fillStyle="rgba(78,142,93,.68)";
+      ctx.beginPath();
+      ctx.ellipse(x-rr*.22,y-rr*.10,rr*.30,rr*.18,-.55,0,Math.PI*2);
+      ctx.ellipse(x+rr*.24,y+rr*.18,rr*.24,rr*.15,.42,0,Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha=.31*boost;
+      ctx.fillStyle="rgba(214,219,204,.72)";
+      ctx.beginPath();
+      ctx.ellipse(x+rr*.05,y-rr*.38,rr*.62,rr*.10,.12,0,Math.PI*2);
+      ctx.ellipse(x-rr*.08,y+rr*.34,rr*.48,rr*.08,-.18,0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
       ctx.globalAlpha*=.55;
       ctx.fillStyle="rgba(216,226,234,.75)";
       ctx.beginPath();

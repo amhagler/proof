@@ -3085,7 +3085,7 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
 
     function standbyRenderArtDecoReliable(g,w,h,t,boost,ramp){
       const TAU=Math.PI*2, clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-      let bedside=!!standbyBedside, dawn=standbyBedsideDawnProgress(), metal=bedside?standbyBedsideMetal():null;
+      let bedside=!!standbyBedside, dawn=standbyBedsideDawnProgress(), metal=bedside?standbyBedsideMetal():null, calm=bedside?.52:1;
       let gold=metal?metal.brass:"rgba(216,180,93,.94)", goldSoft=metal?metal.brassSoft:"rgba(216,180,93,.28)", goldDim=metal?metal.brassDim:"rgba(115,84,38,.34)", ivory=metal?metal.ivory:"rgba(247,235,200,.92)", teal="rgba(81,214,200,.74)", tealSoft="rgba(81,214,200,.22)", chrome="rgba(214,221,226,.82)";
 
       let bg=g.createLinearGradient(0,0,0,h);
@@ -3106,8 +3106,8 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       g.fillStyle=wash;
       g.fillRect(0,0,w,h);
       for(let i=0;i<92;i++){
-        let seed=i*13.173, x=w*standbyU(seed,5), y=h*standbyU(seed,11), tw=.55+.45*Math.sin(t*(.12+standbyU(seed,17)*.12)+seed), rr=.45+standbyU(seed,23)*1.25;
-        g.globalAlpha=(.030+standbyU(seed,29)*.050)*tw*ramp*boost;
+        let seed=i*13.173, x=w*standbyU(seed,5), y=h*standbyU(seed,11), tw=.55+.45*Math.sin(t*(.12+standbyU(seed,17)*.12)*calm+seed), rr=.45+standbyU(seed,23)*1.25;
+        g.globalAlpha=(.030+standbyU(seed,29)*.050)*tw*ramp*boost*(bedside?.55:1);
         g.fillStyle=i%10===0?gold:(i%6===0?teal:chrome);
         g.beginPath();
         g.arc(x,y,rr,0,TAU);
@@ -3118,20 +3118,13 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       let driftX=bedside?Math.sin(t*.0017)*Math.min(w,h)*.024:0, driftY=bedside?Math.cos(t*.0015)*Math.min(w,h)*.014:0;
       let cx=w*.50+driftX, cy=h*.52+driftY, radius=Math.min(w,h)*(bedside?.385:.405);
       if(w<720)cy=h*.535+driftY;
-      let chime=.5+.5*Math.sin(t*.22), slowSpin=t*.018;
+      let slowSpin=t*(bedside?.006:.016), ornamentAlpha=bedside?.46:.92;
+      let hourAngle=i=>-Math.PI/2+i*TAU/12;
+      let tickAngle=i=>-Math.PI/2+i*TAU/72;
 
-      function roundedRect(x,y,rw,rh,rr){
-        rr=Math.min(rr,rw/2,rh/2);
+      function ellipsePlatePath(x,y,rw,rh){
         g.beginPath();
-        g.moveTo(x+rr,y);
-        g.lineTo(x+rw-rr,y);
-        g.quadraticCurveTo(x+rw,y,x+rw,y+rr);
-        g.lineTo(x+rw,y+rh-rr);
-        g.quadraticCurveTo(x+rw,y+rh,x+rw-rr,y+rh);
-        g.lineTo(x+rr,y+rh);
-        g.quadraticCurveTo(x,y+rh,x,y+rh-rr);
-        g.lineTo(x,y+rr);
-        g.quadraticCurveTo(x,y,x+rr,y);
+        g.ellipse(x,y,rw/2,rh/2,0,0,TAU);
         g.closePath();
       }
       function ring(rad,color,lw,alpha=1){
@@ -3142,26 +3135,47 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
         g.arc(cx,cy,rad,0,TAU);
         g.stroke();
       }
-      function decoPlate(x,y,rw,rh,txt,large=false){
+      function centeredText(txt,size,weight="800"){
+        g.font=weight+" "+size+"px Copperplate, 'Copperplate Gothic Light', 'Trebuchet MS', sans-serif";
+        let m=g.measureText(txt), y=((m.actualBoundingBoxAscent||size*.72)-(m.actualBoundingBoxDescent||size*.18))/2;
+        g.fillText(txt,0,y);
+      }
+      function decoPlate(x,y,rw,rh,txt,large=false,glint=0){
         g.save();
         g.translate(x,y);
-        roundedRect(-rw/2,-rh/2,rw,rh,rh*.18);
+        ellipsePlatePath(0,0,rw,rh);
         let plate=g.createLinearGradient(-rw/2,-rh/2,rw/2,rh/2);
-        plate.addColorStop(0,"rgba(247,235,200,.20)");
-        plate.addColorStop(.40,"rgba(216,180,93,.34)");
-        plate.addColorStop(1,"rgba(7,16,18,.68)");
-        g.globalAlpha=(.74+dawn*.08)*ramp;
+        plate.addColorStop(0,"rgba(247,235,200,.18)");
+        plate.addColorStop(.36,"rgba(216,180,93,.34)");
+        plate.addColorStop(.70,"rgba(81,214,200,.09)");
+        plate.addColorStop(1,"rgba(7,16,18,.72)");
+        g.globalAlpha=(.76+dawn*.08)*ramp;
         g.fillStyle=plate;
         g.fill();
-        g.strokeStyle=gold;
-        g.lineWidth=Math.max(.8,radius*.0045);
+        g.strokeStyle=glint>.01?ivory:gold;
+        g.lineWidth=Math.max(.9,radius*.0048+glint*1.1);
+        g.shadowBlur=glint*18;
+        g.shadowColor=ivory;
         g.stroke();
-        g.globalAlpha=.92*ramp;
+        if(glint>.01){
+          g.save();
+          ellipsePlatePath(0,0,rw*.92,rh*.78);
+          g.clip();
+          let shine=g.createLinearGradient(-rw*.50,-rh*.10,rw*.50,rh*.10);
+          shine.addColorStop(0,"rgba(255,255,255,0)");
+          shine.addColorStop(.48,"rgba(255,247,218,"+(.18*glint)+")");
+          shine.addColorStop(1,"rgba(255,255,255,0)");
+          g.globalAlpha=ramp;
+          g.fillStyle=shine;
+          g.fillRect(-rw*.52,-rh*.52,rw*1.04,rh*1.04);
+          g.restore();
+        }
+        g.shadowBlur=0;
+        g.globalAlpha=.94*ramp;
         g.fillStyle=ivory;
         g.textAlign="center";
-        g.textBaseline="middle";
-        g.font=(large?"900 ":"800 ")+clamp(radius*(large?.085:.060),14,32)+"px Copperplate, 'Copperplate Gothic Light', 'Trebuchet MS', sans-serif";
-        g.fillText(txt,0,1);
+        g.textBaseline="alphabetic";
+        centeredText(txt,clamp(radius*(large?.082:.057),14,31),large?"900":"800");
         g.restore();
       }
       function decoHand(angle,len,lw,color,tail=0){
@@ -3215,29 +3229,47 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
         g.stroke();
         g.restore();
       }
-
-      g.save();
-      g.globalCompositeOperation="screen";
-      for(let i=0;i<18;i++){
-        let a=-Math.PI/2+i*TAU/18+slowSpin*.10, r0=radius*.16, r1=radius*.98;
-        g.globalAlpha=(i%3===0?.095:.045)*ramp*boost;
-        g.strokeStyle=i%3===0?gold:teal;
-        g.lineWidth=i%3===0?1.3:.8;
-        g.beginPath();
-        g.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0);
-        g.lineTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);
-        g.stroke();
+      function inlayRing(rad,count,spin,colorA,colorB,alpha,arcFrac=.42){
+        g.save();
+        g.globalCompositeOperation="screen";
+        g.rotate(0);
+        for(let i=0;i<count;i++){
+          let a=-Math.PI/2+i*TAU/count+spin, seg=TAU/count*arcFrac;
+          g.globalAlpha=alpha*ramp*ornamentAlpha;
+          g.strokeStyle=i%2?colorA:colorB;
+          g.lineWidth=clamp(radius*.004,1,2.3);
+          g.beginPath();
+          g.arc(cx,cy,rad,a-seg*.45,a+seg*.45);
+          g.stroke();
+          let nA=a+seg*.60, r0=rad-radius*.010, r1=rad+radius*.010;
+          g.globalAlpha=alpha*1.25*ramp*ornamentAlpha;
+          g.beginPath();
+          g.moveTo(cx+Math.cos(nA)*r0,cy+Math.sin(nA)*r0);
+          g.lineTo(cx+Math.cos(nA)*r1,cy+Math.sin(nA)*r1);
+          g.stroke();
+        }
+        g.restore();
       }
-      for(let i=0;i<9;i++){
-        let rad=radius*(.20+i*.085), a=slowSpin*(i%2?-.35:.24);
-        g.globalAlpha=(.035+i*.006)*ramp*boost;
-        g.strokeStyle=i%2?goldSoft:tealSoft;
-        g.lineWidth=1;
+      function enamelMarker(track,angle,size,c1,c2){
+        let x=cx+Math.cos(angle)*track, y=cy+Math.sin(angle)*track, gr=g.createRadialGradient(x-size*.32,y-size*.34,0,x,y,size);
+        gr.addColorStop(0,"rgba(255,255,255,.92)");
+        gr.addColorStop(.36,c1);
+        gr.addColorStop(1,c2);
+        g.save();
+        g.globalCompositeOperation="screen";
+        g.globalAlpha=.74*ramp*ornamentAlpha;
+        g.shadowBlur=13;
+        g.shadowColor=c1;
+        g.fillStyle=gr;
         g.beginPath();
-        g.arc(cx,cy,rad,a,a+TAU*.72);
+        g.arc(x,y,size,0,TAU);
+        g.fill();
+        g.globalAlpha=.64*ramp*ornamentAlpha;
+        g.strokeStyle=ivory;
+        g.lineWidth=.8;
         g.stroke();
+        g.restore();
       }
-      g.restore();
 
       let outer=g.createRadialGradient(cx-radius*.22,cy-radius*.28,0,cx,cy,radius*1.12);
       outer.addColorStop(0,"rgba(247,235,200,.11)");
@@ -3249,6 +3281,37 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       g.beginPath();
       g.arc(cx,cy,radius*1.03,0,TAU);
       g.fill();
+
+      g.save();
+      g.globalCompositeOperation="screen";
+      for(let i=0;i<12;i++){
+        let a=hourAngle(i), r0=radius*.500, r1=radius*.970;
+        g.globalAlpha=(i%3===0?.115:.064)*ramp*ornamentAlpha;
+        g.strokeStyle=i%3===0?gold:teal;
+        g.lineWidth=i%3===0?1.45:.86;
+        g.beginPath();
+        g.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0);
+        g.lineTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);
+        g.stroke();
+      }
+      for(let i=0;i<24;i++){
+        let a=-Math.PI/2+i*TAU/24, r0=radius*.705, r1=radius*.950;
+        if(i%2===0)continue;
+        g.globalAlpha=.040*ramp*ornamentAlpha;
+        g.strokeStyle=chrome;
+        g.lineWidth=.65;
+        g.beginPath();
+        g.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0);
+        g.lineTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1);
+        g.stroke();
+      }
+      g.restore();
+
+      inlayRing(radius*.928,36,slowSpin*.38,gold,teal,.18,.36);
+      inlayRing(radius*.792,24,-slowSpin*.52,chrome,gold,.15,.46);
+      inlayRing(radius*.595,18,slowSpin*.72,teal,ivory,.12,.40);
+      inlayRing(radius*.335,16,-slowSpin*.92,goldSoft,teal,.18,.44);
+
       ring(radius*1.035,gold,clamp(radius*.016,3,8),.74);
       ring(radius*.972,"rgba(247,235,200,.42)",clamp(radius*.004,1,2),.70);
       ring(radius*.835,teal,clamp(radius*.005,1,2.2),.42);
@@ -3256,7 +3319,7 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       ring(radius*.520,"rgba(214,221,226,.20)",clamp(radius*.0035,1,1.8),.36);
 
       for(let i=0;i<72;i++){
-        let a=-Math.PI/2+i*TAU/72, major=i%6===0, mid=i%3===0, r0=radius*(major?.802:mid?.824:.842), r1=radius*.904;
+        let a=tickAngle(i), major=i%6===0, mid=i%3===0, r0=radius*(major?.802:mid?.824:.842), r1=radius*.904;
         g.globalAlpha=(major?.72:mid?.42:.22)*ramp;
         g.strokeStyle=major?gold:(mid?chrome:"rgba(247,235,200,.40)");
         g.lineWidth=major?1.8:(mid?1.0:.62);
@@ -3266,23 +3329,32 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
         g.stroke();
       }
 
-      let romans=["XII","I","II","III","IV","V","VI","VII","VIII","IX","X","XI"];
+      for(let i=0;i<5;i++){
+        let seed=i*1.7, track=radius*(.285+.105*(i%3)), speed=(.010+.003*i)*calm*(i%2?-1:1), a=-Math.PI/2+seed+t*speed;
+        enamelMarker(track,a,clamp(radius*(.014+.003*(i%2)),3.2,7.5),i%2?gold:teal,i%2?"rgba(80,50,18,.58)":"rgba(2,35,39,.58)");
+      }
+
+      let romans=["XII","I","II","III","IV","V","VI","VII","VIII","IX","X","XI"], glintPos=(t*(bedside?.060:.105))%12;
       for(let i=0;i<12;i++){
-        let a=-Math.PI/2+i*TAU/12, rr=radius*.670, large=i%3===0, px=cx+Math.cos(a)*rr, py=cy+Math.sin(a)*rr;
-        decoPlate(px,py,radius*(large?.185:.132),radius*(large?.102:.075),romans[i],large);
+        let a=hourAngle(i), rr=radius*.670, large=i%3===0, px=cx+Math.cos(a)*rr, py=cy+Math.sin(a)*rr;
+        let diff=Math.abs(((i-glintPos+6)%12)-6), glint=clamp(1-diff/.95,0,1);
+        decoPlate(px,py,radius*(large?.205:.148),radius*(large?.106:.080),romans[i],large,glint);
       }
 
       g.save();
       g.globalCompositeOperation="screen";
-      for(let i=0;i<24;i++){
-        let a=-Math.PI/2+i*TAU/24, rA=radius*.365, rB=radius*.455;
-        g.globalAlpha=(i%2?.12:.20)*ramp;
-        g.strokeStyle=i%2?teal:gold;
-        g.lineWidth=i%2?.8:1.2;
+      for(let i=0;i<32;i++){
+        let a=-Math.PI/2+i*TAU/32-slowSpin*1.8, major=i%4===0, rA=radius*(major?.338:.360), rB=radius*.458;
+        g.globalAlpha=(major?.25:.11)*ramp*ornamentAlpha;
+        g.strokeStyle=major?gold:teal;
+        g.lineWidth=major?1.35:.75;
         g.beginPath();
         g.moveTo(cx+Math.cos(a)*rA,cy+Math.sin(a)*rA);
         g.lineTo(cx+Math.cos(a)*rB,cy+Math.sin(a)*rB);
         g.stroke();
+      }
+      for(let i=0;i<4;i++){
+        enamelMarker(radius*.404,-Math.PI/2+i*TAU/4+slowSpin*1.2,clamp(radius*.012,3,6),ivory,"rgba(216,180,93,.45)");
       }
       g.restore();
 
@@ -3308,6 +3380,9 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
 
       g.save();
       g.globalCompositeOperation="screen";
+      g.beginPath();
+      g.arc(cx,cy,radius*1.02,0,TAU);
+      g.clip();
       let glass=g.createRadialGradient(cx-radius*.30,cy-radius*.34,0,cx,cy,radius*1.15);
       glass.addColorStop(0,"rgba(255,247,218,.095)");
       glass.addColorStop(.44,"rgba(81,214,200,.028)");
@@ -3318,6 +3393,18 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
       g.beginPath();
       g.arc(cx,cy,radius*1.02,0,TAU);
       g.fill();
+      let shimmer=((t*(bedside?.018:.034))%1)*radius*2.8-radius*1.45;
+      let shimmerGrad=g.createLinearGradient(cx+shimmer-radius*.20,cy-radius*.80,cx+shimmer+radius*.35,cy+radius*.80);
+      shimmerGrad.addColorStop(0,"rgba(255,255,255,0)");
+      shimmerGrad.addColorStop(.52,"rgba(255,247,218,.135)");
+      shimmerGrad.addColorStop(1,"rgba(255,255,255,0)");
+      g.globalAlpha=(bedside?.20:.34)*ramp;
+      g.strokeStyle=shimmerGrad;
+      g.lineWidth=clamp(radius*.030,8,18);
+      g.beginPath();
+      g.moveTo(cx+shimmer-radius*.60,cy-radius*.88);
+      g.bezierCurveTo(cx+shimmer-radius*.22,cy-radius*.30,cx+shimmer+radius*.10,cy+radius*.18,cx+shimmer+radius*.50,cy+radius*.88);
+      g.stroke();
       g.restore();
 
       let railX0=w*.16, railX1=w*.84, railY=h*.89, brtPct=(standbyBedsideBrightness-.50)/(.88-.50), railGlow=bedside?Math.max(0,Math.min(1,(standbyBedsideRailGlow-performance.now())/700)):0;

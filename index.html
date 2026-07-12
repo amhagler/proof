@@ -5295,14 +5295,36 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
         let before=snap();
         let cloudState=importStateObject(data.state);
         cloudRestoreCache=cloudBackupFromRow(data);
+        let recovery=buildProtectedRecovery(before,cloudState);
+        let recovered=false;
+        if(recovery.hasRecoverable){
+          await finishCloudProgress(progress,"MERGING",420);
+          progress=null;
+          let msg="This browser has protected local records that are not in the cloud save:\n\n"+recovery.summary+"\n\nRecover them while loading the cloud copy?";
+          if(await askCloudRecovery(msg)){
+            cloudState=importStateObject(recovery.merged);
+            recovered=true;
+            progress=startCloudProgress("MERGING");
+          }else{
+            progress=startCloudProgress("LOADING");
+          }
+        }
         state=cloudState;
         save();
         hydrateControls();
         renderAll();
-        markCloudSynced(data.updated_at);
+        if(recovered){
+          updateCloudProgress(progress,"SAVING");
+          let mergedPayload=exportPayload(),mergedAt=new Date().toISOString();
+          await writeCloudState(user,mergedPayload,mergedAt);
+          cloudRestoreCache=cloudBackupFromPayload(mergedPayload,mergedAt);
+          markCloudSynced(mergedAt);
+        }else{
+          markCloudSynced(data.updated_at);
+        }
         cloudAutosaveDirty=false;cloudAutosavePaused=false;updateCloudAutosaveUI();
-        await finishCloudProgress(progress,"LOADED",520);
-        showUndo("Loaded dashboard from Supabase cloud.",before);
+        await finishCloudProgress(progress,recovered?"MERGED":"LOADED",520);
+        showUndo(recovered?"Recovered protected local records and loaded cloud.":"Loaded dashboard from Supabase cloud.",before);
       }catch(err){await finishCloudProgress(progress);let msg=String(err?.message||err||"");if(/sign in|supabase/i.test(msg))promptCloudSettings("Load from cloud failed. Sign in from Settings, then try Load again.");else alert("Load from cloud failed: "+msg)}
     }
     $("cloudSignIn").onclick=cloudSignIn;

@@ -46,7 +46,7 @@
     .desktopOnlyTop{display:inline-grid;place-items:center}
     #cloudLoad{position:relative;overflow:hidden}
     #cloudLoad.cloudNewer{border-color:color-mix(in srgb,var(--theme-accent,var(--cyan)) 52%,rgba(255,255,255,.18));background:linear-gradient(180deg,color-mix(in srgb,var(--theme-accent,var(--cyan)) 18%,rgba(255,255,255,.065)),color-mix(in srgb,var(--theme-accent,var(--cyan)) 8%,rgba(255,255,255,.035)));box-shadow:0 0 0 1px color-mix(in srgb,var(--theme-accent,var(--cyan)) 16%,transparent) inset,0 0 14px color-mix(in srgb,var(--theme-accent,var(--cyan)) 22%,transparent);animation:loadAdvisoryBreathe 4.2s ease-in-out infinite}
-    #cloudLoad.cloudNewer:after{content:"";position:absolute;right:5px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--theme-accent,var(--cyan));box-shadow:0 0 7px var(--theme-accent,var(--cyan)),0 0 12px var(--theme-glow,rgba(45,125,255,.36))}
+    #cloudLoad.cloudNewer:after{content:"";position:relative;display:inline-block;width:7px;height:7px;margin-left:7px;vertical-align:middle;border-radius:50%;background:var(--theme-accent,var(--cyan));box-shadow:0 0 7px var(--theme-accent,var(--cyan)),0 0 12px var(--theme-glow,rgba(45,125,255,.36));transform:translateY(-1px)}
     @keyframes loadAdvisoryBreathe{0%,100%{filter:brightness(1);box-shadow:0 0 0 1px color-mix(in srgb,var(--theme-accent,var(--cyan)) 14%,transparent) inset,0 0 10px color-mix(in srgb,var(--theme-accent,var(--cyan)) 16%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--theme-accent,var(--cyan)) 14%,rgba(255,255,255,.055)),color-mix(in srgb,var(--theme-accent,var(--cyan)) 6%,rgba(255,255,255,.03)))}50%{filter:brightness(1.12);box-shadow:0 0 0 1px color-mix(in srgb,var(--theme-accent,var(--cyan)) 28%,transparent) inset,0 0 24px color-mix(in srgb,var(--theme-accent,var(--cyan)) 38%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--theme-accent,var(--cyan)) 28%,rgba(255,255,255,.07)),color-mix(in srgb,var(--theme-accent,var(--cyan)) 13%,rgba(255,255,255,.04)))}}
     .cloudStatus{width:34px;height:30px;border-radius:999px;border:1px solid rgba(123,231,255,.16);background:rgba(255,255,255,.045);position:relative;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(0,0,0,.10) inset}
     .cloudStatus:before{content:"";width:17px;height:9px;border-radius:999px;background:rgba(183,194,230,.46);box-shadow:-5px 1px 0 -1px rgba(183,194,230,.46),4px -4px 0 -1px rgba(183,194,230,.46),1px -2px 0 1px rgba(183,194,230,.32)}
@@ -4988,7 +4988,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
       cloudFreshnessNewerAt=on?String(updatedAt||""):"";
       let btn=$("cloudLoad");if(!btn)return;
       btn.classList.toggle("cloudNewer",!!on);
-      btn.textContent=on?"Load \u2022":"Load";
+      btn.textContent="Load";
       btn.title=on?"Newer cloud save available":"Load from cloud";
       btn.setAttribute("aria-label",on?"Load from cloud. Newer cloud save available.":"Load from cloud");
       if(on&&state?.ui?.cloudAutosave){cloudAutosavePaused=true;if(cloudAutosaveTimer)clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}

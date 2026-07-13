@@ -51,6 +51,8 @@
     #cloudLoad.cloudNewer:after{content:"";position:relative;z-index:1;display:inline-block;width:7px;height:7px;margin-left:7px;vertical-align:middle;border-radius:50%;background:var(--theme-accent,var(--cyan));box-shadow:0 0 7px var(--theme-accent,var(--cyan)),0 0 12px var(--theme-glow,rgba(45,125,255,.36));transform:translateY(-1px)}
     @keyframes loadAdvisoryFill{0%,100%{opacity:0}50%{opacity:1}}
     @keyframes loadAdvisoryText{0%,100%{color:var(--load-normal-text);box-shadow:0 0 0 1px rgba(255,255,255,.03) inset}50%{color:var(--load-filled-text);box-shadow:0 0 0 1px rgba(255,255,255,.16) inset,0 0 22px color-mix(in srgb,var(--theme-accent,var(--cyan)) 42%,transparent)}}
+    @media(max-width:720px){#cloudLoad.cloudNewer{animation:none;color:var(--load-normal-text);border-color:color-mix(in srgb,var(--theme-accent,var(--cyan)) 38%,rgba(255,255,255,.14));background:linear-gradient(180deg,color-mix(in srgb,var(--theme-accent,var(--cyan)) 12%,rgba(255,255,255,.06)),color-mix(in srgb,var(--theme-accent,var(--cyan)) 4%,rgba(255,255,255,.035)));box-shadow:0 0 0 1px color-mix(in srgb,var(--theme-accent,var(--cyan)) 10%,transparent) inset,0 0 10px color-mix(in srgb,var(--theme-accent,var(--cyan)) 16%,transparent)}#cloudLoad.cloudNewer:before{opacity:0;animation:none}#cloudLoad.cloudNewer.mobileNoticePulse:before{animation:mobileLoadWake .95s ease-out 1}#mobileCloudSave .mobileCloudDot{display:none;position:absolute;right:6px;top:6px;width:7px;height:7px;border-radius:50%;background:var(--theme-accent,var(--cyan));box-shadow:0 0 7px var(--theme-accent,var(--cyan)),0 0 12px var(--theme-glow,rgba(45,125,255,.36));pointer-events:none}#mobileCloudSave.cloudNewerMobile{border-color:color-mix(in srgb,var(--theme-accent,var(--cyan)) 42%,rgba(255,255,255,.18));background:linear-gradient(180deg,color-mix(in srgb,var(--theme-accent,var(--cyan)) 13%,rgba(7,11,26,.46)),rgba(7,11,26,.42));box-shadow:0 0 18px color-mix(in srgb,var(--theme-accent,var(--cyan)) 24%,transparent),0 0 0 1px color-mix(in srgb,var(--theme-accent,var(--cyan)) 10%,rgba(255,255,255,.08)) inset}#mobileCloudSave.cloudNewerMobile .mobileCloudDot{display:block}#mobileCloudSave.cloudNewerMobile.mobileNoticePulse{animation:mobileCloudWake 1.05s ease-out 1}}
+    @keyframes mobileLoadWake{0%{opacity:0;transform:scaleX(.25)}32%{opacity:.82;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}@keyframes mobileCloudWake{0%{filter:brightness(1);transform:scale(1)}36%{filter:brightness(1.75);transform:scale(1.08);box-shadow:0 0 26px color-mix(in srgb,var(--theme-accent,var(--cyan)) 42%,transparent),0 0 0 1px color-mix(in srgb,var(--theme-accent,var(--cyan)) 18%,rgba(255,255,255,.12)) inset}100%{filter:brightness(1);transform:scale(1)}}
     .cloudStatus{width:34px;height:30px;border-radius:999px;border:1px solid rgba(123,231,255,.16);background:rgba(255,255,255,.045);position:relative;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(0,0,0,.10) inset}
     .cloudStatus:before{content:"";width:17px;height:9px;border-radius:999px;background:rgba(183,194,230,.46);box-shadow:-5px 1px 0 -1px rgba(183,194,230,.46),4px -4px 0 -1px rgba(183,194,230,.46),1px -2px 0 1px rgba(183,194,230,.32)}
     .cloudStatus:after{content:"";position:absolute;right:5px;bottom:5px;width:5px;height:5px;border-radius:50%;background:rgba(183,194,230,.54);box-shadow:0 0 5px rgba(183,194,230,.16)}
@@ -719,7 +721,7 @@
   </style>
 </head>
 <body>
-  <canvas id="matrix"></canvas><div class="fog"></div><div class="scan"></div><canvas id="lightning"></canvas><div class="panelEmitter" id="panelEmitter" aria-hidden="true"></div><svg class="laserOverlay" id="laserOverlay" aria-hidden="true"></svg><div class="standbyOverlay" id="standbyOverlay" aria-hidden="true"><canvas class="standbyCanvas" id="standbyCanvas"></canvas><div class="standbyVeil"></div><div class="standbyEmitter" aria-hidden="true"></div><div class="standbyNotice"><b>SYSTEM ON STANDBY</b><div class="standbyClock" id="standbyClock">00:00</div></div></div><div class="mobileQuickStack mobileQuickLeft" id="mobileQuickLeft"><button class="mobileQuick" id="mobileBriefing" type="button" aria-label="Open morning briefing" title="Briefing">&#9749;</button><button class="mobileQuick" id="mobileShopping" type="button" aria-label="Open shopping list" title="Shopping">&#128722;</button><button class="mobileQuick" id="mobileSkinPicker" type="button" aria-label="Open skin chooser" title="Skins">&#9672;</button><button class="mobileQuick" id="mobileSettings" type="button" aria-label="Open settings" title="Settings">&#9881;</button></div><div class="mobileQuickStack mobileQuickRight" id="mobileQuickStack"><button class="mobileQuick" id="mobileTaskFocus" type="button" aria-label="Focus task input" title="Add task">+</button><button class="mobileQuick" id="mobileCalendar" type="button" aria-label="Open calendar" title="Calendar">&#128197;</button><button class="mobileQuick" id="mobilePriorities" type="button" aria-label="Open priorities" title="Priorities">P</button><button class="mobileQuick" id="mobileCloudSave" type="button" aria-label="Save to cloud" title="Save to cloud">&#128190;</button></div>
+  <canvas id="matrix"></canvas><div class="fog"></div><div class="scan"></div><canvas id="lightning"></canvas><div class="panelEmitter" id="panelEmitter" aria-hidden="true"></div><svg class="laserOverlay" id="laserOverlay" aria-hidden="true"></svg><div class="standbyOverlay" id="standbyOverlay" aria-hidden="true"><canvas class="standbyCanvas" id="standbyCanvas"></canvas><div class="standbyVeil"></div><div class="standbyEmitter" aria-hidden="true"></div><div class="standbyNotice"><b>SYSTEM ON STANDBY</b><div class="standbyClock" id="standbyClock">00:00</div></div></div><div class="mobileQuickStack mobileQuickLeft" id="mobileQuickLeft"><button class="mobileQuick" id="mobileBriefing" type="button" aria-label="Open morning briefing" title="Briefing">&#9749;</button><button class="mobileQuick" id="mobileShopping" type="button" aria-label="Open shopping list" title="Shopping">&#128722;</button><button class="mobileQuick" id="mobileSkinPicker" type="button" aria-label="Open skin chooser" title="Skins">&#9672;</button><button class="mobileQuick" id="mobileSettings" type="button" aria-label="Open settings" title="Settings">&#9881;</button></div><div class="mobileQuickStack mobileQuickRight" id="mobileQuickStack"><button class="mobileQuick" id="mobileTaskFocus" type="button" aria-label="Focus task input" title="Add task">+</button><button class="mobileQuick" id="mobileCalendar" type="button" aria-label="Open calendar" title="Calendar">&#128197;</button><button class="mobileQuick" id="mobilePriorities" type="button" aria-label="Open priorities" title="Priorities">P</button><button class="mobileQuick" id="mobileCloudSave" type="button" aria-label="Save to cloud" title="Save to cloud"><span aria-hidden="true">&#128190;</span><span class="mobileCloudDot" aria-hidden="true"></span></button></div>
   <div class="topbar"><div class="topInner">
     <div class="brand"><div class="title">SCHEDULE COCKPIT</div><div class="subtle">Sanity Preserver &bull; Task Manager &bull; Holo System</div></div>
     <form class="search" action="https://www.google.com/search" method="GET" target="_blank" rel="noopener"><div class="lens"></div><input id="googleQ" name="q" type="text" placeholder="Search Google..." autocomplete="off"><button class="btn primary" type="submit">SEARCH</button></form>
@@ -4990,13 +4992,30 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     }
     let cloudFreshnessBusy=false,cloudFreshnessLast=0,cloudFreshnessNewerAt="";
     const CLOUD_FRESHNESS_INTERVAL=10*60*1000;
+    function pulseMobileCloudNotice(...els){
+      if(!isMobileView()||document.hidden)return;
+      els.filter(Boolean).forEach(el=>{
+        el.classList.remove("mobileNoticePulse");
+        void el.offsetWidth;
+        el.classList.add("mobileNoticePulse");
+        setTimeout(()=>el.classList.remove("mobileNoticePulse"),1200);
+      });
+    }
     function setCloudNewerAvailable(on=false,updatedAt=""){
-      cloudFreshnessNewerAt=on?String(updatedAt||""):"";
       let btn=$("cloudLoad");if(!btn)return;
+      let nextNewerAt=on?String(updatedAt||""):"",wasOn=btn.classList.contains("cloudNewer"),shouldPulse=!!on&&(!wasOn||cloudFreshnessNewerAt!==nextNewerAt);
+      cloudFreshnessNewerAt=nextNewerAt;
       btn.classList.toggle("cloudNewer",!!on);
       btn.innerHTML=on?'<span class="loadLabel">Load</span>':"Load";
       btn.title=on?"Newer cloud save available":"Load from cloud";
       btn.setAttribute("aria-label",on?"Load from cloud. Newer cloud save available.":"Load from cloud");
+      let mobileSave=$("mobileCloudSave");
+      if(mobileSave){
+        mobileSave.classList.toggle("cloudNewerMobile",!!on);
+        mobileSave.title=on?"Newer cloud save available. Use Load before saving.":"Save to cloud";
+        mobileSave.setAttribute("aria-label",on?"Newer cloud save available. Use Load before saving.":"Save to cloud");
+      }
+      if(shouldPulse)pulseMobileCloudNotice(btn,mobileSave);
       if(on&&state?.ui?.cloudAutosave){cloudAutosavePaused=true;if(cloudAutosaveTimer)clearTimeout(cloudAutosaveTimer);cloudAutosaveTimer=null}
       else if(!on&&cloudAutosavePaused)cloudAutosavePaused=false;
       updateCloudAutosaveUI();

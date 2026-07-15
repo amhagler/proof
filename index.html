@@ -681,6 +681,49 @@
         max-height:calc(100vh - var(--topbarH,74px) - 24px);
       }
     }
+    :root{
+      --popupSafeTop:calc(var(--topbarH,74px) + 12px);
+      --popupSafeBottom:max(16px,env(safe-area-inset-bottom));
+    }
+    .noteOverlay,.dueOverlay,.overlay{
+      z-index:210;
+      padding:var(--popupSafeTop) 18px var(--popupSafeBottom);
+      overflow:auto;
+      overscroll-behavior:contain;
+      align-items:center;
+      justify-content:center;
+    }
+    .noteHolo,.dueHolo,.modal{
+      max-height:calc(100dvh - var(--popupSafeTop) - var(--popupSafeBottom));
+    }
+    .dueHolo{
+      overflow:auto;
+    }
+    .modal{
+      display:flex;
+      flex-direction:column;
+    }
+    .modalBd{
+      overflow-y:auto;
+    }
+    #subtaskEditOverlay{
+      z-index:230!important;
+    }
+    #diaryLinksOverlay,#holoDialogOverlay{
+      z-index:320!important;
+    }
+    @media(max-width:720px){
+      :root{--popupSafeTop:36px}
+      .noteOverlay,.dueOverlay,.overlay{
+        padding:var(--popupSafeTop) 8px var(--popupSafeBottom);
+      }
+      #shoppingOverlay{
+        padding:var(--popupSafeTop) 6px var(--popupSafeBottom)!important;
+      }
+      .briefingHolo,.shoppingPanel{
+        max-height:calc(100dvh - var(--popupSafeTop) - var(--popupSafeBottom))!important;
+      }
+    }
     html.bedsideStandby .panelEmitter,
     html.bedsideStandby .standbyEmitter{
       display:none!important;

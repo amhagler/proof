@@ -843,7 +843,7 @@
     const defaults=[{label:"Discussion",sub:"Tracker",href:"https://amhagler.github.io/class-discussion/",glyph:"DT"},{label:"Rubric",sub:"Generator",href:"https://amhagler.github.io/rubric/",glyph:"RB"},{label:"Unit Calendar",sub:"Generator",href:"https://amhagler.github.io/uc/",glyph:"UC"},{label:"Record",sub:"Students",href:"https://docs.google.com/spreadsheets/d/1na_7-0Ouzzb11gXltS9I9x6bXTwc_hoAbi1QBXNuyBU/edit?gid=0#gid=0",glyph:"SR"},{label:"Budget",sub:"Points",href:"https://docs.google.com/spreadsheets/d/1Ym9IjiEMEIGfVujTgz2qs8rBE8BEnIoC9LfJZzT0zig/edit?gid=1261703613#gid=1261703613",glyph:"BU"},{label:"Portal",sub:"Login",href:"https://geffenacademy.myschoolapp.com/app#login",glyph:"PT"},{label:"Gradebook",sub:"Direct",href:"https://geffenacademy.myschoolapp.com/sis-gradebook/gradebook/27966135?svcid=edu&addin=1",glyph:"GB"}];
     const blue={monday:[["9:00-9:15","Reading Period"],["9:15-10:10","A"],["10:15-11:10","B"],["11:20-12:15","C"],["12:15-1:05","Lunch"],["1:10-2:05","D"],["2:10-3:05","E"],["3:10-3:50","H"]],tuesday:[["9:00-9:15","Bulletin"],["9:15-10:10","F"],["10:15-11:10","G"],["11:20-12:15","A"],["12:15-1:05","Lunch"],["1:10-2:05","B"],["2:10-3:05","C"],["3:10-3:50","H"]],wednesday:[["9:00-9:15","Reading Period"],["9:15-10:10","D"],["10:15-11:10","E"],["11:20-12:15","F"],["12:15-1:05","Lunch"],["1:10-2:05","G"],["2:10-3:05","A"],["3:10-3:50","H"]],thursday:[["9:00-9:15","Reading Period"],["9:15-10:10","B"],["10:15-11:10","C"],["11:20-12:15","D"],["12:15-1:05","Lunch"],["1:10-2:05","E"],["2:10-3:05","F"],["3:10-3:50","H"]],friday:[["8:00-8:50","Educators' Mtg."],["9:00-9:55","G"],["10:00-10:55","A"],["11:05-12:00","B"],["12:00-1:05","Lunch"],["1:10-2:05","C"],["2:10-3:05","D"],["3:10-3:50","H/X1"]]};
     const gold={monday:[["9:00-9:15","Reading Period"],["9:15-10:10","E"],["10:15-11:10","F"],["11:20-12:15","G"],["12:15-1:05","Lunch"],["1:10-2:05","A"],["2:10-3:05","B"],["3:10-3:50","H"]],tuesday:[["9:00-9:15","Bulletin"],["9:15-10:10","C"],["10:15-11:10","D"],["11:20-12:15","E"],["12:15-1:05","Lunch"],["1:10-2:05","F"],["2:10-3:05","G"],["3:10-3:50","H"]],wednesday:[["9:00-9:15","Reading Period"],["9:15-10:10","A"],["10:15-11:10","B"],["11:20-12:15","C"],["12:15-1:05","Lunch"],["1:10-2:05","D"],["2:10-3:05","E"],["3:10-3:50","H"]],thursday:[["9:00-9:15","Reading Period"],["9:15-10:10","F"],["10:15-11:10","G"],["11:20-12:15","A"],["12:15-1:05","Lunch"],["1:10-2:05","B"],["2:10-3:05","C"],["3:10-3:50","H"]],friday:[["8:00-8:50","Educators' Mtg."],["9:00-9:55","D"],["10:00-10:55","E"],["11:00-11:45","H"],["11:45-12:35","Lunch"],["12:40-1:35","F"],["1:40-2:35","G"],["2:40-3:20","X3"]]};
-    const weeks={blue,gold}, days=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"], schoolDays=days, blocks=["A","B","C","D","E","F","G","H"], KEY="geffen_cockpit_raw_v1", RESTORE_KEY=KEY+"_local_restore_points_v1", CLOUD_LOCAL_DIRTY_KEY=KEY+"_cloud_local_dirty_at_v1", CLOUD_LOCAL_WRITE_KEY=KEY+"_cloud_local_write_at_v1";
+    const weeks={blue,gold}, days=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"], schoolDays=days, blocks=["A","B","C","D","E","F","G","H"], KEY="geffen_cockpit_raw_v1", RESTORE_KEY=KEY+"_local_restore_points_v1", CLOUD_LOCAL_DIRTY_KEY=KEY+"_cloud_local_dirty_at_v1", CLOUD_LOCAL_WRITE_KEY=KEY+"_cloud_local_write_at_v1", LOCAL_STATE_TS_KEY=KEY+"_local_state_saved_at_v1", APP_STATE_DB=KEY+"_indexed_v1", APP_STATE_STORE="state", APP_STATE_ID=KEY, LOCAL_STATE_INLINE_LIMIT=1800000;
     const starOrder=["purple","emerald","rose","platinum","aqua","copper"], starColors={purple:"#B66BFF",emerald:"#56D99A",rose:"#E879B9",platinum:"#D8E2F2",aqua:"#315CFF",copper:"#C9975C"};
     const $=id=>document.getElementById(id), pad=n=>String(n).padStart(2,"0"), iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`, longDate=d=>d.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"}), monthDay=d=>d.toLocaleDateString(undefined,{month:"long",day:"numeric"}), html=s=>String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"), uid=()=>Math.random().toString(16).slice(2)+Date.now().toString(16), clone=o=>JSON.parse(JSON.stringify(o));
     function emptyCustomWeek(){return Object.fromEntries(schoolDays.map(d=>[d,[]]))} function defaultCustomSchedule(){return{anchorDate:"",weeks:{A:emptyCustomWeek(),B:emptyCustomWeek()}}}
@@ -1069,7 +1069,7 @@
     function holoConfirm(title,message,okLabel="Delete"){return holoDialog(title,message,[{label:"Cancel",value:false},{label:okLabel,value:true,primary:true}])}
     function holoNotice(title,message){return holoDialog(title,message,[{label:"OK",value:true,primary:true}])}
 
-    function load(){try{let o=JSON.parse(localStorage.getItem(KEY)||"null");if(o&&o.state&&typeof o.state==="object")o=o.state;if(!o)return clone(base);let embeddedBackups=normCloudBackups(o.cloudBackups);if(embeddedBackups.length)addLocalRestorePoints(embeddedBackups);let mode=["geffen","customWeekly","customBiweekly"].includes(o.scheduleMode)?o.scheduleMode:"geffen",rawLinks=Array.isArray(o.links)?o.links:null,oldExport=extractExportHref(rawLinks);return{...clone(base),...o,exportPageHref:String(o.exportPageHref||oldExport||""),emailPageHref:normWebHref(o.emailPageHref,base.emailPageHref),scheduleMode:mode,blocks:{...base.blocks,...(o.blocks||{})},hBlocks:normHBlocks(o.hBlocks),customSchedule:normCustomSchedule(o.customSchedule),links:rawLinks?rawLinks:null,tasks:Array.isArray(o.tasks)?o.tasks.map(normTask):[],trash:Array.isArray(o.trash)?o.trash.map(normTrashItem).filter(Boolean):[],weekly:normWeekly(o.weekly),diary:normDiary(o.diary),ledger:normLedger(o.ledger),weight:normWeight(o.weight),shopping:normShopping(o.shopping),games:normGames(o.games),themeFavorites:normThemeFavorites(o.themeFavorites),cloudBackups:[],colorLabels:{...base.colorLabels,...(o.colorLabels||o.starLabels||{})},ui:normUi(o.ui)}}catch{return clone(base)}} let cloudAutosaveTimer=null,cloudAutosaveDirty=false,cloudAutosaveReady=false,cloudAutosaveBusy=false,cloudAutosavePaused=false,cloudDirtyTrackingReady=false;const CLOUD_AUTOSAVE_DELAY=10*60*1000;let state=load(), today=iso(new Date()), calendarMonthOffset=0, customWeekView="A"; repairStoredIds(); state.viewDate=today; save(); cloudDirtyTrackingReady=true; applyVisualTheme(); applyExperienceMode(); document.body.classList.toggle("largeText",!!state.ui.largeText); function snap(){return clone(state)}
+    function load(){try{let o=JSON.parse(localStorage.getItem(KEY)||"null");if(o&&o.__geffenIndexedState)return clone(base);if(o&&o.state&&typeof o.state==="object")o=o.state;if(!o)return clone(base);let embeddedBackups=normCloudBackups(o.cloudBackups);if(embeddedBackups.length)addLocalRestorePoints(embeddedBackups);let mode=["geffen","customWeekly","customBiweekly"].includes(o.scheduleMode)?o.scheduleMode:"geffen",rawLinks=Array.isArray(o.links)?o.links:null,oldExport=extractExportHref(rawLinks);return{...clone(base),...o,exportPageHref:String(o.exportPageHref||oldExport||""),emailPageHref:normWebHref(o.emailPageHref,base.emailPageHref),scheduleMode:mode,blocks:{...base.blocks,...(o.blocks||{})},hBlocks:normHBlocks(o.hBlocks),customSchedule:normCustomSchedule(o.customSchedule),links:rawLinks?rawLinks:null,tasks:Array.isArray(o.tasks)?o.tasks.map(normTask):[],trash:Array.isArray(o.trash)?o.trash.map(normTrashItem).filter(Boolean):[],weekly:normWeekly(o.weekly),diary:normDiary(o.diary),ledger:normLedger(o.ledger),weight:normWeight(o.weight),shopping:normShopping(o.shopping),games:normGames(o.games),themeFavorites:normThemeFavorites(o.themeFavorites),cloudBackups:[],colorLabels:{...base.colorLabels,...(o.colorLabels||o.starLabels||{})},ui:normUi(o.ui)}}catch(err){console.warn("Dashboard local state could not be loaded.",err);return clone(base)}} let cloudAutosaveTimer=null,cloudAutosaveDirty=false,cloudAutosaveReady=false,cloudAutosaveBusy=false,cloudAutosavePaused=false,cloudDirtyTrackingReady=false;const CLOUD_AUTOSAVE_DELAY=10*60*1000;let state=load(), today=iso(new Date()), calendarMonthOffset=0, customWeekView="A"; repairStoredIds(); state.viewDate=today; cloudDirtyTrackingReady=true; applyVisualTheme(); applyExperienceMode(); document.body.classList.toggle("largeText",!!state.ui.largeText); function snap(){return clone(state)}
     $("viewDate").value=today;$("summerBtn").classList.toggle("on",state.summer);$("scheduleMode").value=state.scheduleMode;$("customAnchor").value=state.customSchedule.anchorDate||"";$("blueAnchor").value=state.blueAnchor;if($("officeMode"))$("officeMode").value=state.officeMode||"none";$("exportTarget").value=state.exportPageHref||"";blocks.forEach(k=>$(k).value=state.blocks[k]||"");
     function linkNorm(l,i){let f=defaults[i]||{label:"Link",sub:"Custom",href:"#",glyph:"LN"};return{label:String(l?.label||f.label).trim(),sub:String(l?.sub||f.sub).trim(),href:String(l?.href||f.href).trim(),glyph:String(l?.glyph||f.glyph).trim().slice(0,3).toUpperCase()}} function links(){return (Array.isArray(state.links)&&state.links.length?state.links:defaults).map(linkNorm)}
     function renderLinkEditor(){$("linkEditor").innerHTML=links().map((l,i)=>`<div class="linkRow"><div><label>Label</label><input data-f="label" value="${html(l.label)}"></div><div><label>Subtitle</label><input data-f="sub" value="${html(l.sub)}"></div><div><label>Glyph</label><input data-f="glyph" maxlength="3" value="${html(l.glyph)}"></div><div><label>URL</label><input data-f="href" value="${html(l.href)}"></div></div>`).join("")} function readLinks(){return[...document.querySelectorAll(".linkRow")].map((r,i)=>linkNorm({label:r.querySelector('[data-f="label"]').value,sub:r.querySelector('[data-f="sub"]').value,glyph:r.querySelector('[data-f="glyph"]').value,href:r.querySelector('[data-f="href"]').value},i))}
@@ -5108,17 +5108,74 @@ $("archiveOverlay").onclick=e=>{if(e.target===$("archiveOverlay"))closeArchive()
         mobileSave.setAttribute("aria-label",conflict?"Save to cloud. Unsaved local changes and newer cloud data.":"Save to cloud");
       }
     }
+    let appStateDbPromise=null;
+    function openAppStateDb(){
+      if(!("indexedDB" in window))return Promise.reject(new Error("IndexedDB unavailable"));
+      if(!appStateDbPromise)appStateDbPromise=new Promise((resolve,reject)=>{
+        let req=indexedDB.open(APP_STATE_DB,1);
+        req.onupgradeneeded=()=>{let db=req.result;if(!db.objectStoreNames.contains(APP_STATE_STORE))db.createObjectStore(APP_STATE_STORE)};
+        req.onsuccess=()=>resolve(req.result);
+        req.onerror=()=>reject(req.error||new Error("IndexedDB unavailable"));
+      });
+      return appStateDbPromise;
+    }
+    async function appStateDbOp(mode,fn){
+      let db=await openAppStateDb();
+      return new Promise((resolve,reject)=>{
+        let tx=db.transaction(APP_STATE_STORE,mode),store=tx.objectStore(APP_STATE_STORE),req;
+        try{req=fn(store)}catch(err){reject(err);return}
+        req.onsuccess=()=>resolve(req.result);
+        req.onerror=()=>reject(req.error||new Error("IndexedDB operation failed"));
+      });
+    }
+    function mirrorStateToIndexedDb(payload,savedAt=Date.now()){
+      if(!("indexedDB" in window))return;
+      appStateDbOp("readwrite",store=>store.put({payload,savedAt},APP_STATE_ID)).then(()=>{
+        if(payload.length>LOCAL_STATE_INLINE_LIMIT){
+          try{
+            localStorage.setItem(KEY,JSON.stringify({__geffenIndexedState:true,savedAt}));
+            storeMs(LOCAL_STATE_TS_KEY,savedAt);
+          }catch{}
+        }
+      }).catch(err=>console.warn("Could not mirror dashboard state.",err));
+    }
+    async function recoverStateFromIndexedDb(){
+      if(!("indexedDB" in window))return;
+      try{
+        let rec=await appStateDbOp("readonly",store=>store.get(APP_STATE_ID));
+        if(!rec?.payload)return;
+        let localMs=storedMs(LOCAL_STATE_TS_KEY),indexedMs=Number(rec.savedAt)||0,raw="",rawIsPointer=false;
+        try{raw=localStorage.getItem(KEY)||""}catch{}
+        try{rawIsPointer=!!JSON.parse(raw||"null")?.__geffenIndexedState}catch{}
+        if(raw===rec.payload)return;
+        if(!rawIsPointer&&raw&&localMs&&indexedMs<=localMs+1000)return;
+        if(!indexedMs&&!raw)return;
+        state=importStateObject(parseDashboardJson(rec.payload));
+        hydrateControls();
+        renderAll();
+        applyVisualTheme();
+        applyExperienceMode();
+        document.body.classList.toggle("largeText",!!state.ui.largeText);
+        try{localStorage.setItem(KEY,rec.payload);storeMs(LOCAL_STATE_TS_KEY,indexedMs||Date.now())}catch{}
+        updateCloudSaveIndicator();
+        updateCloudAutosaveUI();
+      }catch(err){console.warn("IndexedDB dashboard recovery skipped.",err)}
+    }
     let localSaveWarned=false;
     function safeWriteState(){
       let payload=JSON.stringify(state);
+      let savedAt=Date.now();
+      mirrorStateToIndexedDb(payload,savedAt);
       try{
         localStorage.setItem(KEY,payload);
+        storeMs(LOCAL_STATE_TS_KEY,savedAt);
         localSaveWarned=false;
         return true;
       }catch(firstErr){
         try{
           localStorage.removeItem(RESTORE_KEY);
           localStorage.setItem(KEY,payload);
+          storeMs(LOCAL_STATE_TS_KEY,savedAt);
           localSaveWarned=false;
           return true;
         }catch(err){
@@ -5266,7 +5323,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     };
     async function cloudAuthStorageAvailable(){try{let k="__cloud_auth_test__",v="1".repeat(8192);await cloudIndexedAuthStorage.setItem(k,v);await cloudIndexedAuthStorage.removeItem(k);return true}catch{return false}}
     async function migrateCloudAuthStorage(){try{let legacy=localStorage.getItem(CLOUD_AUTH_STORAGE_KEY);if(legacy&&!(await cloudIndexedAuthStorage.getItem(CLOUD_AUTH_STORAGE_KEY)))await cloudIndexedAuthStorage.setItem(CLOUD_AUTH_STORAGE_KEY,legacy);if(await cloudIndexedAuthStorage.getItem(CLOUD_AUTH_STORAGE_KEY))localStorage.removeItem(CLOUD_AUTH_STORAGE_KEY)}catch{}}
-    function cloudAuthOptions(){return{auth:{storage:cloudIndexedAuthStorage,storageKey:CLOUD_AUTH_STORAGE_KEY,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"implicit"}}}
+    function cloudAuthOptions(){return{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"implicit"}}}
     async function getCloudSession(opts={}){
       if(!cloudClient)return null;
       let {data}=await cloudClient.auth.getSession(),session=data?.session||null,expiresMs=(Number(session?.expires_at)||0)*1000;
@@ -5283,14 +5340,12 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     }
     async function initCloud(){
       if(!window.supabase||!window.supabase.createClient){setCloudStatus("Cloud unavailable");return}
-      let storageOk=await cloudAuthStorageAvailable();
-      await migrateCloudAuthStorage();
       cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,cloudAuthOptions());
       try{
         let session=await getCloudSession();
-        setCloudStatus(cloudUser?"Cloud signed in":(storageOk?"Local only":"Cloud sign-in storage blocked"),!!cloudUser);
+        setCloudStatus(cloudUser?"Cloud signed in":"Local only",!!cloudUser);
         if(session)cloudClient.auth.startAutoRefresh?.();
-        cloudClient.auth.onAuthStateChange(async(_event,session)=>{cloudUser=session?.user||null;storageOk=await cloudAuthStorageAvailable();setCloudStatus(cloudUser?"Cloud signed in":(storageOk?"Local only":"Cloud sign-in storage blocked"),!!cloudUser);if(cloudUser){cloudClient.auth.startAutoRefresh?.();setTimeout(refreshCloudRestoreCache,800);setTimeout(()=>checkCloudFreshness({force:true}),1400)}else setCloudNewerAvailable(false)});
+        cloudClient.auth.onAuthStateChange(async(_event,session)=>{cloudUser=session?.user||null;setCloudStatus(cloudUser?"Cloud signed in":"Local only",!!cloudUser);if(cloudUser){cloudClient.auth.startAutoRefresh?.();setTimeout(refreshCloudRestoreCache,800);setTimeout(()=>checkCloudFreshness({force:true}),1400)}else setCloudNewerAvailable(false)});
       }catch(err){setCloudStatus("Cloud error")}
     }
     function openCloudEmail(){let o=$("cloudEmailOverlay"),box=$("cloudEmailInput");if(!o||!box)return;box.value=cloudEmail()||"";o.classList.add("on");animatePanel(o.querySelector(".noteHolo"));setTimeout(()=>{try{box.focus({preventScroll:true})}catch{box.focus()}box.select()},320)}
@@ -6003,7 +6058,7 @@ function drawOrrery(p,pal,boost){
     function matrix(){if(!ambientAllowed()){matrixRunning=false;return}matrixRunning=true;drawAtmosphere();requestAnimationFrame(matrix)}
     const lc=$("lightning"),lx=lc.getContext("2d");let lw=0,lh=0,lightDpr=0,artifacts=[],lightRunning=false,sparkTimer=null;function resizeLight(){let ndpr=dpr,nw=innerWidth,nh=innerHeight;if(lw===nw&&lh===nh&&lightDpr===ndpr)return;lw=nw;lh=nh;lightDpr=ndpr;lc.width=Math.floor(lw*lightDpr);lc.height=Math.floor(lh*lightDpr);lc.style.width=lw+"px";lc.style.height=lh+"px";lx.setTransform(lightDpr,0,0,lightDpr,0,0)}function startLight(){if(!artifacts.length||lightRunning)return;lightRunning=true;requestAnimationFrame(light)}function rectOf(el){return el?.getBoundingClientRect?.()||null}function spawn(el,type="random"){let r=rectOf(el);if(!r||!ambientAllowed())return;let kinds=["flicker","ripple","glint"],kind=type==="random"?kinds[Math.floor(Math.random()*kinds.length)]:type,edge=["top","right","bottom","left"][Math.floor(Math.random()*4)];artifacts.push({kind,edge,r:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},born:performance.now(),life:kind==="ripple"?760:kind==="glint"?520:360,seed:Math.random()});startLight()}function sparkRect(r,color=""){if(!r)return;let b=document.createElement("div"),pad=6;b.className="completionBurst";if(color)b.style.setProperty("--burstColor",color);b.style.left=Math.max(0,r.left-pad)+"px";b.style.top=Math.max(0,r.top-pad)+"px";b.style.width=Math.max(28,r.width+pad*2)+"px";b.style.height=Math.max(24,r.height+pad*2)+"px";document.body.appendChild(b);setTimeout(()=>b.remove(),950)}function fxColor(name,fallback){return getComputedStyle(document.body).getPropertyValue(name).trim()||fallback}function drawEdge(a,t,core,glow){let r=a.r,alpha=t<.5?t*2:(1-t)*2;lx.save();lx.globalAlpha=Math.max(0,alpha);lx.strokeStyle=core;lx.shadowBlur=10;lx.shadowColor=glow;lx.lineWidth=a.kind==="glint"?1.7:1.05;if(a.kind==="ripple"){let inset=2+Math.sin(t*Math.PI)*7;lx.globalAlpha*=.34;lx.strokeRect(r.left+inset,r.top+inset,Math.max(4,r.width-inset*2),Math.max(4,r.height-inset*2))}else if(a.kind==="flicker"){let n=2+Math.floor(a.seed*3);for(let i=0;i<n;i++){let p=(a.seed+i*.37)%1;if(a.edge==="top"||a.edge==="bottom"){let y=a.edge==="top"?r.top+2:r.bottom-2,x=r.left+p*r.width,w=24+60*((a.seed+i*.19)%1);lx.beginPath();lx.moveTo(x,y);lx.lineTo(Math.min(r.right,x+w),y);lx.stroke()}else{let x=a.edge==="left"?r.left+2:r.right-2,y=r.top+p*r.height,h=24+60*((a.seed+i*.19)%1);lx.beginPath();lx.moveTo(x,y);lx.lineTo(x,Math.min(r.bottom,y+h));lx.stroke()}}}else{let p=t,span=Math.min(110,(a.edge==="top"||a.edge==="bottom"?r.width:r.height)*.38);if(a.edge==="top"||a.edge==="bottom"){let y=a.edge==="top"?r.top+2:r.bottom-2,x=r.left+p*(r.width+span)-span,grd=lx.createLinearGradient(x,y,x+span,y);grd.addColorStop(0,"rgba(0,0,0,0)");grd.addColorStop(.5,core);grd.addColorStop(1,"rgba(0,0,0,0)");lx.strokeStyle=grd;lx.beginPath();lx.moveTo(Math.max(r.left,x),y);lx.lineTo(Math.min(r.right,x+span),y);lx.stroke()}else{let x=a.edge==="left"?r.left+2:r.right-2,y=r.top+p*(r.height+span)-span,grd=lx.createLinearGradient(x,y,x,y+span);grd.addColorStop(0,"rgba(0,0,0,0)");grd.addColorStop(.5,core);grd.addColorStop(1,"rgba(0,0,0,0)");lx.strokeStyle=grd;lx.beginPath();lx.moveTo(x,Math.max(r.top,y));lx.lineTo(x,Math.min(r.bottom,y+span));lx.stroke()}}lx.restore()}function light(){if(!artifacts.length||!ambientAllowed()){artifacts=ambientAllowed()?artifacts:[];lx.clearRect(0,0,lw,lh);lightRunning=false;return}lx.clearRect(0,0,lw,lh);let now=performance.now(),core=fxColor("--fxCore","rgba(123,231,255,.95)"),glow=fxColor("--fxGlow","rgba(45,125,255,.55)");artifacts=artifacts.filter(a=>now-a.born<a.life);artifacts.forEach(a=>drawEdge(a,(now-a.born)/a.life,core,glow));if(artifacts.length)requestAnimationFrame(light);else lightRunning=false}function scheduleSparks(delay=900){if(sparkTimer||!ambientAllowed())return;sparkTimer=setTimeout(()=>{sparkTimer=null;sparks()},delay)}function sparks(){if(!ambientAllowed())return;let inten=bgIntensity(),t=[$("bay"),$("cockpit"),document.querySelector(".topbar"),...document.querySelectorAll(".noteOverlay.on .noteHolo,.overlay.on .modal,.projectorOverlay.open .projector")].filter(Boolean);let count=Math.random()<.65?Math.max(1,Math.round((1+Math.floor(Math.random()*2))*Math.min(2.4,inten))):1;for(let i=0;i<count;i++)spawn(t[Math.floor(Math.random()*t.length)],"random");scheduleSparks((1300+Math.random()*3600)/Math.max(.55,Math.min(1.75,inten)))}
     ["mousemove","keydown","pointerdown","pointermove","pointerup","pointercancel","wheel","touchstart","touchmove","touchend","touchcancel"].forEach(ev=>window.addEventListener(ev,standbyActivity,{passive:true}));
-    window.onresize=()=>{topbarHeight();layout();resizeMatrix();resizeLight();resizeStandby();relocateSettingsAccess();updateQuickButtons();resetStandbyIdle()};window.addEventListener("scroll",updateQuickButtons,{passive:true});topbarHeight();resizeMatrix();resizeLight();updateModeButtons();updateQuickButtons();resetStandbyIdle();if(ambientAllowed())matrix();scheduleSparks(900);clock();renderAll();initBatteryPowerSave();setInterval(renderSchedule,lowPower?5000:1000);setInterval(renderTasks,60000);
+    window.onresize=()=>{topbarHeight();layout();resizeMatrix();resizeLight();resizeStandby();relocateSettingsAccess();updateQuickButtons();resetStandbyIdle()};window.addEventListener("scroll",updateQuickButtons,{passive:true});topbarHeight();resizeMatrix();resizeLight();updateModeButtons();updateQuickButtons();resetStandbyIdle();if(ambientAllowed())matrix();scheduleSparks(900);clock();renderAll();recoverStateFromIndexedDb();initBatteryPowerSave();setInterval(renderSchedule,lowPower?5000:1000);setInterval(renderTasks,60000);
   </script>
 </body>
 </html>

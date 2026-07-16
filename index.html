@@ -838,6 +838,7 @@
     const SUPABASE_URL="https://owgswvmipvdvurfrcqsh.supabase.co";
     const SUPABASE_KEY="sb_publishable_K2bRWqlin8i4H-4md1_vzg_iNlMQ5J9";
     const CLOUD_TABLE="dashboard_states";
+    const CLOUD_AUTH_DB="geffen_cockpit_cloud_auth_v1", CLOUD_AUTH_STORE="auth", CLOUD_AUTH_STORAGE_KEY="sb-owgswvmipvdvurfrcqsh-auth-token";
     const defaults=[{label:"Discussion",sub:"Tracker",href:"https://amhagler.github.io/class-discussion/",glyph:"DT"},{label:"Rubric",sub:"Generator",href:"https://amhagler.github.io/rubric/",glyph:"RB"},{label:"Unit Calendar",sub:"Generator",href:"https://amhagler.github.io/uc/",glyph:"UC"},{label:"Record",sub:"Students",href:"https://docs.google.com/spreadsheets/d/1na_7-0Ouzzb11gXltS9I9x6bXTwc_hoAbi1QBXNuyBU/edit?gid=0#gid=0",glyph:"SR"},{label:"Budget",sub:"Points",href:"https://docs.google.com/spreadsheets/d/1Ym9IjiEMEIGfVujTgz2qs8rBE8BEnIoC9LfJZzT0zig/edit?gid=1261703613#gid=1261703613",glyph:"BU"},{label:"Portal",sub:"Login",href:"https://geffenacademy.myschoolapp.com/app#login",glyph:"PT"},{label:"Gradebook",sub:"Direct",href:"https://geffenacademy.myschoolapp.com/sis-gradebook/gradebook/27966135?svcid=edu&addin=1",glyph:"GB"}];
     const blue={monday:[["9:00-9:15","Reading Period"],["9:15-10:10","A"],["10:15-11:10","B"],["11:20-12:15","C"],["12:15-1:05","Lunch"],["1:10-2:05","D"],["2:10-3:05","E"],["3:10-3:50","H"]],tuesday:[["9:00-9:15","Bulletin"],["9:15-10:10","F"],["10:15-11:10","G"],["11:20-12:15","A"],["12:15-1:05","Lunch"],["1:10-2:05","B"],["2:10-3:05","C"],["3:10-3:50","H"]],wednesday:[["9:00-9:15","Reading Period"],["9:15-10:10","D"],["10:15-11:10","E"],["11:20-12:15","F"],["12:15-1:05","Lunch"],["1:10-2:05","G"],["2:10-3:05","A"],["3:10-3:50","H"]],thursday:[["9:00-9:15","Reading Period"],["9:15-10:10","B"],["10:15-11:10","C"],["11:20-12:15","D"],["12:15-1:05","Lunch"],["1:10-2:05","E"],["2:10-3:05","F"],["3:10-3:50","H"]],friday:[["8:00-8:50","Educators' Mtg."],["9:00-9:55","G"],["10:00-10:55","A"],["11:05-12:00","B"],["12:00-1:05","Lunch"],["1:10-2:05","C"],["2:10-3:05","D"],["3:10-3:50","H/X1"]]};
     const gold={monday:[["9:00-9:15","Reading Period"],["9:15-10:10","E"],["10:15-11:10","F"],["11:20-12:15","G"],["12:15-1:05","Lunch"],["1:10-2:05","A"],["2:10-3:05","B"],["3:10-3:50","H"]],tuesday:[["9:00-9:15","Bulletin"],["9:15-10:10","C"],["10:15-11:10","D"],["11:20-12:15","E"],["12:15-1:05","Lunch"],["1:10-2:05","F"],["2:10-3:05","G"],["3:10-3:50","H"]],wednesday:[["9:00-9:15","Reading Period"],["9:15-10:10","A"],["10:15-11:10","B"],["11:20-12:15","C"],["12:15-1:05","Lunch"],["1:10-2:05","D"],["2:10-3:05","E"],["3:10-3:50","H"]],thursday:[["9:00-9:15","Reading Period"],["9:15-10:10","F"],["10:15-11:10","G"],["11:20-12:15","A"],["12:15-1:05","Lunch"],["1:10-2:05","B"],["2:10-3:05","C"],["3:10-3:50","H"]],friday:[["8:00-8:50","Educators' Mtg."],["9:00-9:55","D"],["10:00-10:55","E"],["11:00-11:45","H"],["11:45-12:35","Lunch"],["12:40-1:35","F"],["1:40-2:35","G"],["2:40-3:20","X3"]]};
@@ -5219,17 +5220,59 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     let cloudClient=null,cloudUser=null;
     function setCloudStatus(text,on=false){let el=$("cloudStatus");if(!el)return;el.textContent="";el.title=text;el.setAttribute("aria-label","Cloud status: "+text);el.classList.toggle("on",!!on)}
     function cloudEmail(){return cloudUser?.email||cloudUser?.user_metadata?.email||""}
-    function cloudStorageAvailable(){try{let k="geffen_cockpit_cloud_storage_test",v="1".repeat(8192);localStorage.setItem(k,v);localStorage.removeItem(k);return true}catch{return false}}
-    function cloudAuthOptions(){return{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"implicit"}}}
+    let cloudAuthDbPromise=null;
+    function openCloudAuthDb(){
+      if(!("indexedDB" in window))return Promise.reject(new Error("IndexedDB unavailable"));
+      if(!cloudAuthDbPromise)cloudAuthDbPromise=new Promise((resolve,reject)=>{
+        let req=indexedDB.open(CLOUD_AUTH_DB,1);
+        req.onupgradeneeded=()=>{let db=req.result;if(!db.objectStoreNames.contains(CLOUD_AUTH_STORE))db.createObjectStore(CLOUD_AUTH_STORE)};
+        req.onsuccess=()=>resolve(req.result);
+        req.onerror=()=>reject(req.error||new Error("IndexedDB unavailable"));
+      });
+      return cloudAuthDbPromise;
+    }
+    function cloudAuthDbOp(mode,handler){
+      return openCloudAuthDb().then(db=>new Promise((resolve,reject)=>{
+        let tx=db.transaction(CLOUD_AUTH_STORE,mode),store=tx.objectStore(CLOUD_AUTH_STORE),req=null,done=false;
+        function fail(err){if(done)return;done=true;reject(err||tx.error||new Error("Cloud auth storage failed"))}
+        tx.oncomplete=()=>{if(done)return;done=true;resolve(req?.result??null)};
+        tx.onerror=()=>fail(tx.error);
+        tx.onabort=()=>fail(tx.error);
+        try{req=handler(store);if(req)req.onerror=()=>fail(req.error)}catch(err){fail(err)}
+      }));
+    }
+    const cloudIndexedAuthStorage={
+      getItem:async key=>{try{let v=await cloudAuthDbOp("readonly",store=>store.get(key));return typeof v==="string"?v:null}catch{return null}},
+      setItem:async(key,value)=>{await cloudAuthDbOp("readwrite",store=>store.put(String(value||""),key))},
+      removeItem:async key=>{try{await cloudAuthDbOp("readwrite",store=>store.delete(key))}catch{}}
+    };
+    async function cloudAuthStorageAvailable(){try{let k="__cloud_auth_test__",v="1".repeat(8192);await cloudIndexedAuthStorage.setItem(k,v);await cloudIndexedAuthStorage.removeItem(k);return true}catch{return false}}
+    async function migrateCloudAuthStorage(){try{let legacy=localStorage.getItem(CLOUD_AUTH_STORAGE_KEY);if(legacy&&!(await cloudIndexedAuthStorage.getItem(CLOUD_AUTH_STORAGE_KEY)))await cloudIndexedAuthStorage.setItem(CLOUD_AUTH_STORAGE_KEY,legacy)}catch{}}
+    function cloudAuthOptions(){return{auth:{storage:cloudIndexedAuthStorage,storageKey:CLOUD_AUTH_STORAGE_KEY,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"implicit"}}}
+    async function getCloudSession(opts={}){
+      if(!cloudClient)return null;
+      let {data}=await cloudClient.auth.getSession(),session=data?.session||null,expiresMs=(Number(session?.expires_at)||0)*1000;
+      if(session&&(opts.forceRefresh||!expiresMs||expiresMs-Date.now()<300000)&&cloudClient.auth.refreshSession){
+        try{let fresh=await cloudClient.auth.refreshSession();if(!fresh.error&&fresh.data?.session)session=fresh.data.session}catch{}
+      }
+      cloudUser=session?.user||null;
+      return session;
+    }
+    async function wakeCloudSession(){
+      if(!cloudClient)return;
+      try{cloudClient.auth.startAutoRefresh?.();let session=await getCloudSession({forceRefresh:true});setCloudStatus(session?"Cloud signed in":"Local only",!!session)}
+      catch{}
+    }
     async function initCloud(){
       if(!window.supabase||!window.supabase.createClient){setCloudStatus("Cloud unavailable");return}
-      let storageOk=cloudStorageAvailable();
+      let storageOk=await cloudAuthStorageAvailable();
+      await migrateCloudAuthStorage();
       cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,cloudAuthOptions());
       try{
-        let {data}=await cloudClient.auth.getSession();
-        cloudUser=data?.session?.user||null;
+        let session=await getCloudSession();
         setCloudStatus(cloudUser?"Cloud signed in":(storageOk?"Local only":"Cloud sign-in storage blocked"),!!cloudUser);
-        cloudClient.auth.onAuthStateChange((_event,session)=>{cloudUser=session?.user||null;storageOk=cloudStorageAvailable();setCloudStatus(cloudUser?"Cloud signed in":(storageOk?"Local only":"Cloud sign-in storage blocked"),!!cloudUser);if(cloudUser){setTimeout(refreshCloudRestoreCache,800);setTimeout(()=>checkCloudFreshness({force:true}),1400)}else setCloudNewerAvailable(false)});
+        if(session)cloudClient.auth.startAutoRefresh?.();
+        cloudClient.auth.onAuthStateChange(async(_event,session)=>{cloudUser=session?.user||null;storageOk=await cloudAuthStorageAvailable();setCloudStatus(cloudUser?"Cloud signed in":(storageOk?"Local only":"Cloud sign-in storage blocked"),!!cloudUser);if(cloudUser){cloudClient.auth.startAutoRefresh?.();setTimeout(refreshCloudRestoreCache,800);setTimeout(()=>checkCloudFreshness({force:true}),1400)}else setCloudNewerAvailable(false)});
       }catch(err){setCloudStatus("Cloud error")}
     }
     function openCloudEmail(){let o=$("cloudEmailOverlay"),box=$("cloudEmailInput");if(!o||!box)return;box.value=cloudEmail()||"";o.classList.add("on");animatePanel(o.querySelector(".noteHolo"));setTimeout(()=>{try{box.focus({preventScroll:true})}catch{box.focus()}box.select()},320)}
@@ -5253,8 +5296,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     }
     async function requireCloudUser(){
       if(!cloudClient)throw new Error("Cloud tools are not available.");
-      let {data}=await cloudClient.auth.getSession();
-      cloudUser=data?.session?.user||cloudUser;
+      await getCloudSession();
       if(!cloudUser)throw new Error("Sign in to Supabase first.");
       return cloudUser;
     }
@@ -5295,8 +5337,7 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
       if(!opts.force&&localDirtyMs()&&now-localDirtyMs()<90000)return;
       cloudFreshnessBusy=true;cloudFreshnessLast=now;
       try{
-        let {data:sessionData}=await cloudClient.auth.getSession();
-        cloudUser=sessionData?.session?.user||cloudUser;
+        await getCloudSession();
         if(!cloudUser){setCloudNewerAvailable(false);return}
         let {data,error}=await cloudClient.from(CLOUD_TABLE).select("updated_at").eq("user_id",cloudUser.id).maybeSingle();
         if(error||!data?.updated_at)return;
@@ -5801,7 +5842,8 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     $("cloudSignOut").onclick=cloudSignOut;
     $("cloudSave").onclick=()=>saveToCloud();
     $("cloudLoad").onclick=loadFromCloud;
-    initCloud().finally(()=>{setTimeout(refreshCloudRestoreCache,800);setTimeout(()=>checkCloudFreshness({force:true}),2600)});document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkCloudFreshness()});window.addEventListener("focus",()=>checkCloudFreshness());cloudAutosaveReady=true;updateCloudAutosaveUI();updateCloudSaveIndicator();
+    function resumeCloudSession(){wakeCloudSession().finally(()=>checkCloudFreshness())}
+    initCloud().finally(()=>{setTimeout(refreshCloudRestoreCache,800);setTimeout(()=>checkCloudFreshness({force:true}),2600)});document.addEventListener("visibilitychange",()=>{if(!document.hidden)resumeCloudSession()});window.addEventListener("focus",resumeCloudSession);window.addEventListener("pageshow",resumeCloudSession);cloudAutosaveReady=true;updateCloudAutosaveUI();updateCloudSaveIndicator();
     let brassChime={level:"",started:0,until:0,lastKey:"",timer:0};
     function brassThemeActive(){return themeName(state?.visualTheme)==="brassObservatory"||(standbyActive&&themeName(standbyActiveTheme)==="brassObservatory")}
     function brassChimeAmount(hourOnly=false){let now=performance.now();if(now>brassChime.until){brassChime.level="";return 0}if(hourOnly&&brassChime.level!=="hour")return 0;let dur=Math.max(1,brassChime.until-brassChime.started),p=Math.max(0,Math.min(1,(now-brassChime.started)/dur)),curve=Math.sin(Math.PI*p);return curve*(brassChime.level==="hour"?1:.42)}

@@ -5219,14 +5219,17 @@ $("saveSetup").onclick=()=>{syncStateFromControls();renderSetupMode();buildNodes
     let cloudClient=null,cloudUser=null;
     function setCloudStatus(text,on=false){let el=$("cloudStatus");if(!el)return;el.textContent="";el.title=text;el.setAttribute("aria-label","Cloud status: "+text);el.classList.toggle("on",!!on)}
     function cloudEmail(){return cloudUser?.email||cloudUser?.user_metadata?.email||""}
+    function cloudStorageAvailable(){try{let k="geffen_cockpit_cloud_storage_test",v="1".repeat(8192);localStorage.setItem(k,v);localStorage.removeItem(k);return true}catch{return false}}
+    function cloudAuthOptions(){return{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"implicit"}}}
     async function initCloud(){
       if(!window.supabase||!window.supabase.createClient){setCloudStatus("Cloud unavailable");return}
-      cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+      let storageOk=cloudStorageAvailable();
+      cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,cloudAuthOptions());
       try{
         let {data}=await cloudClient.auth.getSession();
         cloudUser=data?.session?.user||null;
-        setCloudStatus(cloudUser?"Cloud signed in":"Local only",!!cloudUser);
-        cloudClient.auth.onAuthStateChange((_event,session)=>{cloudUser=session?.user||null;setCloudStatus(cloudUser?"Cloud signed in":"Local only",!!cloudUser);if(cloudUser){setTimeout(refreshCloudRestoreCache,800);setTimeout(()=>checkCloudFreshness({force:true}),1400)}else setCloudNewerAvailable(false)});
+        setCloudStatus(cloudUser?"Cloud signed in":(storageOk?"Local only":"Cloud sign-in storage blocked"),!!cloudUser);
+        cloudClient.auth.onAuthStateChange((_event,session)=>{cloudUser=session?.user||null;storageOk=cloudStorageAvailable();setCloudStatus(cloudUser?"Cloud signed in":(storageOk?"Local only":"Cloud sign-in storage blocked"),!!cloudUser);if(cloudUser){setTimeout(refreshCloudRestoreCache,800);setTimeout(()=>checkCloudFreshness({force:true}),1400)}else setCloudNewerAvailable(false)});
       }catch(err){setCloudStatus("Cloud error")}
     }
     function openCloudEmail(){let o=$("cloudEmailOverlay"),box=$("cloudEmailInput");if(!o||!box)return;box.value=cloudEmail()||"";o.classList.add("on");animatePanel(o.querySelector(".noteHolo"));setTimeout(()=>{try{box.focus({preventScroll:true})}catch{box.focus()}box.select()},320)}

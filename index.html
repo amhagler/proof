@@ -742,22 +742,82 @@
         grid-column:1/-1;
       }
     }
-    .day.thisWeekCue{
-      border-color:color-mix(in srgb,var(--theme-accent,var(--cyan)) 34%,rgba(255,255,255,.12));
+    .day.thisWeekCue,.day.nextWeekCue{
+      position:relative;
+      isolation:isolate;
+    }
+    .day.thisWeekCue>*,
+    .day.nextWeekCue>*{
+      position:relative;
+      z-index:1;
+    }
+    .day.thisWeekCue:before,
+    .day.nextWeekCue:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      border-radius:inherit;
       background:
-        radial-gradient(260px 80px at 18% 0%,color-mix(in srgb,var(--theme-accent,var(--cyan)) 13%,transparent),transparent 74%),
-        linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.028));
-      box-shadow:0 0 22px color-mix(in srgb,var(--theme-accent,var(--cyan)) 12%,transparent),0 0 0 1px color-mix(in srgb,var(--theme-accent,var(--cyan)) 10%,transparent) inset;
+        linear-gradient(90deg,var(--weekCueColor) 0 5px,transparent 5px),
+        linear-gradient(180deg,var(--weekCueColor) 0 4px,transparent 4px),
+        radial-gradient(310px 115px at 14% 0%,var(--weekCueWash),transparent 74%);
+      box-shadow:
+        inset 0 0 0 1px var(--weekCueLine),
+        inset 0 0 30px var(--weekCueInset),
+        0 0 28px var(--weekCueGlow);
+      opacity:.98;
+    }
+    .day.thisWeekCue{
+      --weekCueColor:color-mix(in srgb,var(--theme-accent,var(--cyan)) 88%,white);
+      --weekCueLine:color-mix(in srgb,var(--theme-accent,var(--cyan)) 54%,rgba(255,255,255,.16));
+      --weekCueWash:color-mix(in srgb,var(--theme-accent,var(--cyan)) 26%,transparent);
+      --weekCueInset:color-mix(in srgb,var(--theme-accent,var(--cyan)) 18%,transparent);
+      --weekCueGlow:color-mix(in srgb,var(--theme-accent,var(--cyan)) 18%,transparent);
+      border-color:var(--weekCueLine);
     }
     .day.nextWeekCue{
-      border-color:color-mix(in srgb,var(--theme-metal,var(--steel)) 30%,rgba(255,255,255,.11));
-      background:
-        radial-gradient(240px 80px at 82% 0%,color-mix(in srgb,var(--theme-metal,var(--steel)) 9%,transparent),transparent 74%),
-        linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.023));
-      box-shadow:0 0 18px color-mix(in srgb,var(--theme-metal,var(--steel)) 9%,transparent),0 0 0 1px color-mix(in srgb,var(--theme-metal,var(--steel)) 8%,transparent) inset;
+      --weekCueColor:color-mix(in srgb,var(--theme-metal,var(--steel)) 82%,rgba(234,240,255,.58));
+      --weekCueLine:color-mix(in srgb,var(--theme-metal,var(--steel)) 48%,rgba(255,255,255,.14));
+      --weekCueWash:color-mix(in srgb,var(--theme-metal,var(--steel)) 18%,transparent);
+      --weekCueInset:color-mix(in srgb,var(--theme-metal,var(--steel)) 13%,transparent);
+      --weekCueGlow:color-mix(in srgb,var(--theme-metal,var(--steel)) 12%,transparent);
+      border-color:var(--weekCueLine);
     }
     .day.todayMark.thisWeekCue{
-      border-color:rgba(255,224,102,.42);
+      --weekCueColor:rgba(255,224,102,.94);
+      --weekCueLine:rgba(255,224,102,.50);
+      --weekCueWash:rgba(255,224,102,.20);
+      --weekCueInset:rgba(255,224,102,.16);
+      --weekCueGlow:rgba(255,224,102,.20);
+    }
+    .dayNum[data-week-cue]:after{
+      content:attr(data-week-cue);
+      flex:0 0 auto;
+      margin-left:auto;
+      padding:2px 6px;
+      border-radius:999px;
+      border:1px solid var(--weekCueLine);
+      background:color-mix(in srgb,var(--weekCueColor) 12%,rgba(7,11,26,.46));
+      color:var(--weekCueColor);
+      box-shadow:0 0 12px var(--weekCueGlow);
+      font:900 8px var(--mono);
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    @media(max-width:720px){
+      .dayNum[data-week-cue]:after{
+        display:none;
+      }
+      .day.thisWeekCue:before,
+      .day.nextWeekCue:before{
+        background:
+          linear-gradient(90deg,var(--weekCueColor) 0 4px,transparent 4px),
+          linear-gradient(180deg,var(--weekCueColor) 0 3px,transparent 3px),
+          radial-gradient(190px 75px at 14% 0%,var(--weekCueWash),transparent 74%);
+      }
     }
   </style>
   <style>
@@ -1427,12 +1487,19 @@
       let nextStart=new Date(start.getFullYear(),start.getMonth(),start.getDate()+7);
       let nextEnd=new Date(start.getFullYear(),start.getMonth(),start.getDate()+14);
       let thisStartMs=start.getTime(),nextStartMs=nextStart.getTime(),nextEndMs=nextEnd.getTime();
+      let labeledThis=false,labeledNext=false;
       document.querySelectorAll("#calendar .day[data-day]").forEach(cell=>{
         cell.classList.remove("thisWeekCue","nextWeekCue");
+        cell.querySelector(".dayNum")?.removeAttribute("data-week-cue");
         let day=Date.parse(cell.dataset.day+"T12:00:00");
         if(!Number.isFinite(day))return;
-        if(day>=thisStartMs&&day<nextStartMs)cell.classList.add("thisWeekCue");
-        else if(day>=nextStartMs&&day<nextEndMs)cell.classList.add("nextWeekCue");
+        if(day>=thisStartMs&&day<nextStartMs){
+          cell.classList.add("thisWeekCue");
+          if(!labeledThis){cell.querySelector(".dayNum")?.setAttribute("data-week-cue","This week");labeledThis=true}
+        }else if(day>=nextStartMs&&day<nextEndMs){
+          cell.classList.add("nextWeekCue");
+          if(!labeledNext){cell.querySelector(".dayNum")?.setAttribute("data-week-cue","Next week");labeledNext=true}
+        }
       });
     }
     const renderCalendarCore=renderCalendar;

@@ -5134,7 +5134,7 @@ function renderModeControls(){if(!state||!state.ui)return;state.ui=normUi(state.
     let auroraCometEngine=null,auroraCometSession=-1;
     function createAuroraComet(){
       const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
-      const settings={speed:1,trail:24,glow:70,wild:65};
+      const settings={speed:1,trail:8,glow:70,wild:65};
       let width=0,height=0,dpr=1,time=0,phase=0,points=[],last=null,requestedWidth=0,requestedHeight=0;
 const names=['Wild blossom','Silk knots','Tidal ribbons','Fern spirals','Folded orbits'];
 const rand=(a,b)=>a+Math.random()*(b-a),smooth=u=>u*u*u*(u*(u*6-15)+10);
@@ -5173,17 +5173,17 @@ const ink=document.createElement('canvas'),ig=ink.getContext('2d');
 let mist=document.createElement('canvas'),mg=mist.getContext('2d'),swap=document.createElement('canvas'),sg=swap.getContext('2d');
 let inkScale=1,mistScale=1,cloudClock=0,fadeClock=0,previous=null;
 function resize(){const r={width:requestedWidth,height:requestedHeight};if(width===r.width&&height===r.height)return;width=r.width;height=r.height;
-dpr=Math.min(devicePixelRatio||1,1.25,1600/Math.max(width,height));canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+dpr=Math.min(devicePixelRatio||1,1,1100/Math.max(width,height));canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
 inkScale=dpr;ink.width=canvas.width;ink.height=canvas.height;
-mistScale=Math.min(.4,420/Math.max(width,height));
+mistScale=Math.min(.4,300/Math.max(width,height));
 for(const c of [mist,swap]){c.width=Math.max(1,Math.round(width*mistScale));c.height=Math.max(1,Math.round(height*mistScale))}
 previous=null;render();}
 function updateLayers(dt){
 const scale=Math.min(width,height)*.46,cx=width/2,cy=height/2;
 fadeClock+=dt;cloudClock+=dt;
 // Accumulate fade intervals to avoid sub-byte alpha rounding at high refresh rates.
-if(fadeClock>=.05){ig.setTransform(1,0,0,1,0,0);ig.globalCompositeOperation='destination-out';ig.fillStyle='rgba(0,0,0,'+(1-Math.exp(-fadeClock/2.5))+')';ig.fillRect(0,0,ink.width,ink.height);fadeClock=0;}
-if(cloudClock>=.05){const elapsed=cloudClock;cloudClock=0;const w=mist.width,h=mist.height;
+if(fadeClock>=.05){ig.setTransform(1,0,0,1,0,0);ig.globalCompositeOperation='destination-out';ig.fillStyle='rgba(0,0,0,'+(1-Math.exp(-fadeClock/1.2))+')';ig.fillRect(0,0,ink.width,ink.height);fadeClock=0;}
+if(cloudClock>=.075){const elapsed=cloudClock;cloudClock=0;const w=mist.width,h=mist.height;
 sg.setTransform(1,0,0,1,0,0);sg.globalCompositeOperation='source-over';sg.clearRect(0,0,w,h);
 sg.globalAlpha=Math.exp(-elapsed/(settings.trail*.34));sg.filter='blur(.65px)';
 // Transform the entire cloud continuously; sliced blurs create horizontal seams.

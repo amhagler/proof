@@ -913,6 +913,10 @@
 #standbyOverlay[data-theme="holographic"] .standbyVeil,#standbyOverlay[data-theme="holographic"] .standbyEmitter{display:none!important}
 #standbyOverlay[data-theme="arcticCommand"] .standbyVeil,#standbyOverlay[data-theme="arcticCommand"] .standbyEmitter{display:none!important}
 #standbyOverlay[data-theme="jediArchive"] .standbyVeil,#standbyOverlay[data-theme="jediArchive"] .standbyEmitter{display:none!important}
+
+/* Approved Noir and Obsidian screensaver animation surfaces only. */
+#standbyOverlay[data-theme="noirTerminal"] .standbyVeil,#standbyOverlay[data-theme="noirTerminal"] .standbyEmitter{display:none!important}
+#standbyOverlay[data-theme="obsidianLab"] .standbyVeil,#standbyOverlay[data-theme="obsidianLab"] .standbyEmitter{display:none!important}
 </style>
 </head>
 <body>
@@ -5350,6 +5354,100 @@ if(changed){w=width;h=height;dpr=Math.min(devicePixelRatio||1,1.5,2200/Math.max(
 if(mode==='ice')ice(dt);else if(mode==='archive')archive();else wave();}
 target.save();target.globalAlpha=1;target.globalCompositeOperation='source-over';target.filter='none';target.shadowBlur=0;target.drawImage(canvas,0,0,width,height);target.restore();};}
 function standbyRenderApprovedStudy(g,w,h,theme){if(!approvedStudyEngine||approvedStudySession!==standbyStarted||approvedStudyTheme!==theme){approvedStudyEngine=createApprovedStudy(theme==='arcticCommand'?'ice':theme==='jediArchive'?'archive':'wave');approvedStudySession=standbyStarted;approvedStudyTheme=theme}approvedStudyEngine(g,w,h,performance.now())}
+
+// Emerald Ink and Midnight Rain: isolated approved animations using the existing standby lifecycle.
+let noirInkEngine=null,noirInkSession=-1,noirInkTheme=null;
+function createNoirInk(mode){const canvas=document.createElement('canvas'),g=canvas.getContext('2d');let w=0,h=0,dpr=1,t=0,last=0,seed=27182,previousNow=null,initialized=false;
+const TAU=Math.PI*2,rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296},clamp=x=>Math.max(0,Math.min(1,x));
+const trail=document.createElement('canvas'),ctx=trail.getContext('2d'),mist=document.createElement('canvas'),mg=mist.getContext('2d');trail.width=960;trail.height=600;mist.width=320;mist.height=200;
+let motes=[],drops=[],spawn=0;
+function halo(c,x,y,r,color){const q=c.createRadialGradient(x,y,0,x,y,r);q.addColorStop(0,color);q.addColorStop(1,'transparent');c.fillStyle=q;c.fillRect(x-r,y-r,r*2,r*2)}
+function fade(c,width,height,dt,tau){c.globalCompositeOperation='destination-out';c.fillStyle='rgba(0,0,0,'+(1-Math.exp(-dt/tau))+')';c.fillRect(0,0,width,height);c.globalCompositeOperation='source-over'}
+function makeMote(age=0){const source=Math.floor(rand()*4),a=source*TAU/4+t*.035;return{x:480+Math.cos(a)*190+(rand()-.5)*7,y:300+Math.sin(a)*110+(rand()-.5)*7,age,life:12+rand()*16,phase:rand()*TAU,weight:.25+rand()*.7}}
+function velocity(x,y,p){const dx=(x-480)/300,dy=(y-300)/240;return{x:12*Math.sin(dy*3+t*.075)+8*Math.cos(dx*2-dy*2+t*.055)+4*Math.sin(p.phase),y:10*Math.sin(dx*3-t*.06)-7*Math.cos(dy*2+dx+t*.045)}}
+function ink(dt){fade(ctx,960,600,dt,5.5);fade(mg,320,200,dt,10);spawn+=dt*38;while(spawn>=1){motes.push(makeMote());spawn--}motes=motes.filter(p=>p.age<p.life&&p.x>-30&&p.x<990&&p.y>-30&&p.y<630);
+ctx.globalCompositeOperation='screen';mg.globalCompositeOperation='screen';
+for(const p of motes){const a={x:p.x,y:p.y},v=velocity(p.x,p.y,p);p.x+=v.x*dt;p.y+=v.y*dt;p.age+=dt;const alpha=Math.sin(Math.PI*clamp(p.age/p.life))*.13*p.weight;
+ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(p.x,p.y);ctx.strokeStyle=`rgba(92,235,131,${alpha})`;ctx.lineWidth=.7+p.weight;ctx.stroke();
+if(p.age>2)halo(mg,p.x/3,p.y/3,5+p.age*.2,`rgba(21,165,80,${dt*.032*p.weight})`)}
+ctx.globalCompositeOperation='source-over';mg.globalCompositeOperation='source-over';
+g.fillStyle='#010805';g.fillRect(0,0,w,h);g.globalCompositeOperation='screen';g.drawImage(mist,0,0,w,h);g.drawImage(trail,0,0,w,h);g.globalCompositeOperation='source-over';}
+// A deliberately indistinct city, cached once; water bends its light continuously.
+const city=document.createElement('canvas');city.width=768;city.height=480;
+const cg=city.getContext('2d'),wetView=document.createElement('canvas');wetView.width=384;wetView.height=240;
+const wg=wetView.getContext('2d'),wetPixels=wg.createImageData(384,240);
+let cityData=null;
+let cityRefresh=-Infinity;
+function buildCity(){
+let n=731;const random=()=>{n=(n*1664525+1013904223)>>>0;return n/4294967296};
+const sky=cg.createLinearGradient(0,0,0,480);sky.addColorStop(0,'#030a08');sky.addColorStop(.6,'#1b3028');sky.addColorStop(1,'#0a1913');cg.fillStyle=sky;cg.fillRect(0,0,768,480);
+halo(cg,440,200,310,'rgba(77,104,82,.16)');
+// Vertical edges remain vertical. Each facade recedes toward one of two off-screen vanishing points.
+const horizon=172,leftVP=-760,rightVP=1410;
+function building(x,top,leftWidth,rightWidth,bottom,depth){
+for(const [vp,width,side] of [[leftVP,leftWidth,0],[rightVP,rightWidth,1]]){
+const reach=width/Math.abs(vp-x),point=(u,y)=>({x:x+(vp-x)*reach*u,y:y+(horizon-y)*reach*u});
+function quad(u0,u1,y0,y1){const pts=[point(u0,y0),point(u1,y0),point(u1,y1),point(u0,y1)];cg.beginPath();pts.forEach((p,i)=>i?cg.lineTo(p.x,p.y):cg.moveTo(p.x,p.y));cg.closePath()}
+quad(0,1,top,bottom);const tone=Math.round(7+depth*11+side*3);cg.fillStyle=`rgb(${tone-3},${tone+7},${tone+1})`;cg.fill();
+// Floor lines and lit windows follow the same perspective as the building edges.
+const floor=depth>.6?11:17,cols=Math.max(3,Math.floor(width/(depth>.6?9:15)));
+for(let y=top+9;y<bottom-10;y+=floor){for(let col=0;col<cols;col++){const lit=random();if(lit<.65)continue;const u0=(col+.24)/cols,u1=(col+.64)/cols,phase=random()*6.28,inhabited=lit>.96?.5+.5*Math.sin(t*.035+phase):1;
+quad(u0,u1,y,y+floor*.37);cg.fillStyle=lit>.91?`rgba(171,146,103,${.17+inhabited*.10})`:`rgba(119,155,124,${.12+inhabited*.13})`;cg.fill()}}
+const a=point(0,top+4),b=point(1,top+4);cg.strokeStyle='rgba(78,109,88,.13)';cg.lineWidth=1;cg.beginPath();cg.moveTo(a.x,a.y);cg.lineTo(b.x,b.y);cg.stroke();
+}
+}
+cg.filter='none';
+// Uneven depths, rooflines and overlaps: a view among city blocks, with no central avenue.
+for(const b of [[45,92,70,57,520,.9],[188,44,66,73,520,.9],[317,116,53,81,520,.9],[458,65,75,58,520,.9],[591,101,48,67,520,.9],[728,35,72,66,520,.9]])building(...b);
+cg.filter='none';
+for(const b of [[125,151,144,89,560,.48],[374,122,119,82,560,.52],[653,165,97,154,560,.45]])building(...b);
+cg.filter='none';building(-12,-40,100,109,600,.08);building(810,5,117,100,600,.1);building(259,323,125,149,590,.22);
+// Distant rooms change slowly; a faint warm glow lives in the lower right courtyard.
+halo(cg,546,420,85,'rgba(120,125,73,.08)');
+cg.filter='none';const softened=document.createElement('canvas');softened.width=768;softened.height=480;const soft=softened.getContext('2d');soft.filter='blur(2px)';soft.drawImage(city,0,0);cg.clearRect(0,0,768,480);cg.drawImage(softened,0,0);cityData=cg.getImageData(0,0,768,480).data;cityRefresh=t;
+}
+
+function cityThroughWater(){if(!cityData||t<cityRefresh||t-cityRefresh>1)buildCity();const wet=.08+.92*(1-Math.exp(-t/42)),phase=t*.18;
+for(let y=0;y<240;y++)for(let x=0;x<384;x++){
+const xx=x*2,yy=y*2;
+// Fine beads swell into overlapping water films. Slow rivulets locally release the distortion.
+const rivulet=Math.pow(.5+.5*Math.sin(xx*.033+Math.sin(yy*.013-phase)*1.8),18);
+const strength=wet*(1-.72*rivulet),dx=strength*(9*Math.sin(xx*.091+yy*.037+Math.sin(phase))+15*Math.sin(xx*.039-yy*.024+phase*.6)),dy=strength*(8*Math.sin(xx*.07+yy*.066-phase)+17*Math.sin(xx*.017+yy*.026-phase*.8));
+const sx=Math.max(0,Math.min(767,Math.round(xx+dx))),sy=Math.max(0,Math.min(479,Math.round(yy+dy))),blur=Math.round(strength*9),i=(y*384+x)*4,j=(sy*768+sx)*4,j2=(Math.max(0,sy-blur)*768+sx)*4,j3=(Math.min(479,sy+blur)*768+sx)*4;
+for(let c=0;c<3;c++)wetPixels.data[i+c]=cityData[j+c]*.52+(cityData[j2+c]+cityData[j3+c])*.24;
+wetPixels.data[i+3]=255;
+}wg.putImageData(wetPixels,0,0);g.drawImage(wetView,0,0,w,h);
+const shade=g.createRadialGradient(w*.5,h*.56,h*.15,w*.5,h*.5,Math.max(w,h)*.7);shade.addColorStop(0,'transparent');shade.addColorStop(1,'rgba(0,4,2,.67)');g.fillStyle=shade;g.fillRect(0,0,w,h);
+}
+
+function makeDrop(){const r=1.5+Math.pow(rand(),2)*6;return{x:rand()*960,y:rand()*600,r,mass:r*r,vy:0,phase:rand()*TAU,hold:12+rand()*45}}
+function rain(dt){
+fade(ctx,960,600,dt,5);spawn+=dt*(1.4+2.2*(1-Math.exp(-t/40)));while(spawn>=1){drops.push(makeDrop());spawn--}
+for(const p of drops){p.hold-=dt;p.mass+=dt*.022;p.r+=(Math.sqrt(p.mass)-p.r)*(1-Math.exp(-dt*3));const moving=p.hold<0||p.mass>53,target=moving?Math.min(34,Math.max(2,(p.r-2)*3.2)):0;p.vy+=(target-p.vy)*(1-Math.exp(-dt*.6));const x=p.x,y=p.y;p.y+=p.vy*dt;p.x+=Math.sin(p.y*.023+p.phase)*p.vy*dt*.032;
+if(p.vy>.8){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(p.x,p.y);ctx.strokeStyle='rgba(1,14,8,.055)';ctx.lineWidth=p.r*1.1;ctx.lineCap='round';ctx.stroke();}}
+// Surface tension holds small drops; merged drops gain weight and release gradually.
+for(let i=0;i<drops.length;i++){const a=drops[i];if(a.dead)continue;for(let j=i+1;j<drops.length;j++){const b=drops[j];if(b.dead||Math.abs(a.y-b.y)>a.r+b.r)continue;if(Math.hypot(a.x-b.x,a.y-b.y)<(a.r+b.r)*.86){const mass=a.mass+b.mass;a.x+=(b.x-a.x)*b.mass/mass*.5;a.y+=(b.y-a.y)*b.mass/mass*.5;a.mass=Math.min(180,mass);a.hold=0;b.dead=true}}}drops=drops.filter(p=>!p.dead&&p.y<620).slice(-210);
+cityThroughWater();g.drawImage(trail,0,0,w,h);
+const sx=w/960,sy=h/600;
+for(const p of drops){const x=p.x*sx,y=p.y*sy,r=p.r*Math.min(sx,sy),stretch=1+Math.min(.48,p.vy*.014);g.save();g.globalAlpha=.75-.3*(1-Math.exp(-t/45));g.translate(x,y);g.scale(1,stretch);
+// Rounded, slightly asymmetric lens: dark rim, refracted background, and a bright lower meniscus.
+g.beginPath();g.moveTo(0,-r*1.05);g.bezierCurveTo(r*.63,-r*1.03,r*.99,-r*.28,r*.94,r*.23);g.bezierCurveTo(r*.86,r*.92,r*.35,r*1.03,0,r);g.bezierCurveTo(-r*.78,r*1.06,-r*1.02,r*.47,-r*.92,-r*.13);g.bezierCurveTo(-r*.83,-r*.68,-r*.55,-r*1.02,0,-r*1.05);g.closePath();
+g.shadowColor='rgba(0,0,0,.5)';g.shadowBlur=2;g.shadowOffsetY=1;g.fillStyle='#07170f';g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.save();g.clip();
+const lens=g.createLinearGradient(-r*.5,-r,r*.4,r);lens.addColorStop(0,'rgba(122,157,128,.38)');lens.addColorStop(.2,'rgba(30,62,42,.8)');lens.addColorStop(.57,'rgba(3,14,8,.93)');lens.addColorStop(.84,'rgba(80,137,97,.65)');lens.addColorStop(1,'rgba(172,207,173,.78)');g.fillStyle=lens;g.fillRect(-r*1.2,-r*1.2,r*2.4,r*2.4);if(cityData){const lensX=Math.max(0,Math.min(736,p.x*.8-16)),lensY=Math.max(0,Math.min(448,p.y*.8-16));g.globalAlpha*=.65;g.drawImage(city,lensX,lensY,32,32,-r,-r,r*2,r*2);}
+halo(g,-r*.3,-r*.57,r*.56,'rgba(211,229,209,.24)');g.restore();
+g.strokeStyle='rgba(0,5,2,.68)';g.lineWidth=.8;g.stroke();
+g.beginPath();g.ellipse(0,r*.03,r*.77,r*.82,0,.18*Math.PI,.78*Math.PI);g.lineWidth=Math.max(.45,r*.075);g.strokeStyle='rgba(173,214,180,.52)';g.stroke();
+g.beginPath();g.ellipse(-r*.04,-r*.03,r*.69,r*.77,0,1.18*Math.PI,1.49*Math.PI);g.lineWidth=Math.max(.45,r*.08);g.strokeStyle='rgba(220,236,218,.65)';g.stroke();g.restore();}
+}
+
+function reset(){t=0;last=0;spawn=0;seed=27182;motes=[];drops=[];ctx.clearRect(0,0,960,600);mg.clearRect(0,0,320,200);if(mode==='rain')for(let i=0;i<100;i++)drops.push(makeDrop());else {for(let k=0;k<150;k++){t+=.05;ink(.05)}}}
+
+return function(target,width,height,now){const changed=w!==width||h!==height;
+if(previousNow===null||now-previousNow>=32||changed){const dt=previousNow===null?0:Math.min(.1,Math.max(0,(now-previousNow)/1000));previousNow=now;
+if(changed){w=width;h=height;dpr=Math.min(devicePixelRatio||1,1.5,2200/Math.max(w,h));canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);g.setTransform(dpr,0,0,dpr,0,0)}
+if(!initialized){reset();initialized=true}t+=dt;if(mode==='ink')ink(dt);else rain(dt);}
+target.save();target.globalAlpha=1;target.globalCompositeOperation='source-over';target.filter='none';target.shadowBlur=0;target.drawImage(canvas,0,0,width,height);target.restore()};}
+function standbyRenderNoirInk(g,w,h,theme){if(!noirInkEngine||noirInkSession!==standbyStarted||noirInkTheme!==theme){noirInkEngine=createNoirInk(theme==='obsidianLab'?'ink':'rain');noirInkSession=standbyStarted;noirInkTheme=theme}noirInkEngine(g,w,h,performance.now())}
     drawStandby=function(){
       if(!standbyActive)return;
       standbyTime();
@@ -5368,7 +5466,7 @@ function standbyRenderApprovedStudy(g,w,h,theme){if(!approvedStudyEngine||approv
         x.globalCompositeOperation="source-over";
         if(theme==="auroraGlass"){c.style.filter="none";standbyRenderAuroraComet(x,w,h,boost)}
         else if(theme==="holographic"){if(!standbyBedside)c.style.filter="none";standbyRenderApprovedStudy(x,w,h,theme)}
-        else if(theme==="noirTerminal")standbyRenderNoirTelemetry(x,w,h,t,boost,ramp);
+        else if(theme==="noirTerminal"){if(!standbyBedside)c.style.filter="none";standbyRenderNoirInk(x,w,h,theme)}
         else if(theme==="astrometrics"){if(!standbyBedside)c.style.filter="none";standbyRenderOceanComet(x,w,h)}
         else if(theme==="starshipConsole")standbyRenderSpaceFlight(x,w,h,t,boost,ramp);
         else if(theme==="arcticCommand"){if(!standbyBedside)c.style.filter="none";standbyRenderApprovedStudy(x,w,h,theme)}
@@ -5376,7 +5474,7 @@ function standbyRenderApprovedStudy(g,w,h,theme){if(!approvedStudyEngine||approv
         else if(theme==="imperialDatapad")standbyRenderImperialSlowScans(x,w,h,t,boost,ramp);
         else if(theme==="jediArchive"){if(!standbyBedside)c.style.filter="none";standbyRenderApprovedStudy(x,w,h,theme)}
         else if(theme==="solarTemple")standbyRenderSolarAtmosphere(x,w,h,t,boost,ramp);
-        else if(theme==="obsidianLab")standbyRenderObsidianTelemetry(x,w,h,t,boost,ramp);
+        else if(theme==="obsidianLab"){if(!standbyBedside)c.style.filter="none";standbyRenderNoirInk(x,w,h,theme)}
         else if(theme==="artDeco")standbyRenderArtDecoReliable(x,w,h,t,boost,ramp);
         else if(theme==="brassObservatory")standbyRenderBrassObservatoryReliable(x,w,h,t,boost,ramp);
         else if(theme==="cyberpunkArcade")standbyRenderCyberpunkClock(x,w,h,t,boost,ramp);

@@ -908,6 +908,11 @@
 /* Astrometrics screensaver only. */
 #standbyOverlay[data-theme="astrometrics"] .standbyVeil{display:none!important}
 #standbyOverlay[data-theme="astrometrics"] .standbyClock{color:#b0ffe8;text-shadow:0 0 8px #57ffd4a6,0 0 24px #22bed273}
+
+/* Approved animation surfaces only. */
+#standbyOverlay[data-theme="holographic"] .standbyVeil,#standbyOverlay[data-theme="holographic"] .standbyEmitter{display:none!important}
+#standbyOverlay[data-theme="arcticCommand"] .standbyVeil,#standbyOverlay[data-theme="arcticCommand"] .standbyEmitter{display:none!important}
+#standbyOverlay[data-theme="jediArchive"] .standbyVeil,#standbyOverlay[data-theme="jediArchive"] .standbyEmitter{display:none!important}
 </style>
 </head>
 <body>
@@ -5285,6 +5290,66 @@ function step(dt){t+=dt;fadeTime+=dt;waterTime+=dt;pulseTime+=dt;move(dt);if(pul
 let previousNow=null;
 return function(target,width,height,now){const changed=w!==width||h!==height;if(previousNow!==null&&now-previousNow<33&&!changed){target.drawImage(canvas,0,0,width,height);return}const dt=previousNow===null?0:Math.min(.1,(now-previousNow)/1000);previousNow=now;if(changed){w=width;h=height;dpr=Math.min(devicePixelRatio||1,1.5,2400/Math.max(w,h));canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr)}step(dt);render();target.save();target.globalAlpha=1;target.globalCompositeOperation='source-over';target.filter='none';target.shadowBlur=0;target.drawImage(canvas,0,0,width,height);target.restore()};}
 function standbyRenderOceanComet(g,w,h){if(!oceanCometEngine||oceanCometSession!==standbyStarted){oceanCometEngine=createOceanComet();oceanCometSession=standbyStarted}oceanCometEngine(g,w,h,performance.now())}
+
+// Approved screensaver studies. Isolated state; scheduled by the existing standby loop.
+let approvedStudyEngine=null,approvedStudySession=-1,approvedStudyTheme=null;
+function createApprovedStudy(mode){
+const canvas=document.createElement('canvas'),g=canvas.getContext('2d');let w=0,h=0,dpr=1,t=0,previousNow=null;
+const TAU=Math.PI*2,clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),mix=(a,b,u)=>a+(b-a)*u;
+let seed=61843;function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}const range=(a,b)=>mix(a,b,rnd());
+const stars=Array.from({length:150},()=>({x:rnd(),y:rnd(),r:range(.25,1),a:range(.08,.5),p:rnd()*TAU}));
+function backdrop(color){g.globalCompositeOperation='source-over';g.globalAlpha=1;g.fillStyle=color;g.fillRect(0,0,w,h)}
+function line(a,b,color,width=1){g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.strokeStyle=color;g.lineWidth=width;g.stroke()}
+function glow(x,y,r,color,alpha=1){g.globalAlpha=alpha;const q=g.createRadialGradient(x,y,0,x,y,r);q.addColorStop(0,color);q.addColorStop(.16,color);q.addColorStop(1,'transparent');g.fillStyle=q;g.fillRect(x-r,y-r,2*r,2*r);g.globalAlpha=1}
+function starfield(strength){for(const s of stars){g.fillStyle=`rgba(157,199,226,${s.a*strength*(.8+.2*Math.sin(t*.3+s.p))})`;g.beginPath();g.arc(s.x*w,s.y*h,s.r,0,TAU);g.fill()}}
+// Crystal geometry is generated once per bloom. Only a bounded garden is retained.
+let blooms=[],nextBloom=0;
+function makeBloom(born){const scale=Math.min(w,h),cx=w*(.5+.29*Math.sin(born*.105)+.05*Math.sin(born*.39)),cy=h*(.52+.24*Math.cos(born*.13)),segments=[];let end=0;
+function branch(x,y,angle,length,depth,start){const steps=depth===0?8:4;let at=start;for(let i=0;i<steps;i++){const a={x,y},bend=range(-.12,.12);angle+=bend;const len=length/steps,b={x:x+Math.cos(angle)*len,y:y+Math.sin(angle)*len},duration=len/(scale*.033);segments.push({a,b,start:at,duration,depth});at+=duration;x=b.x;y=b.y;end=Math.max(end,at);
+if(depth<2&&i>0&&i<steps-1){for(const side of [-1,1])branch(x,y,angle+side*(Math.PI/3+range(-.07,.07)),length*(depth===0?.30:.38)*(1-i/steps*.45),depth+1,at+.12)}}}
+const rotation=range(0,TAU),size=scale*range(.16,.26);for(let k=0;k<6;k++)branch(cx,cy,rotation+k*TAU/6,size*range(.7,1.1),0,k*.24);
+return{born,segments,end,cx,cy};}
+function ice(dt){backdrop('#030b15');starfield(.16);if(t>=nextBloom){blooms.push(makeBloom(t));nextBloom=t+7.5}blooms=blooms.filter(b=>t-b.born<b.end+24);
+g.globalCompositeOperation='screen';for(const b of blooms){const age=t-b.born,fade=clamp((b.end+24-age)/12),grow=clamp(age/2);glow(b.cx,b.cy,Math.min(w,h)*.22,'rgba(46,124,164,.035)',fade*grow);
+for(const s of b.segments){const u=clamp((age-s.start)/s.duration);if(!u)continue;const e={x:mix(s.a.x,s.b.x,u),y:mix(s.a.y,s.b.y,u)},a=fade*(s.depth===0?.8:s.depth===1?.58:.38);line(s.a,e,`rgba(94,180,222,${a*.12})`,s.depth===0?6:3);line(s.a,e,`rgba(180,230,255,${a})`,s.depth===0?1.25:.7);
+if(u<1&&s.depth<2){glow(e.x,e.y,s.depth===0?13:6,'rgba(132,222,255,.23)',fade);g.fillStyle=`rgba(219,249,255,${fade})`;g.fillRect(e.x-.8,e.y-.8,1.6,1.6)}}}
+// One roaming spark binds the separate growths into a continuous field.
+const x=w*(.5+.29*Math.sin(t*.105)+.05*Math.sin(t*.39)),y=h*(.52+.24*Math.cos(t*.13));glow(x,y,18,'rgba(121,221,255,.22)');glow(x,y,2,'#e2faff');g.globalCompositeOperation='source-over';}
+// Independent dust motes loosely gather into wing-shaped currents, then unwind.
+const forceHash=n=>{const v=Math.sin(n*127.1+311.7)*43758.5453;return v-Math.floor(v)};
+const forceDust=Array.from({length:2600},(_,i)=>({group:i%23,a:forceHash(i*7+1),b:forceHash(i*7+2),c:forceHash(i*7+3),d:forceHash(i*7+4),e:forceHash(i*7+5)}));
+function archive(){
+backdrop('#030812');starfield(.10);
+const scale=Math.min(w*.39,h*.65),cx=w*.5,cy=h*.53;
+const groups=Array.from({length:23},(_,i)=>{const phase=i*2.39996+t*(.022+.008*Math.sin(i*1.7)),r=1.06*Math.sqrt(i/22);return{x:Math.cos(phase)*r*1.25+.10*Math.sin(t*.09+i),y:Math.sin(phase)*r*.66+.08*Math.cos(t*.07+i*2),angle:phase+Math.PI/2+.5*Math.sin(t*.065+i),gather:.18+.45*(.5+.5*Math.sin(t*.13+i*1.9))**2,size:.09+.09*forceHash(i+800)}});
+g.globalCompositeOperation='screen';glow(cx,cy,scale,'rgba(29,107,163,.025)');
+for(const p of forceDust){const group=groups[p.group],u=p.a*2-1,orbit=p.b*TAU+t*(.075+.07*p.c),radius=Math.sqrt(p.d)*group.size*1.9;
+const wingX=-Math.abs(u)*group.size*.95+(p.b-.5)*group.size*.85,wingY=u*group.size*1.5+(p.d-.5)*group.size*.65;
+const localX=mix(Math.cos(orbit)*radius,wingX,group.gather),localY=mix(Math.sin(orbit)*radius,wingY,group.gather);
+const x=group.x+localX*Math.cos(group.angle)-localY*Math.sin(group.angle),y=group.y+localX*Math.sin(group.angle)+localY*Math.cos(group.angle);
+const driftX=.018*Math.sin(t*.19+p.e*TAU+y*4),driftY=.018*Math.cos(t*.16+p.c*TAU+x*3),px=cx+(x+driftX)*scale,py=cy+(y+driftY)*scale;
+const breathing=.65+.35*Math.sin(t*.17+p.e*TAU)**2,alpha=(.16+.53*p.c)*breathing,color=p.e>.8?'233,195,133':'117,201,239';
+g.fillStyle=`rgba(${color},${alpha})`;g.beginPath();g.arc(px,py,.35+p.d*.72,0,TAU);g.fill();if(p.c>.93)glow(px,py,4.5,`rgba(${color},.10)`,breathing);
+}g.globalCompositeOperation='source-over';}
+
+// Wide, slowly moving waves with smooth birth and decay and compressed highlights.
+const field=document.createElement('canvas');field.width=256;field.height=160;const fg=field.getContext('2d'),image=fg.createImageData(256,160);let waves=[],lastWave=-1,lastField=-1;
+function source(time){return{x:.5+.23*Math.sin(time*.065),y:.53+.18*Math.cos(time*.052)}}
+function wave(){backdrop('#020b13');const head=source(t);
+// Derive ripple ages from time: no spawning jumps, and each pulse starts at zero strength.
+const active=[];for(let k=Math.max(0,Math.floor((t-30)/3));k<=Math.floor(t/3);k++){const age=t-k*3,p=source(k*3);if(age<30)active.push({...p,age,strength:(1-Math.exp(-age*age/5))*Math.exp(-age/12)*(1-clamp((age-24)/6))**2})}
+for(let y=0;y<160;y++)for(let x=0;x<256;x++){const xx=x/256,yy=y/160;let value=0;for(const p of active){const dx=(xx-p.x)*1.6,dy=yy-p.y,d=Math.sqrt(dx*dx+dy*dy),q=(d-p.age*.036)/.12;value+=Math.cos(q*3.5)*Math.exp(-q*q*.8)*p.strength}
+const edge=clamp(Math.min(xx,1-xx,yy,1-yy)*6),positive=(Math.sqrt(value*value+.025)+value)*.5-.079,light=(1-Math.exp(-Math.max(0,positive)*.8))*edge,idx=(y*256+x)*4;image.data[idx]=3+light*42;image.data[idx+1]=12+light*157;image.data[idx+2]=21+light*166;image.data[idx+3]=255}fg.putImageData(image,0,0);g.drawImage(field,0,0,w,h);
+g.globalCompositeOperation='screen';const dip=.78+.22*Math.sin(t*.09);glow(head.x*w,head.y*h,25,'rgba(59,234,208,.18)',dip);glow(head.x*w,head.y*h,2.1,'#d9fff6',dip);g.globalCompositeOperation='source-over';}
+
+
+seed=61843;
+return function(target,width,height,now){const changed=width!==w||height!==h;
+if(previousNow===null||now-previousNow>=32||changed){const dt=previousNow===null?0:Math.min(.1,Math.max(0,(now-previousNow)/1000));previousNow=now;t+=dt;
+if(changed){w=width;h=height;dpr=Math.min(devicePixelRatio||1,1.5,2200/Math.max(w,h));canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);g.setTransform(dpr,0,0,dpr,0,0);blooms=[];nextBloom=t}
+if(mode==='ice')ice(dt);else if(mode==='archive')archive();else wave();}
+target.save();target.globalAlpha=1;target.globalCompositeOperation='source-over';target.filter='none';target.shadowBlur=0;target.drawImage(canvas,0,0,width,height);target.restore();};}
+function standbyRenderApprovedStudy(g,w,h,theme){if(!approvedStudyEngine||approvedStudySession!==standbyStarted||approvedStudyTheme!==theme){approvedStudyEngine=createApprovedStudy(theme==='arcticCommand'?'ice':theme==='jediArchive'?'archive':'wave');approvedStudySession=standbyStarted;approvedStudyTheme=theme}approvedStudyEngine(g,w,h,performance.now())}
     drawStandby=function(){
       if(!standbyActive)return;
       standbyTime();
@@ -5302,14 +5367,14 @@ function standbyRenderOceanComet(g,w,h){if(!oceanCometEngine||oceanCometSession!
         x.clearRect(0,0,w,h);
         x.globalCompositeOperation="source-over";
         if(theme==="auroraGlass"){c.style.filter="none";standbyRenderAuroraComet(x,w,h,boost)}
-        else if(theme==="holographic")standbyRenderHolographicTelemetry(x,w,h,t,boost,ramp);
+        else if(theme==="holographic"){if(!standbyBedside)c.style.filter="none";standbyRenderApprovedStudy(x,w,h,theme)}
         else if(theme==="noirTerminal")standbyRenderNoirTelemetry(x,w,h,t,boost,ramp);
         else if(theme==="astrometrics"){if(!standbyBedside)c.style.filter="none";standbyRenderOceanComet(x,w,h)}
         else if(theme==="starshipConsole")standbyRenderSpaceFlight(x,w,h,t,boost,ramp);
-        else if(theme==="arcticCommand")standbyRenderCalmerArctic(x,w,h,t,boost,ramp);
+        else if(theme==="arcticCommand"){if(!standbyBedside)c.style.filter="none";standbyRenderApprovedStudy(x,w,h,theme)}
         else if(theme==="deepSea")standbySigDeepSea(x,w,h,t,boost,ramp);
         else if(theme==="imperialDatapad")standbyRenderImperialSlowScans(x,w,h,t,boost,ramp);
-        else if(theme==="jediArchive")standbyRenderJediArchiveTelemetry(x,w,h,t,boost,ramp);
+        else if(theme==="jediArchive"){if(!standbyBedside)c.style.filter="none";standbyRenderApprovedStudy(x,w,h,theme)}
         else if(theme==="solarTemple")standbyRenderSolarAtmosphere(x,w,h,t,boost,ramp);
         else if(theme==="obsidianLab")standbyRenderObsidianTelemetry(x,w,h,t,boost,ramp);
         else if(theme==="artDeco")standbyRenderArtDecoReliable(x,w,h,t,boost,ramp);
